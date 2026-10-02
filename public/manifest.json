@@ -1,0 +1,16 @@
+{
+  "short_name": "Aleez",
+  "name": "Aleez Perfumes - Luxury Fragrance Boutique",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FAF9F6",
+  "theme_color": "#B8860B",
+  "display": "standalone",
+  "orientation": "portrait"
+}
