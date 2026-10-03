@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   X,
   ExternalLink,
+  Download,
 } from 'lucide-react';
 import { dbService } from '../lib/supabase';
 import { Order, OrderStatus } from '../types';
@@ -27,6 +28,54 @@ export const AdminOrders: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const { formatPrice } = useSettings();
+
+  const exportToCSV = () => {
+    if (orders.length === 0) return;
+    const headers = [
+      'Order Number',
+      'Date',
+      'Customer Name',
+      'Email',
+      'Phone',
+      'Address',
+      'City',
+      'State',
+      'Pincode',
+      'Subtotal',
+      'Shipping Charge',
+      'Total Amount',
+      'Payment Status',
+      'Order Status',
+    ];
+
+    const rows = orders.map((o) => [
+      o.order_number,
+      new Date(o.created_at).toLocaleDateString('en-IN'),
+      `"${(o.customer_name || '').replace(/"/g, '""')}"`,
+      o.customer_email || '',
+      `'${o.customer_phone || ''}`,
+      `"${(o.shipping_address || '').replace(/"/g, '""')}"`,
+      `"${(o.shipping_city || '').replace(/"/g, '""')}"`,
+      `"${(o.shipping_state || '').replace(/"/g, '""')}"`,
+      o.shipping_pincode || '',
+      o.subtotal,
+      o.shipping_charge,
+      o.total_amount,
+      o.payment_status,
+      o.order_status,
+    ]);
+
+    const csvContent =
+      'data:text/csv;charset=utf-8,' +
+      [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `aleez_orders_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const loadOrders = async () => {
     try {
@@ -108,6 +157,16 @@ export const AdminOrders: React.FC = () => {
             Monitor client orders, inspect purchased items, and update delivery dispatch coordinates.
           </p>
         </div>
+
+        <button
+          onClick={exportToCSV}
+          disabled={orders.length === 0}
+          type="button"
+          className="px-4 py-2.5 rounded-lg border border-luxury-border hover:border-luxury-gold bg-white hover:bg-stone-50 text-luxury-dark text-xs uppercase tracking-wider font-semibold transition-all flex items-center space-x-2 shadow-xs disabled:opacity-50"
+        >
+          <Download className="w-4 h-4 text-luxury-gold" />
+          <span>Export CSV ({orders.length})</span>
+        </button>
       </div>
 
       {/* Filter and Search */}

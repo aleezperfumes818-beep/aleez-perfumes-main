@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
-import { CheckCircle2, Package, Truck, MessageCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Package, Truck, MessageCircle, ArrowRight, ShieldCheck, Printer } from 'lucide-react';
 import { Order } from '../types';
 import { dbService } from '../lib/supabase';
 import { useSettings } from '../context/SettingsContext';
@@ -36,6 +36,10 @@ export const OrderSuccessPage: React.FC = () => {
   const whatsAppTrackingMessage = `Hi Aleez Perfumes, I have placed Order #${orderNumber}. Could you please share dispatch and tracking updates?`;
   const whatsAppUrl = `https://wa.me/919345526905?text=${encodeURIComponent(whatsAppTrackingMessage)}`;
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 text-center">
@@ -45,9 +49,9 @@ export const OrderSuccessPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 space-y-8 animate-fade-in text-[#141414]">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 space-y-8 animate-fade-in text-[#141414] print:p-0 print:m-0">
       {/* Success Badge */}
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-4 print:hidden">
         <div className="w-16 h-16 bg-[#B8860B]/15 text-[#B8860B] border border-[#B8860B]/40 rounded-full flex items-center justify-center mx-auto shadow-sm">
           <CheckCircle2 className="w-9 h-9" />
         </div>
@@ -63,7 +67,7 @@ export const OrderSuccessPage: React.FC = () => {
       </div>
 
       {/* Order Info Card */}
-      <div className="bg-white border border-[#EAE5DC] rounded-2xl p-6 sm:p-8 space-y-6 shadow-card">
+      <div className="bg-white border border-[#EAE5DC] rounded-2xl p-6 sm:p-8 space-y-6 shadow-card print:border-none print:shadow-none">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#EAE5DC] gap-4">
           <div>
             <span className="text-[11px] uppercase tracking-wider text-[#777777] block font-medium">
@@ -162,7 +166,7 @@ export const OrderSuccessPage: React.FC = () => {
         )}
 
         {/* Actions */}
-        <div className="pt-6 border-t border-[#EAE5DC] flex flex-col sm:flex-row gap-4">
+        <div className="pt-6 border-t border-[#EAE5DC] flex flex-col sm:flex-row gap-3 print:hidden">
           <a
             href={whatsAppUrl}
             target="_blank"
@@ -172,6 +176,15 @@ export const OrderSuccessPage: React.FC = () => {
             <MessageCircle className="w-4 h-4 fill-white" />
             <span>Track Order on WhatsApp</span>
           </a>
+
+          <button
+            onClick={handlePrint}
+            type="button"
+            className="px-5 py-3.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-[#141414] text-xs uppercase tracking-wider font-semibold transition-colors flex items-center justify-center space-x-2 shadow-sm"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Print Receipt</span>
+          </button>
 
           <Link
             to="/shop"

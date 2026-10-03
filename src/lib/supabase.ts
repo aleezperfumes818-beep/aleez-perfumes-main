@@ -387,34 +387,37 @@ export const dbService = {
 
   // --- IMAGE UPLOAD HELPER ---
   async uploadImage(file: File): Promise<string> {
-    // If Supabase Storage is configured, upload to 'product-images' bucket
-    if (supabase) {
-      try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-        const filePath = `uploads/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('product-images')
-          .upload(filePath, file);
-
-        if (!uploadError) {
-          const { data } = supabase.storage
-            .from('product-images')
-            .getPublicUrl(filePath);
-          if (data?.publicUrl) return data.publicUrl;
-        }
-      } catch (err) {
-        console.warn('Supabase storage upload failed, converting to local data URI:', err);
-      }
-    }
-
-    // Fallback: convert file to Base64 Data URL for zero-friction local storage and preview
-    return new Promise((resolve, reject) => {
+    // 1. Read file as Base64 Data URL
+    const base64Data: string = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
+
+    // 2. Upload to Supabase Storage CDN via backend API (service role bypasses RLS)
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fileData: base64Data,
+          fileName: file.name,
+          contentType: file.type || 'image/jpeg',
+        }),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.url) {
+          return json.url;
+        }
+      }
+    } catch (err) {
+      console.warn('Backend image upload endpoint unreachable, falling back to local data URI:', err);
+    }
+
+    // 3. Fallback: return Base64 Data URL for preview and local storage
+    return base64Data;
   },
 };

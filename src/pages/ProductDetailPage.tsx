@@ -45,6 +45,7 @@ export const ProductDetailPage: React.FC = () => {
 
         if (found) {
           setProduct(found);
+          document.title = `${found.name} | Aleez Perfumes`;
           setSelectedImageIndex(0);
           setQuantity(1);
 
@@ -61,6 +62,10 @@ export const ProductDetailPage: React.FC = () => {
     };
     fetchProduct();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    return () => {
+      document.title = 'Aleez Perfumes | Discover Your Signature Scent';
+    };
   }, [slug]);
 
   if (loading) {

@@ -16,7 +16,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Initialize Supabase Admin Client (if configured)
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -335,6 +336,48 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
   } catch (error) {
     console.error('Error verifying payment:', error);
     return res.status(500).json({ success: false, message: error.message || 'Payment verification failed' });
+  }
+// --- 4. IMAGE UPLOAD TO SUPABASE STORAGE ---
+app.post('/api/upload', async (req, res) => {
+  try {
+    const { fileData, fileName, contentType } = req.body;
+    if (!fileData || !fileName) {
+      return res.status(400).json({ error: 'Missing fileData or fileName' });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({ error: 'Supabase storage is not configured' });
+    }
+
+    const base64Content = fileData.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Content, 'base64');
+    const ext = fileName.split('.').pop() || 'jpg';
+    const filePath = `uploads/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
+
+    const { data, error } = await supabase.storage
+      .from('product-images')
+      .upload(filePath, buffer, {
+        contentType: contentType || 'image/jpeg',
+        upsert: true,
+      });
+
+    if (error) {
+      console.error('Storage upload error:', error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    const { data: publicData } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(filePath);
+
+    return res.json({
+      success: true,
+      url: publicData.publicUrl,
+      path: filePath,
+    });
+  } catch (err) {
+    console.error('Upload endpoint error:', err);
+    return res.status(500).json({ error: err.message || 'Image upload failed' });
   }
 });
 
