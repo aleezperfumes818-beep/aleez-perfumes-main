@@ -31,6 +31,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [safetyTimeout, setSafetyTimeout] = useState(false);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setSafetyTimeout(true);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   React.useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -65,7 +73,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: 'Store Settings', path: '/admin/settings', icon: Settings },
   ];
 
-  if (isLoading) {
+  if (isLoading && !safetyTimeout) {
     return (
       <div className="min-h-screen bg-luxury-cream flex items-center justify-center text-luxury-dark">
         <div className="w-8 h-8 border-2 border-luxury-gold border-t-transparent rounded-full animate-spin" />
@@ -106,7 +114,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 required
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
-                placeholder="admin@aleezperfumes.com"
+                placeholder="aleez.perfumes818@gmail.com"
                 className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3.5 py-2.5 text-xs text-luxury-dark focus:outline-none"
               />
             </div>

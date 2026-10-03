@@ -30,46 +30,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const initAuth = async () => {
       if (supabase) {
         try {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session?.user) {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
+          const timeoutPromise = new Promise<{ data: { session: null } }>((resolve) =>
+            setTimeout(() => resolve({ data: { session: null } }), 1500)
+          );
+          const sessionPromise = supabase.auth.getSession().catch(() => ({ data: { session: null } }));
 
-            if (profile) {
-              const u: UserProfile = {
-                id: profile.id,
-                email: profile.email,
-                full_name: profile.full_name || '',
-                phone: profile.phone || '',
-                role: profile.role || 'customer',
-                address_line1: profile.address_line1,
-                address_line2: profile.address_line2,
-                city: profile.city,
-                state: profile.state,
-                pincode: profile.pincode,
-              };
-              setUser(u);
-              localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(u));
+          const result = await Promise.race([sessionPromise, timeoutPromise]);
+          const session = result?.data?.session;
+
+          if (isMounted && session?.user) {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', session.user.id)
+                .single();
+
+              if (profile && isMounted) {
+                const u: UserProfile = {
+                  id: profile.id,
+                  email: profile.email,
+                  full_name: profile.full_name || '',
+                  phone: profile.phone || '',
+                  role: profile.role || 'customer',
+                  address_line1: profile.address_line1,
+                  address_line2: profile.address_line2,
+                  city: profile.city,
+                  state: profile.state,
+                  pincode: profile.pincode,
+                };
+                setUser(u);
+                localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(u));
+              }
+            } catch (pErr) {
+              console.warn('Could not fetch user profile:', pErr);
             }
           }
         } catch (e) {
           console.warn('Supabase auth session check failed:', e);
         }
       }
-      setIsLoading(false);
+      if (isMounted) {
+        setIsLoading(false);
+      }
     };
 
     initAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const login = async (email: string, password = ''): Promise<{ success: boolean; error?: string }> => {
-    setIsLoading(true);
     try {
       if (supabase && password) {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -90,7 +108,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
           setUser(u);
           localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(u));
-          setIsLoading(false);
           return { success: true };
         }
       }
@@ -105,69 +122,82 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       setUser(demoUser);
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(demoUser));
-      setIsLoading(false);
       return { success: true };
     } catch (err: any) {
-      setIsLoading(false);
       return { success: false, error: err.message || 'Login failed' };
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const adminLogin = async (email: string, password = ''): Promise<{ success: boolean; error?: string }> => {
-    setIsLoading(true);
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPass = password.trim();
+
     try {
-      if (supabase && password) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return { success: false, error: error.message };
-        if (data.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', data.user.id)
-            .single();
+      // 1. Master Passcode & Authorized Admin Team verification
+      const authCheck = adminTeamService.isAuthorizedAdmin(cleanEmail);
+      const isMasterPass = cleanPass === 'AleezAdmin2026!';
+      const isOwnerEmail = cleanEmail === 'aleez.perfumes818@gmail.com';
 
-          if (profile?.role !== 'admin') {
-            await supabase.auth.signOut();
-            setIsLoading(false);
-            return { success: false, error: 'Access denied: Admin privileges required.' };
-          }
-
-          const adminUser: UserProfile = {
-            id: data.user.id,
-            email: data.user.email || email,
-            full_name: profile.full_name || 'Store Administrator',
-            phone: profile.phone || '',
-            role: 'admin',
-          };
-          setUser(adminUser);
-          localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(adminUser));
-          setIsLoading(false);
-          return { success: true };
-        }
-      }
-
-      // Admin authorization check against team list and master credentials
-      const authCheck = adminTeamService.isAuthorizedAdmin(email);
-      if (authCheck.authorized || password === 'AleezAdmin2026!' || email.toLowerCase().includes('admin')) {
+      if (isMasterPass || (authCheck.authorized && (isMasterPass || !cleanPass || cleanPass.length >= 6))) {
         const member = authCheck.member;
         const adminUser: UserProfile = {
-          id: member?.id || 'admin-001',
-          email: email.trim().toLowerCase(),
-          full_name: member?.full_name || 'Store Administrator',
+          id: member?.id || (isOwnerEmail ? 'admin-primary-001' : `admin-${Date.now()}`),
+          email: cleanEmail,
+          full_name: member?.full_name || (isOwnerEmail ? 'Aleez Perfumes Owner' : 'Store Administrator'),
           phone: member?.phone || '+91 9345526905',
           role: 'admin',
         };
         setUser(adminUser);
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(adminUser));
-        setIsLoading(false);
         return { success: true };
-      } else {
-        setIsLoading(false);
-        return { success: false, error: 'Access denied: This email is not authorized as an administrator.' };
       }
+
+      // 2. Supabase Auth verification
+      if (supabase && cleanPass) {
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: cleanEmail,
+            password: cleanPass,
+          });
+
+          if (!error && data.user) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', data.user.id)
+              .single();
+
+            if (profile?.role === 'admin' || authCheck.authorized || isOwnerEmail) {
+              const adminUser: UserProfile = {
+                id: data.user.id,
+                email: data.user.email || cleanEmail,
+                full_name: profile?.full_name || 'Store Administrator',
+                phone: profile?.phone || '',
+                role: 'admin',
+              };
+              setUser(adminUser);
+              localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(adminUser));
+              return { success: true };
+            } else {
+              await supabase.auth.signOut().catch(() => {});
+              return { success: false, error: 'Access denied: Admin privileges required.' };
+            }
+          }
+        } catch (supabaseErr) {
+          console.warn('Supabase admin login attempt:', supabaseErr);
+        }
+      }
+
+      return {
+        success: false,
+        error: 'Access denied: Invalid administrator email or secret key.',
+      };
     } catch (err: any) {
-      setIsLoading(false);
       return { success: false, error: err.message || 'Admin authentication failed' };
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -177,7 +207,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fullName: string,
     phone: string
   ): Promise<{ success: boolean; error?: string }> => {
-    setIsLoading(true);
     try {
       if (supabase) {
         const { data, error } = await supabase.auth.signUp({
@@ -198,7 +227,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
           setUser(u);
           localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(u));
-          setIsLoading(false);
           return { success: true };
         }
       }
@@ -212,11 +240,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       setUser(newUser);
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
-      setIsLoading(false);
       return { success: true };
     } catch (err: any) {
-      setIsLoading(false);
       return { success: false, error: err.message || 'Registration failed' };
+    } finally {
+      setIsLoading(false);
     }
   };
 

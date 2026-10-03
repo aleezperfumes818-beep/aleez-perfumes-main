@@ -47,16 +47,28 @@ const saveToStorage = <T>(key: string, data: T): void => {
   }
 };
 
+// Safe timeout wrapper for external database queries
+const withTimeout = <T>(promise: PromiseLike<T>, timeoutMs = 3500): Promise<T> => {
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error('Supabase request timed out')), timeoutMs)
+    ),
+  ]);
+};
+
 // Database Service Layer
 export const dbService = {
   // --- PRODUCTS ---
   async getProducts(): Promise<Product[]> {
     if (supabase) {
       try {
-        const { data, error } = await supabase
-          .from('products')
-          .select('*, product_images(*)')
-          .order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(
+          supabase
+            .from('products')
+            .select('*, product_images(*)')
+            .order('created_at', { ascending: false })
+        );
 
         if (!error && data && data.length > 0) {
           return data.map((p) => ({
@@ -180,10 +192,12 @@ export const dbService = {
   async getCategories(): Promise<Category[]> {
     if (supabase) {
       try {
-        const { data, error } = await supabase
-          .from('categories')
-          .select('*')
-          .order('display_order', { ascending: true });
+        const { data, error } = await withTimeout(
+          supabase
+            .from('categories')
+            .select('*')
+            .order('display_order', { ascending: true })
+        );
 
         if (!error && data && data.length > 0) {
           return data;
@@ -252,10 +266,12 @@ export const dbService = {
   async getOrders(): Promise<Order[]> {
     if (supabase) {
       try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*, order_items(*)')
-          .order('created_at', { ascending: false });
+        const { data, error } = await withTimeout(
+          supabase
+            .from('orders')
+            .select('*, order_items(*)')
+            .order('created_at', { ascending: false })
+        );
 
         if (!error && data && data.length > 0) {
           return data.map((o) => ({
@@ -334,11 +350,13 @@ export const dbService = {
   async getSettings(): Promise<StoreSettings> {
     if (supabase) {
       try {
-        const { data, error } = await supabase
-          .from('store_settings')
-          .select('value')
-          .eq('key', 'general')
-          .single();
+        const { data, error } = await withTimeout(
+          supabase
+            .from('store_settings')
+            .select('value')
+            .eq('key', 'general')
+            .single()
+        );
 
         if (!error && data && data.value) {
           return { ...initialSettings, ...data.value };
