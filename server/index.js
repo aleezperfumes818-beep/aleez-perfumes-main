@@ -337,6 +337,8 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
     console.error('Error verifying payment:', error);
     return res.status(500).json({ success: false, message: error.message || 'Payment verification failed' });
   }
+});
+
 // --- 4. IMAGE UPLOAD TO SUPABASE STORAGE ---
 app.post('/api/upload', async (req, res) => {
   try {
@@ -379,6 +381,8 @@ app.post('/api/upload', async (req, res) => {
     console.error('Upload endpoint error:', err);
     return res.status(500).json({ error: err.message || 'Image upload failed' });
   }
+});
+
 // --- 5. ADMIN PRODUCT MANAGEMENT ---
 app.post('/api/admin/products', async (req, res) => {
   try {
