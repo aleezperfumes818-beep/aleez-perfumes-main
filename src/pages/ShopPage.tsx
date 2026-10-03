@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Filter, SlidersHorizontal, X, Search, Sparkles, Check } from 'lucide-react';
-import { ProductCard } from '../components/ProductCard';
+import { ProductCard, inspiredByMap } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
 import { Product, Category } from '../types';
 import { dbService } from '../lib/supabase';
@@ -77,11 +77,14 @@ export const ShopPage: React.FC = () => {
         const q = searchQuery.toLowerCase().trim();
         const matchesName = p.name.toLowerCase().includes(q);
         const matchesCat = (p.category_name || '').toLowerCase().includes(q);
+        const matchesInspired =
+          (p.inspired_by || '').toLowerCase().includes(q) ||
+          (p.name in inspiredByMap && inspiredByMap[p.name].toLowerCase().includes(q));
         const matchesNotes =
           (p.top_notes || '').toLowerCase().includes(q) ||
           (p.heart_notes || '').toLowerCase().includes(q) ||
           (p.base_notes || '').toLowerCase().includes(q);
-        if (!matchesName && !matchesCat && !matchesNotes) return false;
+        if (!matchesName && !matchesCat && !matchesInspired && !matchesNotes) return false;
       }
 
       return true;

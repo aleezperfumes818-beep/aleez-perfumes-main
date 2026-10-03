@@ -417,6 +417,7 @@ app.post('/api/admin/products', async (req, res) => {
       sale_price: product.sale_price ? Number(product.sale_price) : null,
       description: product.description || '',
       fragrance_family: product.fragrance_family || null,
+      inspired_by: product.inspired_by ? product.inspired_by.trim() : null,
       top_notes: product.top_notes || null,
       heart_notes: product.heart_notes || null,
       base_notes: product.base_notes || null,
@@ -429,11 +430,19 @@ app.post('/api/admin/products', async (req, res) => {
       is_active: product.is_active !== undefined ? product.is_active : true,
     };
 
-    const { data: savedProduct, error: pError } = await supabase
+    let { data: savedProduct, error: pError } = await supabase
       .from('products')
       .upsert(dbPayload)
       .select('*')
       .single();
+
+    // If inspired_by column is not yet migrated in Supabase, retry without failing
+    if (pError && pError.message && pError.message.includes('inspired_by')) {
+      delete dbPayload.inspired_by;
+      const retry = await supabase.from('products').upsert(dbPayload).select('*').single();
+      savedProduct = retry.data;
+      pError = retry.error;
+    }
 
     if (pError) {
       console.error('Supabase product upsert error:', pError);

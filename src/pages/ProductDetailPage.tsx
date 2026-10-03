@@ -18,7 +18,7 @@ import { dbService } from '../lib/supabase';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useSettings } from '../context/SettingsContext';
-import { ProductCard } from '../components/ProductCard';
+import { ProductCard, inspiredByMap } from '../components/ProductCard';
 
 export const ProductDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -222,6 +222,20 @@ export const ProductDetailPage: React.FC = () => {
             <h1 className="font-serif text-3xl sm:text-4xl text-[#141414] font-medium leading-tight">
               {product.name}
             </h1>
+
+            {/* Inspired By Formulation Tag */}
+            {(product.inspired_by || (product.name && inspiredByMap[product.name])) && (
+              <div className="pt-1 pb-1">
+                <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#7A5B10] bg-[#F7F3EB] border border-[#E8DFD0] px-3 py-1 rounded-full font-medium shadow-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-[#B8860B]" />
+                  {product.inspired_by
+                    ? product.inspired_by.toLowerCase().startsWith('inspired by')
+                      ? product.inspired_by
+                      : `Inspired by ${product.inspired_by}`
+                    : inspiredByMap[product.name]}
+                </span>
+              </div>
+            )}
 
             {product.fragrance_family && (
               <p className="text-xs uppercase tracking-widest text-[#B8860B] font-semibold">

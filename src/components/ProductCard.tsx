@@ -11,7 +11,7 @@ interface ProductCardProps {
   onQuickView?: (product: Product) => void;
 }
 
-const inspiredByMap: Record<string, string> = {
+export const inspiredByMap: Record<string, string> = {
   'Royal Amber Royale': 'Inspired by Baccarat Rouge 540',
   'Velvet Oud Noir': 'Inspired by Tom Ford Ombré Leather',
   'Santal Imperial': 'Inspired by Le Labo Santal 33',
@@ -154,10 +154,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           </div>
 
           {/* Inspired By Formulation Tag */}
-          {inspiredByMap[product.name] && (
+          {(product.inspired_by || inspiredByMap[product.name]) && (
             <div className="mb-1.5">
               <span className="inline-block text-[10px] uppercase tracking-wider text-[#7A5B10] bg-[#F7F3EB] border border-[#E8DFD0] px-2 py-0.5 rounded-full font-medium">
-                {inspiredByMap[product.name]}
+                {product.inspired_by
+                  ? product.inspired_by.toLowerCase().startsWith('inspired by')
+                    ? product.inspired_by
+                    : `Inspired by ${product.inspired_by}`
+                  : inspiredByMap[product.name]}
               </span>
             </div>
           )}

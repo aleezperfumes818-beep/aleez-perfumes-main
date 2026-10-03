@@ -37,6 +37,7 @@ export const AdminProducts: React.FC = () => {
   // Form State
   const [formData, setFormData] = useState({
     name: '',
+    inspired_by: '',
     slug: '',
     category_id: '',
     price: '',
@@ -99,6 +100,7 @@ export const AdminProducts: React.FC = () => {
     setEditingProduct(null);
     setFormData({
       name: '',
+      inspired_by: '',
       slug: '',
       category_id: categories[0]?.id || '',
       price: '',
@@ -125,6 +127,7 @@ export const AdminProducts: React.FC = () => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
+      inspired_by: product.inspired_by || '',
       slug: product.slug,
       category_id: product.category_id,
       price: product.price.toString(),
@@ -273,6 +276,7 @@ export const AdminProducts: React.FC = () => {
       const productPayload: Partial<Product> = {
         id: editingProduct?.id,
         name: formData.name.trim(),
+        inspired_by: formData.inspired_by.trim(),
         slug: formData.slug.trim(),
         category_id: formData.category_id,
         category_name: selectedCat?.name || 'Fragrance',
@@ -472,6 +476,11 @@ export const AdminProducts: React.FC = () => {
                           <span className="font-serif text-sm font-medium text-luxury-dark block">
                             {p.name}
                           </span>
+                          {p.inspired_by && (
+                            <span className="text-[10px] text-[#A08040] block font-medium">
+                              {p.inspired_by.toLowerCase().startsWith('inspired by') ? p.inspired_by : `Inspired by ${p.inspired_by}`}
+                            </span>
+                          )}
                           <span className="text-[10px] text-stone-400 font-mono">{p.sku}</span>
                         </div>
                       </td>
@@ -627,6 +636,28 @@ export const AdminProducts: React.FC = () => {
                     <p className="text-xs text-red-500 mt-1">{formErrors.slug}</p>
                   )}
                 </div>
+              </div>
+
+              {/* Inspired By Field */}
+              <div className="bg-[#FAF7F2] p-3.5 rounded-lg border border-[#E8DFD0]">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs uppercase tracking-wider text-[#7A5B10] font-semibold">
+                    Inspired By / Designer Impression (Optional)
+                  </label>
+                  <span className="text-[10px] text-[#A08040] bg-[#F3ECE0] px-2 py-0.5 rounded-full font-medium">
+                    Displayed on product badges &amp; search
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={formData.inspired_by}
+                  onChange={(e) => setFormData({ ...formData, inspired_by: e.target.value })}
+                  placeholder="e.g. Creed Aventus, Baccarat Rouge 540, Tom Ford Tuscan Leather"
+                  className="w-full bg-white border border-[#E0D7C6] focus:border-[#B8860B] rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none transition-colors"
+                />
+                <p className="text-[11px] text-stone-500 mt-1">
+                  Enter the designer inspiration (e.g. <em>Creed Aventus</em> or <em>Baccarat Rouge 540</em>). Shoplisters will see an &quot;Inspired by&quot; luxury badge on the card and detail page, and can search for this name in the shop catalog.
+                </p>
               </div>
 
               {/* Category, SKU, Volume */}

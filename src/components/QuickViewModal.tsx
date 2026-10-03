@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { X, Heart, ShoppingBag, Check, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Product } from '../types';
+import { inspiredByMap } from './ProductCard';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useSettings } from '../context/SettingsContext';
@@ -107,7 +108,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                 <span>{product.volume_ml} ML</span>
               </div>
 
-              <h2 className="font-serif text-2xl text-[#141414] mb-2 font-medium">{product.name}</h2>
+              <h2 className="font-serif text-2xl text-[#141414] mb-1 font-medium">{product.name}</h2>
+
+              {/* Inspired By Formulation Tag */}
+              {(product.inspired_by || (product.name && inspiredByMap[product.name])) && (
+                <div className="mb-2">
+                  <span className="inline-block text-[10px] uppercase tracking-wider text-[#7A5B10] bg-[#F7F3EB] border border-[#E8DFD0] px-2 py-0.5 rounded-full font-medium">
+                    {product.inspired_by
+                      ? product.inspired_by.toLowerCase().startsWith('inspired by')
+                        ? product.inspired_by
+                        : `Inspired by ${product.inspired_by}`
+                      : inspiredByMap[product.name]}
+                  </span>
+                </div>
+              )}
 
               {/* Price & Rating */}
               <div className="flex items-center space-x-3 mb-4">

@@ -17,6 +17,7 @@ export interface Product {
   sale_price?: number | null;
   description: string;
   fragrance_family?: string;
+  inspired_by?: string;
   top_notes?: string;
   heart_notes?: string;
   base_notes?: string;

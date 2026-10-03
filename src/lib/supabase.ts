@@ -122,6 +122,7 @@ export const dbService = {
       sale_price: product.sale_price ? Number(product.sale_price) : null,
       description: product.description || '',
       fragrance_family: product.fragrance_family || '',
+      inspired_by: product.inspired_by || '',
       top_notes: product.top_notes || '',
       heart_notes: product.heart_notes || '',
       base_notes: product.base_notes || '',
