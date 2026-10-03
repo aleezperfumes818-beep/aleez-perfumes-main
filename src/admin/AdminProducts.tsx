@@ -57,6 +57,7 @@ export const AdminProducts: React.FC = () => {
 
   const [formImages, setFormImages] = useState<ProductImage[]>([]);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const { formatPrice } = useSettings();
@@ -226,21 +227,48 @@ export const AdminProducts: React.FC = () => {
   const validateForm = () => {
     const errors: Record<string, string> = {};
     if (!formData.name.trim()) errors.name = 'Fragrance name is required';
-    if (!formData.slug.trim()) errors.slug = 'URL slug is required';
     if (!formData.price || Number(formData.price) <= 0) errors.price = 'Valid price is required';
     if (!formData.description.trim()) errors.description = 'Fragrance description is required';
-    if (formImages.length === 0) errors.images = 'At least one product image is required';
+
+    // Auto-generate slug if omitted
+    if (!formData.slug.trim()) {
+      formData.slug = formData.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
 
     setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+    const isValid = Object.keys(errors).length === 0;
+    if (!isValid) {
+      const firstError = Object.values(errors)[0];
+      showNotification('error', firstError);
+    }
+    return isValid;
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setIsSaving(true);
     try {
       const selectedCat = categories.find((c) => c.id === formData.category_id);
+
+      // Ensure at least one product image is attached; if none uploaded, use luxury placeholder
+      const imagesToSave: ProductImage[] =
+        formImages.length > 0
+          ? formImages
+          : [
+              {
+                id: `img-${Date.now()}`,
+                image_url:
+                  'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80',
+                alt_text: formData.name.trim() || 'Aleez Fragrance',
+                display_order: 1,
+                is_primary: true,
+              },
+            ];
 
       const productPayload: Partial<Product> = {
         id: editingProduct?.id,
@@ -262,7 +290,7 @@ export const AdminProducts: React.FC = () => {
         is_new_arrival: formData.is_new_arrival,
         is_featured: formData.is_featured,
         is_active: formData.is_active,
-        images: formImages,
+        images: imagesToSave,
       };
 
       await dbService.saveProduct(productPayload);
@@ -270,7 +298,10 @@ export const AdminProducts: React.FC = () => {
       setIsModalOpen(false);
       showNotification('success', `Fragrance "${formData.name}" saved and live in store!`);
     } catch (err: any) {
+      console.error('Save product error:', err);
       showNotification('error', `Failed to save product: ${err.message}`);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -925,9 +956,19 @@ export const AdminProducts: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded bg-luxury-gold hover:bg-luxury-goldHover text-white text-xs uppercase tracking-widest font-semibold shadow-sm transition-all"
+                  disabled={isSaving || uploadingImage}
+                  className="px-6 py-2.5 rounded bg-luxury-gold hover:bg-luxury-goldHover text-white text-xs uppercase tracking-widest font-semibold shadow-sm transition-all disabled:opacity-50 flex items-center space-x-2"
                 >
-                  {editingProduct ? 'Save Changes' : 'Publish Fragrance'}
+                  {isSaving && (
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  )}
+                  <span>
+                    {isSaving
+                      ? 'Saving Fragrance...'
+                      : editingProduct
+                      ? 'Save Changes'
+                      : 'Publish Fragrance'}
+                  </span>
                 </button>
               </div>
             </form>

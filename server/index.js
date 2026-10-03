@@ -379,6 +379,174 @@ app.post('/api/upload', async (req, res) => {
     console.error('Upload endpoint error:', err);
     return res.status(500).json({ error: err.message || 'Image upload failed' });
   }
+// --- 5. ADMIN PRODUCT MANAGEMENT ---
+app.post('/api/admin/products', async (req, res) => {
+  try {
+    const { product } = req.body;
+    if (!product || !product.name) {
+      return res.status(400).json({ error: 'Product name and details are required.' });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({ error: 'Supabase server client not configured.' });
+    }
+
+    const isValidUUID = (id) =>
+      typeof id === 'string' &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+    const productId = product.id && isValidUUID(product.id) ? product.id : crypto.randomUUID();
+    const categoryId = product.category_id && isValidUUID(product.category_id) ? product.category_id : null;
+    const slug =
+      product.slug ||
+      product.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+    const dbPayload = {
+      id: productId,
+      name: product.name.trim(),
+      slug,
+      category_id: categoryId,
+      price: Number(product.price) || 0,
+      sale_price: product.sale_price ? Number(product.sale_price) : null,
+      description: product.description || '',
+      fragrance_family: product.fragrance_family || null,
+      top_notes: product.top_notes || null,
+      heart_notes: product.heart_notes || null,
+      base_notes: product.base_notes || null,
+      volume_ml: Number(product.volume_ml) || 50,
+      stock_quantity: Number(product.stock_quantity) || 0,
+      sku: product.sku || `ALZ-${Math.floor(1000 + Math.random() * 9000)}`,
+      is_bestseller: !!product.is_bestseller,
+      is_new_arrival: !!product.is_new_arrival,
+      is_featured: !!product.is_featured,
+      is_active: product.is_active !== undefined ? product.is_active : true,
+    };
+
+    const { data: savedProduct, error: pError } = await supabase
+      .from('products')
+      .upsert(dbPayload)
+      .select('*')
+      .single();
+
+    if (pError) {
+      console.error('Supabase product upsert error:', pError);
+      return res.status(500).json({ error: pError.message });
+    }
+
+    // Handle product images if provided
+    let savedImages = [];
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+      await supabase.from('product_images').delete().eq('product_id', productId);
+
+      const imagesToInsert = product.images.map((img, idx) => ({
+        product_id: productId,
+        image_url: typeof img === 'string' ? img : img.image_url,
+        alt_text: (typeof img === 'object' && img.alt_text) || product.name,
+        display_order: (typeof img === 'object' && img.display_order) || idx + 1,
+        is_primary: typeof img === 'object' && img.is_primary !== undefined ? img.is_primary : idx === 0,
+      }));
+
+      const { data: imgData, error: imgError } = await supabase
+        .from('product_images')
+        .insert(imagesToInsert)
+        .select('*');
+
+      if (!imgError && imgData) {
+        savedImages = imgData;
+      }
+    }
+
+    return res.json({
+      success: true,
+      product: {
+        ...savedProduct,
+        images: savedImages,
+      },
+    });
+  } catch (err) {
+    console.error('Save product endpoint error:', err);
+    return res.status(500).json({ error: err.message || 'Failed to save product' });
+  }
+});
+
+app.delete('/api/admin/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: 'Missing product ID' });
+
+    if (supabase) {
+      await supabase.from('product_images').delete().eq('product_id', id);
+      const { error } = await supabase.from('products').delete().eq('id', id);
+      if (error) return res.status(500).json({ error: error.message });
+    }
+
+    return res.json({ success: true, id });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// --- 6. ADMIN CATEGORY MANAGEMENT ---
+app.post('/api/admin/categories', async (req, res) => {
+  try {
+    const { category } = req.body;
+    if (!category || !category.name) {
+      return res.status(400).json({ error: 'Category name is required' });
+    }
+
+    if (!supabase) return res.status(503).json({ error: 'Supabase offline' });
+
+    const isValidUUID = (id) =>
+      typeof id === 'string' &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+    const catId = category.id && isValidUUID(category.id) ? category.id : crypto.randomUUID();
+    const slug =
+      category.slug ||
+      category.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+    const dbCategory = {
+      id: catId,
+      name: category.name.trim(),
+      slug,
+      description: category.description || '',
+      image_url:
+        category.image_url ||
+        'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80',
+      display_order: Number(category.display_order) || 1,
+      is_active: category.is_active !== undefined ? category.is_active : true,
+    };
+
+    const { data, error } = await supabase
+      .from('categories')
+      .upsert(dbCategory)
+      .select('*')
+      .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    return res.json({ success: true, category: data });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/admin/categories/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (supabase) {
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (error) return res.status(500).json({ error: error.message });
+    }
+    return res.json({ success: true, id });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 // Serve frontend build in production
