@@ -42,12 +42,12 @@ if (!isMockRazorpay) {
 
 // Fallback in-memory product cache for server-side price validation if DB not connected
 const fallbackProducts = [
-  { id: 'p1111111-1111-1111-1111-111111111111', name: 'Royal Amber Royale', price: 2499, sale_price: 1999, stock_quantity: 35 },
-  { id: 'p2222222-2222-2222-2222-222222222222', name: 'Velvet Oud Noir', price: 3299, sale_price: 2799, stock_quantity: 20 },
-  { id: 'p3333333-3333-3333-3333-333333333333', name: 'Santal Imperial', price: 2699, sale_price: 2199, stock_quantity: 25 },
-  { id: 'p4444444-4444-4444-4444-444444444444', name: 'Elysian Rose Attar', price: 1499, sale_price: 1199, stock_quantity: 40 },
-  { id: 'p5555555-5555-5555-5555-555555555555', name: 'Midnight Saffron', price: 2899, sale_price: 2399, stock_quantity: 18 },
-  { id: 'p6666666-6666-6666-6666-666666666666', name: 'Aqua Celestia', price: 1999, sale_price: 1699, stock_quantity: 45 },
+  { id: 'a1111111-1111-1111-1111-111111111111', name: 'Royal Amber Royale', price: 2499, sale_price: 1999, stock_quantity: 35 },
+  { id: 'a2222222-2222-2222-2222-222222222222', name: 'Velvet Oud Noir', price: 3299, sale_price: 2799, stock_quantity: 20 },
+  { id: 'a3333333-3333-3333-3333-333333333333', name: 'Santal Imperial', price: 2699, sale_price: 2199, stock_quantity: 25 },
+  { id: 'a4444444-4444-4444-4444-444444444444', name: 'Elysian Rose Attar', price: 1499, sale_price: 1199, stock_quantity: 40 },
+  { id: 'a5555555-5555-5555-5555-555555555555', name: 'Midnight Saffron', price: 2899, sale_price: 2399, stock_quantity: 18 },
+  { id: 'a6666666-6666-6666-6666-666666666666', name: 'Aqua Celestia', price: 1999, sale_price: 1699, stock_quantity: 45 },
 ];
 
 // In-memory orders store for development persistence

@@ -326,7 +326,7 @@ INSERT INTO public.products (
     stock_quantity, sku, is_bestseller, is_new_arrival, is_featured, is_active, rating, review_count
 ) VALUES
 (
-    'p1111111-1111-1111-1111-111111111111',
+    'a1111111-1111-1111-1111-111111111111',
     'Royal Amber Royale',
     'royal-amber-royale',
     'c4444444-4444-4444-4444-444444444444',
@@ -348,7 +348,7 @@ INSERT INTO public.products (
     42
 ),
 (
-    'p2222222-2222-2222-2222-222222222222',
+    'a2222222-2222-2222-2222-222222222222',
     'Velvet Oud Noir',
     'velvet-oud-noir',
     'c3333333-3333-3333-3333-333333333333',
@@ -370,7 +370,7 @@ INSERT INTO public.products (
     58
 ),
 (
-    'p3333333-3333-3333-3333-333333333333',
+    'a3333333-3333-3333-3333-333333333333',
     'Santal Imperial',
     'santal-imperial',
     'c4444444-4444-4444-4444-444444444444',
@@ -392,7 +392,7 @@ INSERT INTO public.products (
     29
 ),
 (
-    'p4444444-4444-4444-4444-444444444444',
+    'a4444444-4444-4444-4444-444444444444',
     'Elysian Rose Attar',
     'elysian-rose-attar',
     'c2222222-2222-2222-2222-222222222222',
@@ -414,7 +414,7 @@ INSERT INTO public.products (
     63
 ),
 (
-    'p5555555-5555-5555-5555-555555555555',
+    'a5555555-5555-5555-5555-555555555555',
     'Midnight Saffron',
     'midnight-saffron',
     'c1111111-1111-1111-1111-111111111111',
@@ -436,7 +436,7 @@ INSERT INTO public.products (
     31
 ),
 (
-    'p6666666-6666-6666-6666-666666666666',
+    'a6666666-6666-6666-6666-666666666666',
     'Aqua Celestia',
     'aqua-celestia',
     'c5555555-5555-5555-5555-555555555555',
@@ -462,17 +462,17 @@ ON CONFLICT (id) DO NOTHING;
 -- 4. PRODUCT IMAGES
 INSERT INTO public.product_images (product_id, image_url, alt_text, display_order, is_primary)
 VALUES
-('p1111111-1111-1111-1111-111111111111', 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80', 'Royal Amber Royale Luxury Bottle', 1, true),
-('p1111111-1111-1111-1111-111111111111', 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80', 'Royal Amber Royale Packaging', 2, false),
+('a1111111-1111-1111-1111-111111111111', 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80', 'Royal Amber Royale Luxury Bottle', 1, true),
+('a1111111-1111-1111-1111-111111111111', 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?auto=format&fit=crop&w=800&q=80', 'Royal Amber Royale Packaging', 2, false),
 
-('p2222222-2222-2222-2222-222222222222', 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80', 'Velvet Oud Noir Luxury Flacon', 1, true),
-('p2222222-2222-2222-2222-222222222222', 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80', 'Velvet Oud Noir Detail', 2, false),
+('a2222222-2222-2222-2222-222222222222', 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80', 'Velvet Oud Noir Luxury Flacon', 1, true),
+('a2222222-2222-2222-2222-222222222222', 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80', 'Velvet Oud Noir Detail', 2, false),
 
-('p3333333-3333-3333-3333-333333333333', 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=800&q=80', 'Santal Imperial Bottle', 1, true),
+('a3333333-3333-3333-3333-333333333333', 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=800&q=80', 'Santal Imperial Bottle', 1, true),
 
-('p4444444-4444-4444-4444-444444444444', 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=800&q=80', 'Elysian Rose Artisanal Attar Bottle', 1, true),
+('a4444444-4444-4444-4444-444444444444', 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=800&q=80', 'Elysian Rose Artisanal Attar Bottle', 1, true),
 
-('p5555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?auto=format&fit=crop&w=800&q=80', 'Midnight Saffron Flacon', 1, true),
+('a5555555-5555-5555-5555-555555555555', 'https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?auto=format&fit=crop&w=800&q=80', 'Midnight Saffron Flacon', 1, true),
 
-('p6666666-6666-6666-6666-666666666666', 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=800&q=80', 'Aqua Celestia Bottle', 1, true)
+('a6666666-6666-6666-6666-666666666666', 'https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=800&q=80', 'Aqua Celestia Bottle', 1, true)
 ON CONFLICT (id) DO NOTHING;
