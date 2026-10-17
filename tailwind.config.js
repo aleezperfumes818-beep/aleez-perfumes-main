@@ -8,20 +8,20 @@ export default {
     extend: {
       colors: {
         luxury: {
-          bg: "#FAF9F6",         // Luminous alabaster / warm light cream
+          bg: "#FFFFFF",         // Crisp white
           card: "#FFFFFF",       // Pure white card surfaces
-          cardHover: "#FCFBF9",  // Subtle warm hover
-          charcoal: "#F5F2EB",   // Soft light accent surface
-          border: "#EAE5DC",     // Refined delicate warm border
-          borderDark: "#D8D0C3", // Slightly deeper border
-          gold: "#B8860B",       // Rich warm gold
-          goldHover: "#9E7307",  // Deeper gold for hover
-          goldMuted: "#A67C1E",  // Muted gold
-          goldLight: "#FAF4E6",  // Soft light gold background tint
-          goldBorder: "#DFC38A", // Delicate gold border
-          text: "#141414",       // Deep rich charcoal for readability
-          textSecondary: "#525252", // Medium gray body
-          textMuted: "#787878",   // Subtle muted gray
+          cardHover: "#F7F7F7",  // Subtle light hover
+          charcoal: "#171717",   // Deep obsidian noir
+          border: "#E5E5E5",     // Clean light gray border
+          borderDark: "#262626", // Deep dark border
+          gold: "#0A0A0A",       // High fashion pure black primary
+          goldHover: "#262626",  // Refined hover dark
+          goldMuted: "#525252",  // Medium charcoal
+          goldLight: "#F5F5F5",  // Crisp light gray background tint
+          goldBorder: "#D4D4D4", // Refined border
+          text: "#0A0A0A",       // Pure black for ultra-crisp typography
+          textSecondary: "#404040", // Medium gray body
+          textMuted: "#737373",   // Subtle muted gray
         },
       },
       fontFamily: {
@@ -33,10 +33,10 @@ export default {
         widest2: '0.25em',
       },
       boxShadow: {
-        'gold-sm': '0 2px 12px rgba(184, 134, 11, 0.15)',
-        'gold-md': '0 4px 20px rgba(184, 134, 11, 0.22)',
-        'luxury': '0 10px 30px -10px rgba(0, 0, 0, 0.07)',
-        'card': '0 2px 10px rgba(0, 0, 0, 0.03)',
+        'gold-sm': '0 2px 10px rgba(0, 0, 0, 0.08)',
+        'gold-md': '0 4px 18px rgba(0, 0, 0, 0.12)',
+        'luxury': '0 10px 30px -10px rgba(0, 0, 0, 0.08)',
+        'card': '0 1px 4px rgba(0, 0, 0, 0.04)',
       },
       animation: {
         'fade-in': 'fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1)',

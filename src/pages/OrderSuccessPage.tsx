@@ -62,7 +62,7 @@ export const OrderSuccessPage: React.FC = () => {
           Thank You For Your Order
         </h1>
         <p className="text-sm text-[#555555] font-light max-w-md mx-auto">
-          Your order has been received and verified. Our perfumers are preparing your bespoke package for dispatch.
+          Your order has been received and verified. Our perfumers are preparing your fragrance package for dispatch.
         </p>
       </div>
 

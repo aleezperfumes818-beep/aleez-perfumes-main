@@ -8,44 +8,44 @@
   }
 
   body {
-    background-color: #FAF9F6;
-    color: #141414;
+    background-color: #FFFFFF;
+    color: #0A0A0A;
     overflow-x: hidden;
   }
 
-  /* Accessible Keyboard Navigation: Clear, visible focus ring on all focusable elements */
+  /* Accessible Keyboard Navigation: Clear, visible focus ring */
   *:focus-visible {
-    outline: 2px solid #B8860B !important;
+    outline: 2px solid #000000 !important;
     outline-offset: 2px !important;
   }
 
-  /* Custom luxury light scrollbar */
+  /* Custom luxury monochrome scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #FAF9F6;
+    background: #FFFFFF;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #DDD6CE;
+    background: #D4D4D4;
     border-radius: 3px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #855F06;
+    background: #000000;
   }
 }
 
-/* Luxury glow and subtle gradient utilities for light theme */
+/* Luxury glow and subtle gradient utilities */
 .bg-radial-gradient-light {
-  background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(250, 249, 246, 0.95) 90%);
+  background-image: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 1) 0%, rgba(245, 245, 245, 0.95) 90%);
 }
 
 .text-gold-gradient {
-  background: linear-gradient(135deg, #855F06 0%, #B8860B 50%, #704F05 100%);
+  background: linear-gradient(135deg, #0A0A0A 0%, #404040 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

@@ -86,16 +86,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   // If not authenticated as Admin, display dedicated Admin Authentication screen
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-luxury-cream flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white border border-luxury-border rounded-2xl p-8 space-y-6 shadow-xl">
+      <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white border border-neutral-200 rounded-xl p-8 space-y-6 shadow-md">
           <div className="text-center space-y-2">
-            <div className="w-14 h-14 bg-luxury-gold/10 border border-luxury-gold/30 rounded-full flex items-center justify-center mx-auto text-luxury-gold">
+            <div className="w-14 h-14 bg-neutral-100 border border-neutral-300 rounded-full flex items-center justify-center mx-auto text-black">
               <Shield className="w-7 h-7" />
             </div>
-            <h1 className="font-serif text-2xl text-luxury-dark pt-2">
+            <h1 className="font-serif text-2xl text-black pt-2">
               Aleez Perfumes Administration
             </h1>
-            <p className="text-xs text-stone-500 font-light">
+            <p className="text-xs text-neutral-500 font-light">
               Restricted management portal. Authorized store administrators only.
             </p>
           </div>
@@ -108,7 +108,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
           <form onSubmit={handleAdminLogin} className="space-y-4">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+              <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
                 Admin Email
               </label>
               <input
@@ -116,13 +116,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 required
                 value={adminEmail}
                 onChange={(e) => setAdminEmail(e.target.value)}
-                placeholder="aleez.perfumes818@gmail.com"
-                className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3.5 py-2.5 text-xs text-luxury-dark focus:outline-none"
+                placeholder="example@gmail.com"
+                className="w-full bg-neutral-50 border border-neutral-200 focus:border-black rounded px-3.5 py-2.5 text-xs text-black focus:outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+              <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
                 Admin Password / Secret Key
               </label>
               <input
@@ -131,14 +131,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 value={adminPassword}
                 onChange={(e) => setAdminPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3.5 py-2.5 text-xs text-luxury-dark focus:outline-none"
+                className="w-full bg-neutral-50 border border-neutral-200 focus:border-black rounded px-3.5 py-2.5 text-xs text-black focus:outline-none"
               />
             </div>
 
             <button
               type="submit"
               disabled={loginLoading}
-              className="w-full py-3.5 bg-luxury-gold hover:bg-luxury-goldHover text-white text-xs uppercase tracking-[0.2em] font-semibold rounded shadow-sm transition-all flex items-center justify-center space-x-2"
+              className="w-full py-3.5 bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-[0.2em] font-semibold rounded shadow-sm transition-all flex items-center justify-center space-x-2"
             >
               {loginLoading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -151,8 +151,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             </button>
           </form>
 
-          <div className="pt-4 border-t border-luxury-border text-center">
-            <Link to="/" className="text-xs text-stone-500 hover:text-luxury-gold flex items-center justify-center space-x-1">
+          <div className="pt-4 border-t border-neutral-200 text-center">
+            <Link to="/" className="text-xs text-neutral-500 hover:text-black flex items-center justify-center space-x-1">
               <span>← Return to Public Boutique</span>
             </Link>
           </div>
@@ -187,7 +187,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         <div className="flex items-center space-x-3 sm:space-x-4">
           <Link
             to="/admin/homepage"
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-sm bg-luxury-gold/15 hover:bg-luxury-gold text-luxury-gold hover:text-white border border-luxury-gold/40 text-xs font-semibold uppercase tracking-wider transition-all shadow-sm"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-sm bg-neutral-100 hover:bg-black text-black hover:text-white border border-neutral-300 text-xs font-semibold uppercase tracking-wider transition-all shadow-sm"
           >
             <Sparkles className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Homepage Editor</span>
@@ -196,7 +196,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           <Link
             to="/"
             target="_blank"
-            className="flex items-center space-x-1 text-xs text-stone-500 hover:text-luxury-gold transition-colors font-light"
+            className="flex items-center space-x-1 text-xs text-stone-600 hover:text-black transition-colors font-light"
           >
             <span>View Live Store</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -233,27 +233,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                       key={item.path}
                       to={item.path}
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs uppercase tracking-wider transition-all ${
+                      className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs uppercase tracking-wider transition-all ${
                         isActive
-                          ? 'bg-luxury-gold text-white font-semibold shadow-sm'
-                          : 'text-stone-600 hover:text-luxury-dark hover:bg-stone-50'
+                          ? 'bg-black text-white font-semibold shadow-sm'
+                          : 'text-stone-600 hover:text-black hover:bg-stone-50'
                       }`}
                     >
-                      <div className="flex items-center space-x-3">
-                        <Icon className="w-4 h-4" />
-                        <span>{item.name}</span>
-                      </div>
-                      {item.path === '/admin/homepage' && (
-                        <span
-                          className={`text-[9px] uppercase font-bold font-mono px-1.5 py-0.5 rounded ${
-                            isActive
-                              ? 'bg-white text-luxury-gold'
-                              : 'bg-luxury-gold/15 text-luxury-gold'
-                          }`}
-                        >
-                          NEW
-                        </span>
-                      )}
+                      <Icon className="w-4 h-4" />
+                      <span>{item.name}</span>
                     </Link>
                   );
                 })}

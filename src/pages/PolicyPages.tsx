@@ -69,10 +69,10 @@ export const PrivacyPolicyPage: React.FC = () => {
               <strong>Contact & Recipient Details:</strong> Full name, telephone/WhatsApp number, and delivery street address with PIN code. Used exclusively to package and route your parcel via express couriers.
             </li>
             <li>
-              <strong>Electronic Communication:</strong> Email address. Used to transmit digital order confirmations, GST invoices, dispatch tracking links, and responses to your bespoke formulation inquiries.
+              <strong>Electronic Communication:</strong> Email address. Used to transmit digital order confirmations, GST invoices, dispatch tracking links, and responses to your custom formulation inquiries.
             </li>
             <li>
-              <strong>Bespoke Scent Formulation Notes:</strong> Scent preferences, custom note selections, and bespoke bottle engraving names submitted via our Interactive Scent Studio.
+              <strong>Custom Scent Formulation Notes:</strong> Scent preferences, custom note selections, and custom bottle engraving names submitted via our Interactive Scent Studio.
             </li>
             <li>
               <strong>Technical & Session Data:</strong> IP address, device browser type, and essential cookies strictly to maintain shopping bag persistence and protect checkout session tokens.

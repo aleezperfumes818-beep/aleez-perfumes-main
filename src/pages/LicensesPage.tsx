@@ -76,7 +76,7 @@ export const LicensesPage: React.FC = () => {
             <h2 className="font-serif text-2xl text-[#141414] font-medium">2. Photography & Cinematography Licenses</h2>
           </div>
           <p className="text-xs text-[#4A4A4A] font-light leading-relaxed">
-            All photographic stills, editorial bottle captures, and video loops displayed across our storefront are either original bespoke assets produced by Aleez Perfumes or deployed under verified royalty-free commercial licenses:
+            All photographic stills, editorial bottle captures, and video loops displayed across our storefront are either original custom assets produced by Aleez Perfumes or deployed under verified royalty-free commercial licenses:
           </p>
 
           <div className="space-y-3 pt-2 text-xs text-[#4A4A4A] font-light">
@@ -125,7 +125,7 @@ export const LicensesPage: React.FC = () => {
             <h2 className="font-serif text-lg text-[#141414] font-medium">Trademark Notice</h2>
           </div>
           <p className="text-xs text-[#4A4A4A] font-light leading-relaxed">
-            The brand name "Aleez Perfumes", the monogram logo, custom fragrance formula names (e.g. Royal Amber Royale, Velvet Oud Noir, Santal Imperial), and proprietary bespoke perfume atelier concepts are protected intellectual property of <strong>Aleez Perfumes & Fragrances Private Limited</strong>. All rights reserved. Third-party brand names mentioned as olfactory scent inspirations (e.g. Tom Ford, Baccarat Rouge) remain the exclusive registered trademarks of their respective luxury design houses and are cited purely for comparative olfactory characterization.
+            The brand name "Aleez Perfumes", the monogram logo, custom fragrance formula names (e.g. Royal Amber Royale, Velvet Oud Noir, Santal Imperial), and proprietary custom perfume atelier concepts are protected intellectual property of <strong>Aleez Perfumes & Fragrances Private Limited</strong>. All rights reserved. Third-party brand names mentioned as olfactory scent inspirations (e.g. Tom Ford, Baccarat Rouge) remain the exclusive registered trademarks of their respective luxury design houses and are cited purely for comparative olfactory characterization.
           </p>
         </section>
       </div>

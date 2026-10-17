@@ -174,10 +174,23 @@ export interface HomepageContent {
   };
   spotlight: {
     enabled: boolean;
-    badge: string;
+    badge?: string;
     title: string;
     subtitle: string;
     product_id?: string;
+    custom_name?: string;
+    custom_inspired_by?: string;
+    custom_category?: string;
+    custom_description?: string;
+    custom_image_url?: string;
+    custom_price?: number;
+    custom_sale_price?: number | null;
+    top_notes?: string;
+    heart_notes?: string;
+    base_notes?: string;
+    concentration_text?: string;
+    bottle_size_text?: string;
+    button_text?: string;
   };
   specialties: {
     badge: string;

@@ -65,7 +65,7 @@ export const RefundPolicyPage: React.FC = () => {
         <section className="space-y-2">
           <h2 className="font-serif text-xl text-[#141414] font-medium">1. Cosmetic Hygiene Standards & Return Scope</h2>
           <p>
-            Under Indian Consumer Protection regulations and international cosmetic hygiene standards, personal fragrance products, attars, and bespoke perfume blends cannot be returned or re-sold once the tamper-evident packaging seal has been broken or the bottle has been sprayed.
+            Under Indian Consumer Protection regulations and international cosmetic hygiene standards, personal fragrance products, attars, and custom perfume blends cannot be returned or re-sold once the tamper-evident packaging seal has been broken or the bottle has been sprayed.
           </p>
           <p className="text-xs text-[#4A4A4A]">
             However, we provide an uncompromising replacement and refund guarantee for any shipment affected by transit trauma, leakage, or packaging defects.

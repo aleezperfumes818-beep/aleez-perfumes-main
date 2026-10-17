@@ -118,25 +118,25 @@ export const CreateFragrancePage: React.FC = () => {
 
   const handleAddToCart = () => {
     setIsAdding(true);
-    const bottleTitle = customName.trim() ? customName.trim() : 'Custom Bespoke Extrait';
+    const bottleTitle = customName.trim() ? customName.trim() : 'Custom Signature Extrait';
     const customProduct: Product = {
-      id: `bespoke-${Date.now()}`,
-      name: `Bespoke Creation: ${bottleTitle}`,
-      slug: `bespoke-${Date.now()}`,
-      category_id: 'cat-bespoke',
-      category_name: 'Bespoke Atelier',
+      id: `custom-${Date.now()}`,
+      name: `Custom Creation: ${bottleTitle}`,
+      slug: `custom-${Date.now()}`,
+      category_id: 'cat-custom',
+      category_name: 'Custom Perfumery Studio',
       price: price,
       sale_price: null,
-      description: `Personalized Bespoke Formulation (${selectedVolume}). Flacon: ${selectedBottle.name}. Top: ${selectedTopNotes.join(
+      description: `Personalized Custom Formulation (${selectedVolume}). Flacon: ${selectedBottle.name}. Top: ${selectedTopNotes.join(
         ', '
       )}. Heart: ${selectedHeartNotes.join(', ')}. Base: ${selectedBaseNotes.join(', ')}. Handcrafted 35% Extrait De Parfum.`,
-      fragrance_family: 'Bespoke Atelier Formulation',
+      fragrance_family: 'Custom Studio Formulation',
       top_notes: selectedTopNotes.join(', '),
       heart_notes: selectedHeartNotes.join(', '),
       base_notes: selectedBaseNotes.join(', '),
       volume_ml: selectedVolume === '50ml' ? 50 : 100,
       stock_quantity: 99,
-      sku: `ALZ-BESPOKE-${Date.now()}`,
+      sku: `ALZ-CUSTOM-${Date.now()}`,
       is_bestseller: false,
       is_new_arrival: true,
       is_featured: false,
@@ -145,7 +145,7 @@ export const CreateFragrancePage: React.FC = () => {
       review_count: 1,
       images: [
         {
-          id: `img-bespoke-${Date.now()}`,
+          id: `img-custom-${Date.now()}`,
           image_url: selectedBottle.image,
           alt_text: bottleTitle,
           display_order: 1,
@@ -164,7 +164,7 @@ export const CreateFragrancePage: React.FC = () => {
   };
 
   const handleWhatsAppConsult = () => {
-    const text = `Hi Aleez Perfumes, I would like to order my Bespoke Custom Fragrance formulation:
+    const text = `Hi Aleez Perfumes, I would like to order my Custom Fragrance formulation:
 • Flacon: ${selectedBottle.name} (${selectedVolume})
 • Name on Bottle: ${customName.trim() || 'My Signature Scent'}
 • Top Notes: ${selectedTopNotes.join(', ')}
@@ -455,7 +455,7 @@ Please guide me with the final maceration and order confirmation.`;
               <div className="flex items-center justify-between border-b border-[#EAE5DC] pb-4">
                 <div className="inline-flex items-center space-x-1.5 text-xs uppercase tracking-widest text-[#B8860B] font-semibold">
                   <Award className="w-4 h-4 text-[#B8860B]" />
-                  <span>Bespoke Formula Summary</span>
+                  <span>Custom Formula Summary</span>
                 </div>
                 <span className="text-[10px] uppercase tracking-widest text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full font-medium">
                   35% Extrait
@@ -474,7 +474,7 @@ Please guide me with the final maceration and order confirmation.`;
                 {/* Simulated Custom Plaque Engraving */}
                 <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3 rounded-xl border border-[#DFC38A] shadow-md text-center">
                   <span className="text-[9px] uppercase tracking-[0.3em] text-[#7A5B10] block font-mono">
-                    ALEEZ BESPOKE ATELIER
+                    ALEEZ SIGNATURE ATELIER
                   </span>
                   <h4 className="font-serif text-sm font-semibold text-[#141414] truncate">
                     {customName.trim() || 'Your Signature Scent'}

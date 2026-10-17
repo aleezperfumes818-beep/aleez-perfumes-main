@@ -33,7 +33,7 @@ export const ShippingPolicyPage: React.FC = () => {
           <Package className="w-5 h-5 text-[#B8860B]" />
           <h3 className="font-medium text-[#141414] text-sm">Discreet Luxury Packaging</h3>
           <p className="text-xs text-[#4A4A4A] font-light">
-            Every bottle is encased in shock-absorbent cushioning and bespoke presentation cartons.
+            Every bottle is encased in shock-absorbent cushioning and signature presentation cartons.
           </p>
         </div>
       </div>

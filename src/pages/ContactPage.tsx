@@ -42,7 +42,7 @@ export const ContactPage: React.FC = () => {
           Connect With Aleez
         </h1>
         <p className="text-sm text-[#4A4A4A] font-light leading-relaxed">
-          Whether you need bespoke fragrance recommendations, order tracking updates, or assistance with personal gifting, our specialists are at your service.
+          Whether you need personalized fragrance recommendations, order tracking updates, or assistance with personal gifting, our specialists are at your service.
         </p>
       </div>
 

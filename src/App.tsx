@@ -82,11 +82,11 @@ const MainContent: React.FC = () => {
         </AdminLayout>
       ) : (
         // Public Luxury Customer Layout
-        <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-[#141414] selection:bg-[#B8860B] selection:text-white">
+        <div className="min-h-screen flex flex-col bg-white text-black selection:bg-black selection:text-white">
           {/* Accessible Skip Link */}
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#B8860B] focus:text-white focus:rounded-lg focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#141414] text-xs font-semibold uppercase tracking-wider"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-black focus:text-white focus:rounded-sm focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-black text-xs font-semibold uppercase tracking-wider"
           >
             Skip to main content
           </a>

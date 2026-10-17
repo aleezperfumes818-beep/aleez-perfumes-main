@@ -308,7 +308,7 @@ export const CheckoutPage: React.FC = () => {
           <div className="p-4 rounded-xl bg-[#FAF9F6] border border-[#EAE5DC] text-xs text-[#4A4A4A] space-y-1">
             <span className="font-semibold text-[#141414] block">Data Minimization Commitment</span>
             <p className="font-light leading-relaxed">
-              We strictly collect only the minimal contact and delivery coordinates required by our courier partners (BlueDart / Delhivery) to fulfill your bespoke fragrance package safely.
+              We strictly collect only the minimal contact and delivery coordinates required by our courier partners (BlueDart / Delhivery) to fulfill your fragrance package safely.
             </p>
           </div>
 

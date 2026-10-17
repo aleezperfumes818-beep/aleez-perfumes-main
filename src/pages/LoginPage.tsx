@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Lock, Mail, User, Phone, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import { Lock, Mail, User, Phone, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const LoginPage: React.FC = () => {
@@ -60,21 +60,21 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto px-4 py-16 animate-fade-in text-[#141414]">
-      <div className="bg-white border border-[#EAE5DC] rounded-2xl p-6 sm:p-8 space-y-6 shadow-card">
+    <div className="max-w-md mx-auto px-4 py-16 animate-fade-in text-black">
+      <div className="bg-white border border-neutral-200 rounded-xl p-6 sm:p-8 space-y-6 shadow-sm">
         <div className="text-center space-y-2">
           <Link to="/" className="inline-block" aria-label="Aleez Perfumes Home">
-            <span className="font-serif text-2xl tracking-[0.22em] font-semibold text-[#141414] block">
+            <span className="font-serif text-2xl tracking-[0.22em] font-semibold text-black block">
               ALEEZ
             </span>
-            <span className="text-[10px] tracking-[0.35em] text-[#855F06] uppercase block -mt-1 font-semibold">
+            <span className="text-[10px] tracking-[0.35em] text-neutral-500 uppercase block -mt-1 font-semibold">
               Perfumes
             </span>
           </Link>
-          <h1 className="font-serif text-2xl text-[#141414] pt-2 font-medium">
+          <h1 className="font-serif text-2xl text-black pt-2 font-medium">
             {isRegister ? 'Join The Fragrance Club' : 'Welcome Back'}
           </h1>
-          <p className="text-xs text-[#4A4A4A] font-light">
+          <p className="text-xs text-neutral-600 font-light">
             {isRegister
               ? 'Create an account to track your orders, manage data, and access your wishlist'
               : 'Sign in to access your order history and details'}
@@ -82,7 +82,7 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800 font-medium">
+          <div className="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-800 font-medium">
             {error}
           </div>
         )}
@@ -91,29 +91,29 @@ export const LoginPage: React.FC = () => {
           {isRegister && (
             <>
               <div>
-                <label htmlFor="reg-fullname" className="block text-xs uppercase tracking-wider text-[#383838] mb-1 font-medium">
+                <label htmlFor="reg-fullname" className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
                   Full Name *
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" aria-hidden="true" />
+                  <User className="w-4 h-4 text-neutral-400 absolute left-3 top-3" aria-hidden="true" />
                   <input
                     id="reg-fullname"
                     type="text"
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Farhan Malik"
-                    className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
+                    placeholder="Your Name"
+                    className="w-full bg-neutral-50 border border-neutral-300 focus:border-black focus:ring-1 focus:ring-black rounded pl-9 pr-3 py-2.5 text-xs text-black focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="reg-phone" className="block text-xs uppercase tracking-wider text-[#383838] mb-1 font-medium">
+                <label htmlFor="reg-phone" className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
                   Phone / WhatsApp *
                 </label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-3" aria-hidden="true" />
+                  <Phone className="w-4 h-4 text-neutral-400 absolute left-3 top-3" aria-hidden="true" />
                   <input
                     id="reg-phone"
                     type="tel"
@@ -121,7 +121,7 @@ export const LoginPage: React.FC = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91 9876543210"
-                    className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
+                    className="w-full bg-neutral-50 border border-neutral-300 focus:border-black focus:ring-1 focus:ring-black rounded pl-9 pr-3 py-2.5 text-xs text-black focus:outline-none"
                   />
                 </div>
               </div>
@@ -129,29 +129,29 @@ export const LoginPage: React.FC = () => {
           )}
 
           <div>
-            <label htmlFor="auth-email" className="block text-xs uppercase tracking-wider text-[#383838] mb-1 font-medium">
+            <label htmlFor="auth-email" className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
               Email Address *
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-3" aria-hidden="true" />
+              <Mail className="w-4 h-4 text-neutral-400 absolute left-3 top-3" aria-hidden="true" />
               <input
                 id="auth-email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="client@example.com"
-                className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
+                placeholder="example@gmail.com"
+                className="w-full bg-neutral-50 border border-neutral-300 focus:border-black focus:ring-1 focus:ring-black rounded pl-9 pr-3 py-2.5 text-xs text-black focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="auth-password" className="block text-xs uppercase tracking-wider text-[#383838] mb-1 font-medium">
+            <label htmlFor="auth-password" className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
               Password *
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" aria-hidden="true" />
+              <Lock className="w-4 h-4 text-neutral-400 absolute left-3 top-3" aria-hidden="true" />
               <input
                 id="auth-password"
                 type="password"
@@ -159,7 +159,7 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
+                className="w-full bg-neutral-50 border border-neutral-300 focus:border-black focus:ring-1 focus:ring-black rounded pl-9 pr-3 py-2.5 text-xs text-black focus:outline-none"
               />
             </div>
           </div>
@@ -173,15 +173,15 @@ export const LoginPage: React.FC = () => {
                   required
                   checked={agreeTerms}
                   onChange={(e) => setAgreeTerms(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#B8860B] focus:ring-[#B8860B]"
+                  className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-black focus:ring-black"
                 />
-                <span className="text-xs text-[#383838] leading-relaxed">
+                <span className="text-xs text-neutral-700 leading-relaxed">
                   I agree to the{' '}
-                  <Link to="/terms" target="_blank" className="text-[#855F06] font-medium underline hover:text-[#141414]">
+                  <Link to="/terms" target="_blank" className="text-black font-medium underline hover:text-neutral-600">
                     Terms of Service
                   </Link>{' '}
                   and acknowledge the{' '}
-                  <Link to="/privacy" target="_blank" className="text-[#855F06] font-medium underline hover:text-[#141414]">
+                  <Link to="/privacy" target="_blank" className="text-black font-medium underline hover:text-neutral-600">
                     Privacy Policy
                   </Link>
                   . *
@@ -193,9 +193,9 @@ export const LoginPage: React.FC = () => {
                   type="checkbox"
                   checked={marketingConsent}
                   onChange={(e) => setMarketingConsent(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#B8860B] focus:ring-[#B8860B]"
+                  className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-black focus:ring-black"
                 />
-                <span className="text-[11px] text-[#555555] font-light leading-relaxed">
+                <span className="text-[11px] text-neutral-500 font-light leading-relaxed">
                   Send me exclusive fragrance drops and private harvest releases (Unsubscribe anytime via email or account portal).
                 </span>
               </label>
@@ -205,7 +205,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-lg shadow-gold-sm transition-all flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
+            className="w-full py-3.5 bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-[0.2em] font-bold rounded shadow-sm transition-all flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-black"
           >
             {loading ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -218,26 +218,19 @@ export const LoginPage: React.FC = () => {
           </button>
         </form>
 
-        <div className="pt-4 border-t border-[#EAE5DC] text-center space-y-3">
+        <div className="pt-4 border-t border-neutral-200 text-center space-y-3">
           <button
             type="button"
             onClick={() => {
               setIsRegister(!isRegister);
               setError(null);
             }}
-            className="text-xs text-[#B8860B] hover:underline font-medium"
+            className="text-xs text-neutral-700 hover:text-black underline font-medium"
           >
             {isRegister
               ? 'Already have an account? Sign in'
               : "Don't have an account yet? Create one"}
           </button>
-
-          <p className="text-[11px] text-[#4A4A4A]">
-            Store Owner?{' '}
-            <Link to="/admin" className="text-[#B8860B] hover:underline font-medium">
-              Admin Portal
-            </Link>
-          </p>
         </div>
       </div>
     </div>
