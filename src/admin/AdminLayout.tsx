@@ -184,7 +184,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </Link>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3 sm:space-x-4">
+          <Link
+            to="/admin/homepage"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-sm bg-luxury-gold/15 hover:bg-luxury-gold text-luxury-gold hover:text-white border border-luxury-gold/40 text-xs font-semibold uppercase tracking-wider transition-all shadow-sm"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Homepage Editor</span>
+          </Link>
+
           <Link
             to="/"
             target="_blank"
@@ -225,14 +233,27 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                       key={item.path}
                       to={item.path}
                       onClick={() => setSidebarOpen(false)}
-                      className={`flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs uppercase tracking-wider transition-all ${
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs uppercase tracking-wider transition-all ${
                         isActive
                           ? 'bg-luxury-gold text-white font-semibold shadow-sm'
                           : 'text-stone-600 hover:text-luxury-dark hover:bg-stone-50'
                       }`}
                     >
-                      <Icon className="w-4 h-4" />
-                      <span>{item.name}</span>
+                      <div className="flex items-center space-x-3">
+                        <Icon className="w-4 h-4" />
+                        <span>{item.name}</span>
+                      </div>
+                      {item.path === '/admin/homepage' && (
+                        <span
+                          className={`text-[9px] uppercase font-bold font-mono px-1.5 py-0.5 rounded ${
+                            isActive
+                              ? 'bg-white text-luxury-gold'
+                              : 'bg-luxury-gold/15 text-luxury-gold'
+                          }`}
+                        >
+                          NEW
+                        </span>
+                      )}
                     </Link>
                   );
                 })}

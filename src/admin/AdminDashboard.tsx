@@ -11,6 +11,7 @@ import {
   ArrowRight,
   FolderTree,
   Settings,
+  Sparkles,
 } from 'lucide-react';
 import { dbService } from '../lib/supabase';
 import { Product, Order, Category } from '../types';
@@ -74,8 +75,16 @@ export const AdminDashboard: React.FC = () => {
           </h1>
         </div>
 
-        {/* Primary Action Button */}
-        <div className="flex items-center space-x-3">
+        {/* Action Buttons */}
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            to="/admin/homepage"
+            className="px-4 py-2.5 bg-luxury-gold/10 hover:bg-luxury-gold/20 text-luxury-gold border border-luxury-gold/40 text-xs uppercase tracking-widest font-semibold rounded-lg shadow-sm transition-all flex items-center space-x-1.5"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Homepage Editor</span>
+          </Link>
+
           <Link
             to="/admin/products?action=new"
             className="px-5 py-2.5 bg-luxury-gold hover:bg-luxury-goldHover text-white text-xs uppercase tracking-widest font-semibold rounded-lg shadow-sm transition-all flex items-center space-x-1.5"
@@ -87,12 +96,28 @@ export const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Obvious Quick Navigation Tiles for Store Owner */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <Link
+          to="/admin/homepage"
+          className="p-4 rounded-xl bg-luxury-gold/10 border border-luxury-gold/40 hover:bg-luxury-gold/20 transition-all flex items-center space-x-3 group shadow-sm col-span-2 sm:col-span-1"
+        >
+          <div className="w-10 h-10 rounded-lg bg-luxury-gold text-white flex items-center justify-center font-bold flex-shrink-0">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="flex items-center space-x-1">
+              <h4 className="text-sm font-semibold text-luxury-dark group-hover:text-luxury-gold">Homepage</h4>
+              <span className="text-[9px] uppercase px-1.5 py-0.2 bg-luxury-gold text-white rounded font-bold font-mono">NEW</span>
+            </div>
+            <p className="text-[11px] text-stone-500">Edit hero & sections</p>
+          </div>
+        </Link>
+
         <Link
           to="/admin/products?action=new"
-          className="p-4 rounded-xl bg-luxury-gold/10 border border-luxury-gold/30 hover:bg-luxury-gold/20 transition-all flex items-center space-x-3 group shadow-sm"
+          className="p-4 rounded-xl bg-white border border-luxury-border hover:border-luxury-gold/50 transition-all flex items-center space-x-3 group shadow-sm"
         >
-          <div className="w-10 h-10 rounded-lg bg-luxury-gold text-white flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-lg bg-stone-50 border border-luxury-border flex items-center justify-center text-luxury-gold flex-shrink-0 font-bold">
             <Plus className="w-5 h-5" />
           </div>
           <div>
@@ -105,7 +130,7 @@ export const AdminDashboard: React.FC = () => {
           to="/admin/products"
           className="p-4 rounded-xl bg-white border border-luxury-border hover:border-luxury-gold/50 transition-all flex items-center space-x-3 group shadow-sm"
         >
-          <div className="w-10 h-10 rounded-lg bg-stone-50 border border-luxury-border flex items-center justify-center text-luxury-gold">
+          <div className="w-10 h-10 rounded-lg bg-stone-50 border border-luxury-border flex items-center justify-center text-luxury-gold flex-shrink-0">
             <Package className="w-5 h-5" />
           </div>
           <div>
@@ -118,7 +143,7 @@ export const AdminDashboard: React.FC = () => {
           to="/admin/categories"
           className="p-4 rounded-xl bg-white border border-luxury-border hover:border-luxury-gold/50 transition-all flex items-center space-x-3 group shadow-sm"
         >
-          <div className="w-10 h-10 rounded-lg bg-stone-50 border border-luxury-border flex items-center justify-center text-luxury-gold">
+          <div className="w-10 h-10 rounded-lg bg-stone-50 border border-luxury-border flex items-center justify-center text-luxury-gold flex-shrink-0">
             <FolderTree className="w-5 h-5" />
           </div>
           <div>
@@ -131,7 +156,7 @@ export const AdminDashboard: React.FC = () => {
           to="/admin/orders"
           className="p-4 rounded-xl bg-white border border-luxury-border hover:border-luxury-gold/50 transition-all flex items-center space-x-3 group shadow-sm"
         >
-          <div className="w-10 h-10 rounded-lg bg-stone-50 border border-luxury-border flex items-center justify-center text-luxury-gold">
+          <div className="w-10 h-10 rounded-lg bg-stone-50 border border-luxury-border flex items-center justify-center text-luxury-gold flex-shrink-0">
             <ShoppingBag className="w-5 h-5" />
           </div>
           <div>
