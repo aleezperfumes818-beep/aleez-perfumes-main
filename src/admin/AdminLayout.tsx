@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   Lock,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -69,6 +70,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: 'Products', path: '/admin/products', icon: Package },
     { name: 'Categories', path: '/admin/categories', icon: FolderTree },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
+    { name: 'Homepage Editor', path: '/admin/homepage', icon: Sparkles },
     { name: 'Admins & Staff', path: '/admin/team', icon: Users },
     { name: 'Store Settings', path: '/admin/settings', icon: Settings },
   ];

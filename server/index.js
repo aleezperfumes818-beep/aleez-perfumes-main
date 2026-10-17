@@ -562,6 +562,46 @@ app.delete('/api/admin/categories/:id', async (req, res) => {
   }
 });
 
+// --- 7. ADMIN HOMEPAGE CONTENT MANAGEMENT ---
+app.get('/api/admin/homepage', async (req, res) => {
+  try {
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('store_settings')
+        .select('value')
+        .eq('key', 'homepage')
+        .single();
+      if (!error && data && data.value) {
+        return res.json({ success: true, content: data.value });
+      }
+    }
+    return res.json({ success: true, content: null });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/admin/homepage', async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content) {
+      return res.status(400).json({ error: 'Homepage content is required' });
+    }
+    if (supabase) {
+      const { data, error } = await supabase
+        .from('store_settings')
+        .upsert({ key: 'homepage', value: content })
+        .select('*')
+        .single();
+      if (error) return res.status(500).json({ error: error.message });
+      return res.json({ success: true, content: data?.value || content });
+    }
+    return res.json({ success: true, content });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Serve frontend build in production
 const distPath = path.resolve(__dirname, '../dist');
 app.use(express.static(distPath));

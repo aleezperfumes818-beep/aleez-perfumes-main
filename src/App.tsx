@@ -43,6 +43,7 @@ import { AdminCategories } from './admin/AdminCategories';
 import { AdminOrders } from './admin/AdminOrders';
 import { AdminTeam } from './admin/AdminTeam';
 import { AdminSettings } from './admin/AdminSettings';
+import { AdminHomepage } from './admin/AdminHomepage';
 
 // Helper to scroll to top on route navigation
 const ScrollToTop: React.FC = () => {
@@ -74,6 +75,7 @@ const MainContent: React.FC = () => {
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/categories" element={<AdminCategories />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/homepage" element={<AdminHomepage />} />
             <Route path="/admin/team" element={<AdminTeam />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Routes>

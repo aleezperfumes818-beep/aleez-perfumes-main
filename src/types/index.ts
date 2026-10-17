@@ -159,6 +159,67 @@ export interface RazorpayOptions {
   };
 }
 
+export interface HomepageContent {
+  hero: {
+    badge: string;
+    title_line1: string;
+    title_line2: string;
+    subtitle: string;
+    primary_btn_text: string;
+    primary_btn_link: string;
+    secondary_btn_text: string;
+    secondary_btn_link: string;
+    video_url: string;
+    fallback_image_url: string;
+  };
+  spotlight: {
+    enabled: boolean;
+    badge: string;
+    title: string;
+    subtitle: string;
+    product_id?: string;
+  };
+  specialties: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    cards: Array<{
+      id: string;
+      title: string;
+      subtitle: string;
+      description: string;
+      image_url: string;
+      link: string;
+    }>;
+  };
+  bestsellers_section: {
+    badge: string;
+    title: string;
+    subtitle: string;
+    cta_text: string;
+  };
+  bespoke_studio: {
+    enabled: boolean;
+    badge: string;
+    title_line1: string;
+    title_line2: string;
+    description: string;
+    button_text: string;
+    whatsapp_consult_text: string;
+  };
+  pillars: Array<{
+    id: string;
+    title: string;
+    description: string;
+    icon: string;
+  }>;
+  newsletter: {
+    badge: string;
+    title: string;
+    subtitle: string;
+  };
+}
+
 declare global {
   interface Window {
     Razorpay: new (options: RazorpayOptions) => {
@@ -167,3 +228,4 @@ declare global {
     };
   }
 }
+

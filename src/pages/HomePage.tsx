@@ -24,12 +24,23 @@ import {
 } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
-import { Product, Category } from '../types';
+import { Product, Category, HomepageContent } from '../types';
 import { dbService } from '../lib/supabase';
+import { initialHomepageContent } from '../lib/initialData';
 import { useSettings } from '../context/SettingsContext';
 import { useCart } from '../context/CartContext';
 
+const pillarIcons: Record<string, React.FC<{ className?: string }>> = {
+  Truck,
+  Clock,
+  Droplets,
+  Shield,
+  Award,
+  Sparkles,
+};
+
 export const HomePage: React.FC = () => {
+  const [content, setContent] = useState<HomepageContent>(initialHomepageContent);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
@@ -75,12 +86,16 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [prodData, catData] = await Promise.all([
+        const [prodData, catData, homeData] = await Promise.all([
           dbService.getProducts(),
           dbService.getCategories(),
+          dbService.getHomepageContent(),
         ]);
         setProducts(prodData.filter((p) => p.is_active));
         setCategories(catData.filter((c) => c.is_active));
+        if (homeData) {
+          setContent(homeData);
+        }
       } catch (err) {
         console.warn('Error loading home data:', err);
       } finally {
@@ -90,8 +105,9 @@ export const HomePage: React.FC = () => {
     fetchData();
   }, []);
 
-  // Spotlight product: Velvet Oud Noir or first bestseller
+  // Spotlight product: selected product by ID, or Velvet Oud Noir, or first bestseller
   const spotlightProduct =
+    (content.spotlight?.product_id ? products.find((p) => p.id === content.spotlight.product_id) : null) ||
     products.find((p) => p.slug === 'velvet-oud-noir') ||
     products.find((p) => p.is_bestseller) ||
     products[0];
@@ -125,14 +141,15 @@ export const HomePage: React.FC = () => {
         <div className="absolute inset-0 z-0 overflow-hidden">
           <video
             ref={videoRef}
-            key="aleez-signature-video"
+            key={content.hero.video_url || 'aleez-signature-video'}
             autoPlay
             loop
             muted={isMuted}
             playsInline
+            poster={content.hero.fallback_image_url}
             className="w-full h-full object-cover object-center scale-[1.12] origin-center transition-transform duration-1000 ease-out"
           >
-            <source src="/videos/aleez-signature.mp4" type="video/mp4" />
+            <source src={content.hero.video_url || '/videos/aleez-signature.mp4'} type="video/mp4" />
           </video>
 
           {/* Balanced Luxury Vignette Overlay (Leaves video vividly visible while text is crisp) */}
@@ -143,33 +160,33 @@ export const HomePage: React.FC = () => {
         <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pt-10">
           <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-sm border border-[#D4AF37]/50 bg-black/60 backdrop-blur-md shadow-2xl animate-fade-in">
             <span className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#F5E9BF] font-semibold">
-              HAUTE PARFUMERIE • PURE OUD EXTRACTIONS &amp; ATTARS
+              {content.hero.badge}
             </span>
           </div>
 
           <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-wide text-white leading-[1.08] animate-slide-up drop-shadow-xl">
-            Artisanal Fragrance &amp; <br />
-            <span className="italic font-light text-[#E5C378]">Rare Botanicals</span>
+            {content.hero.title_line1} <br />
+            <span className="italic font-light text-[#E5C378]">{content.hero.title_line2}</span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-stone-200 font-light leading-relaxed tracking-wide animate-fade-in drop-shadow">
-            Master-formulated in limited batches using authentic botanical absolutes, aged Cambodian oud, and pure oils. Handcrafted at 35% Extrait de Parfum concentration for profound sillage.
+            {content.hero.subtitle}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-fade-in">
             <Link
-              to="/shop"
+              to={content.hero.primary_btn_link || '/shop'}
               className="w-full sm:w-auto px-8 py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.22em] font-semibold rounded-sm shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2 group"
             >
-              <span>Explore Collection</span>
+              <span>{content.hero.primary_btn_text}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
             <Link
-              to="/create-your-fragrance"
+              to={content.hero.secondary_btn_link || '/create-your-fragrance'}
               className="w-full sm:w-auto px-8 py-3.5 bg-black/40 hover:bg-white text-white hover:text-black border border-white/60 hover:border-white text-xs uppercase tracking-[0.22em] font-semibold rounded-sm backdrop-blur-sm transition-all duration-300 shadow-sm flex items-center justify-center space-x-2"
             >
-              <span>Bespoke Atelier</span>
+              <span>{content.hero.secondary_btn_text}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -212,18 +229,18 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 2. FRAGRANCE OF THE WEEK (Yusuf Bhai's Signature Spotlight Section)       */}
       {/* ========================================================================= */}
-      {spotlightProduct && (
+      {content.spotlight.enabled !== false && spotlightProduct && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
             <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] text-[#7A5B10] text-[11px] uppercase tracking-[0.2em] font-semibold">
               <Flame className="w-3.5 h-3.5 text-[#B8860B]" />
-              <span>Weekly Curation</span>
+              <span>{content.spotlight.badge}</span>
             </div>
             <h2 className="font-serif text-3xl sm:text-4xl text-[#141414]">
-              Fragrance of the Week
+              {content.spotlight.title}
             </h2>
             <p className="text-sm text-[#555555] font-light">
-              Discover this week's handpicked master formulation, macerated for 60 days to reach peak harmonic sillage.
+              {content.spotlight.subtitle}
             </p>
           </div>
 
@@ -394,128 +411,46 @@ export const HomePage: React.FC = () => {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-3">
           <span className="text-xs uppercase tracking-[0.25em] text-[#B8860B] font-semibold">
-            Atelier Specialties
+            {content.specialties.badge}
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl text-[#141414]">
-            Our True Masterclass Into Handpicked Formulations
+            {content.specialties.title}
           </h2>
           <p className="text-sm text-[#555555] font-light">
-            Distinctive fragrance architectures crafted for lasting poise, presence, and magnetic remembrance.
+            {content.specialties.subtitle}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Card 1: Pour Homme */}
-          <Link
-            to="/shop?category=oriental-woody"
-            className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-[#EAE5DC] shadow-card hover:shadow-luxury transition-all duration-500 flex flex-col justify-end p-6"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80"
-              alt="Pour Homme"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            <div className="relative z-10 text-white space-y-2">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#E5C378] font-mono">
-                The Iconic Masculine
-              </span>
-              <h3 className="font-serif text-2xl font-normal group-hover:text-[#F5E9BF] transition-colors">
-                Pour Homme
-              </h3>
-              <p className="text-xs text-stone-300 font-light line-clamp-2">
-                Magnetic woods, smoked leather, and crisp bergamot distilled for regal presence.
-              </p>
-              <div className="pt-2 text-xs uppercase tracking-widest text-[#E5C378] flex items-center space-x-1 font-medium">
-                <span>Explore Scent</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+          {content.specialties.cards.map((card) => (
+            <Link
+              key={card.id}
+              to={card.link || '/shop'}
+              className="group relative aspect-[3/4] rounded-sm overflow-hidden border border-[#EAE5DC] shadow-card hover:shadow-luxury transition-all duration-500 flex flex-col justify-end p-6"
+            >
+              <img
+                src={card.image_url}
+                alt={card.title}
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+              <div className="relative z-10 text-white space-y-2">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-[#E5C378] font-mono">
+                  {card.subtitle}
+                </span>
+                <h3 className="font-serif text-2xl font-normal group-hover:text-[#F5E9BF] transition-colors">
+                  {card.title}
+                </h3>
+                <p className="text-xs text-stone-300 font-light line-clamp-2">
+                  {card.description}
+                </p>
+                <div className="pt-2 text-xs uppercase tracking-widest text-[#E5C378] flex items-center space-x-1 font-medium">
+                  <span>Explore Scent</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
               </div>
-            </div>
-          </Link>
-
-          {/* Card 2: Pour Femme */}
-          <Link
-            to="/shop?category=floral-fresh"
-            className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-[#EAE5DC] shadow-card hover:shadow-luxury transition-all duration-500 flex flex-col justify-end p-6"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80"
-              alt="Pour Femme"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            <div className="relative z-10 text-white space-y-2">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#E5C378] font-mono">
-                The Iconic Feminine
-              </span>
-              <h3 className="font-serif text-2xl font-normal group-hover:text-[#F5E9BF] transition-colors">
-                Pour Femme
-              </h3>
-              <p className="text-xs text-stone-300 font-light line-clamp-2">
-                Luminous florals, delicate rose absolutes, and golden Madagascar vanilla.
-              </p>
-              <div className="pt-2 text-xs uppercase tracking-widest text-[#E5C378] flex items-center space-x-1 font-medium">
-                <span>Explore Scent</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </Link>
-
-          {/* Card 3: Signature Royal Oud */}
-          <Link
-            to="/shop?category=pure-oud-collection"
-            className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-[#EAE5DC] shadow-card hover:shadow-luxury transition-all duration-500 flex flex-col justify-end p-6"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80"
-              alt="Royal Oud"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            <div className="relative z-10 text-white space-y-2">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#E5C378] font-mono">
-                Pure Agarwood
-              </span>
-              <h3 className="font-serif text-2xl font-normal group-hover:text-[#F5E9BF] transition-colors">
-                Noble Oud
-              </h3>
-              <p className="text-xs text-stone-300 font-light line-clamp-2">
-                Wild harvested agarwood aged for decades, radiating oriental smoke and dignity.
-              </p>
-              <div className="pt-2 text-xs uppercase tracking-widest text-[#E5C378] flex items-center space-x-1 font-medium">
-                <span>Explore Scent</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </Link>
-
-          {/* Card 4: Artisanal Attars */}
-          <Link
-            to="/shop?category=artisanal-attars"
-            className="group relative aspect-[3/4] rounded-2xl overflow-hidden border border-[#EAE5DC] shadow-card hover:shadow-luxury transition-all duration-500 flex flex-col justify-end p-6"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=800&q=80"
-              alt="Artisanal Attars"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-            <div className="relative z-10 text-white space-y-2">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#E5C378] font-mono">
-                Alcohol-Free Concentrates
-              </span>
-              <h3 className="font-serif text-2xl font-normal group-hover:text-[#F5E9BF] transition-colors">
-                Artisanal Attars
-              </h3>
-              <p className="text-xs text-stone-300 font-light line-clamp-2">
-                100% pure botanical and amber perfume oils delivering intimate skin longevity.
-              </p>
-              <div className="pt-2 text-xs uppercase tracking-widest text-[#E5C378] flex items-center space-x-1 font-medium">
-                <span>Explore Scent</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          </Link>
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -526,20 +461,20 @@ export const HomePage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-[#EAE5DC]">
           <div>
             <span className="text-xs uppercase tracking-[0.25em] text-[#B8860B] font-semibold">
-              Masterclass Formulations
+              {content.bestsellers_section.badge}
             </span>
             <h2 className="font-serif text-3xl sm:text-4xl text-[#141414] mt-1">
-              Brand Inspirations & Bestsellers
+              {content.bestsellers_section.title}
             </h2>
             <p className="text-sm text-[#666666] font-light mt-1">
-              Handcrafted interpretations inspired by the world's most prestigious perfume houses.
+              {content.bestsellers_section.subtitle}
             </p>
           </div>
           <Link
             to="/shop?filter=bestseller"
             className="mt-4 sm:mt-0 text-xs uppercase tracking-widest text-[#B8860B] hover:text-[#141414] flex items-center space-x-1.5 transition-colors font-semibold"
           >
-            <span>View All Inspirations</span>
+            <span>{content.bestsellers_section.cta_text}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -558,156 +493,121 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 5. THE BESPOKE PERFUME ATELIER (Yusuf Bhai's "Create Your Fragrance")      */}
       {/* ========================================================================= */}
-      <section id="bespoke-studio" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#181818] rounded-md p-8 sm:p-12 lg:p-16 border border-[#DFC38A]/40 text-white relative overflow-hidden shadow-2xl">
-          {/* Subtle background glow */}
-          <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#B8860B]/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#B8860B]/10 rounded-full blur-3xl pointer-events-none" />
+      {content.bespoke_studio.enabled !== false && (
+        <section id="bespoke-studio" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-[#181818] rounded-md p-8 sm:p-12 lg:p-16 border border-[#DFC38A]/40 text-white relative overflow-hidden shadow-2xl">
+            {/* Subtle background glow */}
+            <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#B8860B]/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#B8860B]/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-sm border border-[#D4AF37]/50 bg-white/5 backdrop-blur-md text-[#E5C378] text-xs uppercase tracking-[0.2em] font-medium">
-              <Compass className="w-3.5 h-3.5 text-[#E5C378]" />
-              <span>Bespoke Perfumery Counter</span>
-            </div>
-
-            <h2 className="font-serif text-3xl sm:text-5xl font-normal tracking-wide text-white leading-tight">
-              Can't Find Your Exact Scent? <br />
-              <span className="italic text-[#E5C378]">Create Your Bespoke Fragrance</span>
-            </h2>
-
-            <p className="text-sm sm:text-base text-stone-300 font-light leading-relaxed">
-              Just like our atelier masters, our perfumers can formulate a signature, one-of-one custom fragrance tailored specifically to your skin chemistry and olfactory preferences.
-            </p>
-
-            {/* Interactive Scent Notes Selector */}
-            <div className="pt-4 space-y-3">
-              <span className="text-xs uppercase tracking-widest text-[#E5C378] font-medium block">
-                Select Notes You Love:
-              </span>
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {[
-                  'Rich Oud & Amber',
-                  'Calabrian Bergamot & Citrus',
-                  'Bulgarian Damask Rose',
-                  'Madagascar Vanilla & Tonka',
-                  'Smoked Leather & Tobacco',
-                  'Creamy Mysore Sandalwood',
-                  'Cardamom & Warm Saffron',
-                ].map((note) => {
-                  const isSelected = selectedCustomNotes.includes(note);
-                  return (
-                    <button
-                      key={note}
-                      onClick={() => toggleCustomNote(note)}
-                      className={`px-3 py-1.5 rounded-sm text-xs transition-all flex items-center space-x-1 ${
-                        isSelected
-                          ? 'bg-[#B8860B] text-white border border-[#B8860B] shadow-sm'
-                          : 'bg-white/10 text-stone-300 border border-white/20 hover:border-[#E5C378]'
-                      }`}
-                    >
-                      {isSelected ? (
-                        <Check className="w-3 h-3 text-white mr-1" />
-                      ) : (
-                        <span className="font-mono text-[#E5C378] mr-1">+</span>
-                      )}
-                      <span>{note}</span>
-                    </button>
-                  );
-                })}
+            <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
+              <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-sm border border-[#D4AF37]/50 bg-white/5 backdrop-blur-md text-[#E5C378] text-xs uppercase tracking-[0.2em] font-medium">
+                <Compass className="w-3.5 h-3.5 text-[#E5C378]" />
+                <span>{content.bespoke_studio.badge}</span>
               </div>
-            </div>
 
-            {/* Actions: Launch Full Studio Builder & Direct WhatsApp Concierge */}
-            <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                to="/create-your-fragrance"
-                className="w-full sm:w-auto px-8 py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-semibold rounded-sm shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2 group"
-              >
-                <span>Launch Scent Studio</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              <h2 className="font-serif text-3xl sm:text-5xl font-normal tracking-wide text-white leading-tight">
+                {content.bespoke_studio.title_line1} <br />
+                <span className="italic text-[#E5C378]">{content.bespoke_studio.title_line2}</span>
+              </h2>
 
-              <a
-                href={`https://wa.me/919345526905?text=${encodeURIComponent(
-                  `Hi Aleez Perfumes, I would like to create a bespoke custom fragrance with the following notes: ${selectedCustomNotes.join(
-                    ', '
-                  )}.`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white text-white hover:text-black border border-white/60 text-xs uppercase tracking-[0.18em] font-semibold rounded-sm backdrop-blur-sm transition-all duration-300 flex items-center justify-center space-x-2"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Consult on WhatsApp</span>
-              </a>
+              <p className="text-sm sm:text-base text-stone-300 font-light leading-relaxed">
+                {content.bespoke_studio.description}
+              </p>
+
+              {/* Interactive Scent Notes Selector */}
+              <div className="pt-4 space-y-3">
+                <span className="text-xs uppercase tracking-widest text-[#E5C378] font-medium block">
+                  Select Notes You Love:
+                </span>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  {[
+                    'Rich Oud & Amber',
+                    'Calabrian Bergamot & Citrus',
+                    'Bulgarian Damask Rose',
+                    'Madagascar Vanilla & Tonka',
+                    'Smoked Leather & Tobacco',
+                    'Creamy Mysore Sandalwood',
+                    'Cardamom & Warm Saffron',
+                  ].map((note) => {
+                    const isSelected = selectedCustomNotes.includes(note);
+                    return (
+                      <button
+                        key={note}
+                        onClick={() => toggleCustomNote(note)}
+                        className={`px-3 py-1.5 rounded-sm text-xs transition-all flex items-center space-x-1 ${
+                          isSelected
+                            ? 'bg-[#B8860B] text-white border border-[#B8860B] shadow-sm'
+                            : 'bg-white/10 text-stone-300 border border-white/20 hover:border-[#E5C378]'
+                        }`}
+                      >
+                        {isSelected ? (
+                          <Check className="w-3 h-3 text-white mr-1" />
+                        ) : (
+                          <span className="font-mono text-[#E5C378] mr-1">+</span>
+                        )}
+                        <span>{note}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Actions: Launch Full Studio Builder & Direct WhatsApp Concierge */}
+              <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link
+                  to="/create-your-fragrance"
+                  className="w-full sm:w-auto px-8 py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-semibold rounded-sm shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2 group"
+                >
+                  <span>{content.bespoke_studio.button_text}</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+
+                <a
+                  href={`https://wa.me/919345526905?text=${encodeURIComponent(
+                    `Hi Aleez Perfumes, I would like to create a bespoke custom fragrance with the following notes: ${selectedCustomNotes.join(
+                      ', '
+                    )}.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white text-white hover:text-black border border-white/60 text-xs uppercase tracking-[0.18em] font-semibold rounded-sm backdrop-blur-sm transition-all duration-300 flex items-center justify-center space-x-2"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>{content.bespoke_studio.whatsapp_consult_text}</span>
+                </a>
+              </div>
+              <p className="text-[11px] text-stone-400 mt-3 font-light text-center">
+                Direct consultation with our Master Perfumer • Phone / WhatsApp: +91 9345526905
+              </p>
             </div>
-            <p className="text-[11px] text-stone-400 mt-3 font-light text-center">
-              Direct consultation with our Master Perfumer • Phone / WhatsApp: +91 9345526905
-            </p>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ========================================================================= */}
       {/* 6. THE 4 ARTISANAL PILLARS (Yusuf Bhai's "text_with_icons")                */}
       {/* ========================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-6 border-y border-[#EAE5DC]">
-          <div className="flex items-start space-x-4 p-4 rounded-sm bg-white border border-[#EAE5DC]/60 shadow-sm">
-            <div className="w-10 h-10 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#B8860B]">
-              <Truck className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-serif text-base text-[#141414] font-medium">
-                Express Shipping
-              </h4>
-              <p className="text-xs text-[#666666] font-light mt-1">
-                Complimentary luxury shipping across India on orders above ₹999.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-4 p-4 rounded-sm bg-white border border-[#EAE5DC]/60 shadow-sm">
-            <div className="w-10 h-10 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#855F06]">
-              <Clock className="w-5 h-5" aria-hidden="true" />
-            </div>
-            <div>
-              <h4 className="font-serif text-base text-[#141414] font-medium">
-                Long-Lasting Sillage
-              </h4>
-              <p className="text-xs text-[#4A4A4A] font-light mt-1">
-                Concentrated artisanal fragrance oils formulated for rich, lingering sillage (longevity varies by skin chemistry).
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-4 p-4 rounded-sm bg-white border border-[#EAE5DC]/60 shadow-sm">
-            <div className="w-10 h-10 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#855F06]">
-              <Droplets className="w-5 h-5" aria-hidden="true" />
-            </div>
-            <div>
-              <h4 className="font-serif text-base text-[#141414] font-medium">
-                Skin-Safe Formulations
-              </h4>
-              <p className="text-xs text-[#4A4A4A] font-light mt-1">
-                Crafted in strict compliance with IFRA international guidelines using skin-safe essences. Patch test recommended.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start space-x-4 p-4 rounded-sm bg-white border border-[#EAE5DC]/60 shadow-sm">
-            <div className="w-10 h-10 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#855F06]">
-              <Shield className="w-5 h-5" aria-hidden="true" />
-            </div>
-            <div>
-              <h4 className="font-serif text-base text-[#141414] font-medium">
-                Secure Checkout
-              </h4>
-              <p className="text-xs text-[#4A4A4A] font-light mt-1">
-                256-Bit SSL encryption &amp; verified Razorpay gateway protection.
-              </p>
-            </div>
-          </div>
+          {content.pillars.map((pillar) => {
+            const IconComponent = pillarIcons[pillar.icon] || Shield;
+            return (
+              <div key={pillar.id} className="flex items-start space-x-4 p-4 rounded-sm bg-white border border-[#EAE5DC]/60 shadow-sm">
+                <div className="w-10 h-10 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#B8860B]">
+                  <IconComponent className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-base text-[#141414] font-medium">
+                    {pillar.title}
+                  </h4>
+                  <p className="text-xs text-[#666666] font-light mt-1">
+                    {pillar.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -716,13 +616,13 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
         <span className="text-xs uppercase tracking-[0.25em] text-[#855F06] font-semibold">
-          Private Reserve Access
+          {content.newsletter.badge}
         </span>
         <h3 className="font-serif text-3xl text-[#141414]">
-          Join the Aleez Parfums Circle
+          {content.newsletter.title}
         </h3>
         <p className="text-sm text-[#4A4A4A] font-light max-w-md mx-auto">
-          Subscribe for complimentary 10% off your initial order, bespoke formulation drops, and private harvest releases.
+          {content.newsletter.subtitle}
         </p>
         <form
           onSubmit={(e) => {

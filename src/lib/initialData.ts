@@ -1,4 +1,4 @@
-import { Category, Product, StoreSettings, Order } from '../types';
+import { Category, Product, StoreSettings, Order, HomepageContent } from '../types';
 
 export const initialSettings: StoreSettings = {
   brand_name: "Aleez Perfumes",
@@ -353,3 +353,110 @@ export const initialOrders: Order[] = [
     created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
   },
 ];
+
+export const initialHomepageContent: HomepageContent = {
+  hero: {
+    badge: "HAUTE PARFUMERIE • PURE OUD EXTRACTIONS & ATTARS",
+    title_line1: "Artisanal Fragrance &",
+    title_line2: "Rare Botanicals",
+    subtitle: "Master-formulated in limited batches using authentic botanical absolutes, aged Cambodian oud, and pure oils. Handcrafted at 35% Extrait de Parfum concentration for profound sillage.",
+    primary_btn_text: "Explore Collection",
+    primary_btn_link: "/shop",
+    secondary_btn_text: "Bespoke Atelier",
+    secondary_btn_link: "/create-your-fragrance",
+    video_url: "/videos/aleez-signature.mp4",
+    fallback_image_url: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1920&q=80",
+  },
+  spotlight: {
+    enabled: true,
+    badge: "Weekly Curation",
+    title: "Fragrance of the Week",
+    subtitle: "Discover this week's handpicked master formulation, macerated for 60 days to reach peak harmonic sillage.",
+    product_id: "",
+  },
+  specialties: {
+    badge: "Atelier Specialties",
+    title: "Our True Masterclass Into Handpicked Formulations",
+    subtitle: "Distinctive fragrance architectures crafted for lasting poise, presence, and magnetic remembrance.",
+    cards: [
+      {
+        id: "spec-1",
+        title: "Pour Homme",
+        subtitle: "The Iconic Masculine",
+        description: "Magnetic woods, smoked leather, and crisp bergamot distilled for regal presence.",
+        image_url: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80",
+        link: "/shop?category=oriental-woody",
+      },
+      {
+        id: "spec-2",
+        title: "Pour Femme",
+        subtitle: "The Iconic Feminine",
+        description: "Luminous florals, delicate rose absolutes, and golden Madagascar vanilla.",
+        image_url: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80",
+        link: "/shop?category=floral-fresh",
+      },
+      {
+        id: "spec-3",
+        title: "Noble Oud",
+        subtitle: "Pure Agarwood",
+        description: "Wild harvested agarwood aged for decades, radiating oriental smoke and dignity.",
+        image_url: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80",
+        link: "/shop?category=pure-oud-collection",
+      },
+      {
+        id: "spec-4",
+        title: "Artisanal Attars",
+        subtitle: "Alcohol-Free Concentrates",
+        description: "100% pure botanical and amber perfume oils delivering intimate skin longevity.",
+        image_url: "https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=800&q=80",
+        link: "/shop?category=artisanal-attars",
+      },
+    ],
+  },
+  bestsellers_section: {
+    badge: "Masterclass Formulations",
+    title: "Brand Inspirations & Bestsellers",
+    subtitle: "Handcrafted interpretations inspired by the world's most prestigious perfume houses.",
+    cta_text: "View All Inspirations",
+  },
+  bespoke_studio: {
+    enabled: true,
+    badge: "Bespoke Perfumery Counter",
+    title_line1: "Can't Find Your Exact Scent?",
+    title_line2: "Create Your Bespoke Fragrance",
+    description: "Just like our atelier masters, our perfumers can formulate a signature, one-of-one custom fragrance tailored specifically to your skin chemistry and olfactory preferences.",
+    button_text: "Launch Scent Studio",
+    whatsapp_consult_text: "Consult on WhatsApp",
+  },
+  pillars: [
+    {
+      id: "pil-1",
+      title: "Express Shipping",
+      description: "Complimentary luxury shipping across India on orders above ₹999.",
+      icon: "Truck",
+    },
+    {
+      id: "pil-2",
+      title: "Long-Lasting Sillage",
+      description: "Concentrated artisanal fragrance oils formulated for rich, lingering sillage (longevity varies by skin chemistry).",
+      icon: "Clock",
+    },
+    {
+      id: "pil-3",
+      title: "Skin-Safe Formulations",
+      description: "Crafted in strict compliance with IFRA international guidelines using skin-safe essences. Patch test recommended.",
+      icon: "Droplets",
+    },
+    {
+      id: "pil-4",
+      title: "Secure Checkout",
+      description: "256-Bit SSL encryption & verified Razorpay gateway protection.",
+      icon: "Shield",
+    },
+  ],
+  newsletter: {
+    badge: "Private Reserve Access",
+    title: "Join the Aleez Parfums Circle",
+    subtitle: "Subscribe for complimentary 10% off your initial order, bespoke formulation drops, and private harvest releases.",
+  },
+};

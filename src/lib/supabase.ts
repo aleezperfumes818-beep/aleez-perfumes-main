@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import { Product, Category, Order, StoreSettings, UserProfile, OrderStatus } from '../types';
-import { initialCategories, initialProducts, initialSettings, initialOrders } from './initialData';
+import { Product, Category, Order, StoreSettings, UserProfile, OrderStatus, HomepageContent } from '../types';
+import { initialCategories, initialProducts, initialSettings, initialOrders, initialHomepageContent } from './initialData';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
@@ -24,6 +24,7 @@ const STORAGE_KEYS = {
   CATEGORIES: 'aleez_categories',
   ORDERS: 'aleez_orders',
   SETTINGS: 'aleez_settings',
+  HOMEPAGE: 'aleez_homepage_content',
   USERS: 'aleez_users',
   CURRENT_USER: 'aleez_current_user',
 };
@@ -441,6 +442,70 @@ export const dbService = {
           .upsert({ key: 'general', value: updated });
       } catch (err) {
         console.warn('Could not sync settings with Supabase:', err);
+      }
+    }
+    return updated;
+  },
+
+  // --- HOMEPAGE CONTENT ---
+  async getHomepageContent(): Promise<HomepageContent> {
+    if (supabase) {
+      try {
+        const { data, error } = await withTimeout(
+          supabase
+            .from('store_settings')
+            .select('value')
+            .eq('key', 'homepage')
+            .single()
+        );
+
+        if (!error && data && data.value) {
+          return { ...initialHomepageContent, ...data.value };
+        }
+      } catch (err) {
+        console.warn('Supabase fetch homepage content failed, using local/default:', err);
+      }
+    }
+    return getFromStorage<HomepageContent>(STORAGE_KEYS.HOMEPAGE, initialHomepageContent);
+  },
+
+  async saveHomepageContent(content: Partial<HomepageContent>): Promise<HomepageContent> {
+    const current = await this.getHomepageContent();
+    const updated: HomepageContent = {
+      ...current,
+      ...content,
+      hero: { ...current.hero, ...(content.hero || {}) },
+      spotlight: { ...current.spotlight, ...(content.spotlight || {}) },
+      specialties: {
+        ...current.specialties,
+        ...(content.specialties || {}),
+        cards: content.specialties?.cards || current.specialties.cards,
+      },
+      bestsellers_section: { ...current.bestsellers_section, ...(content.bestsellers_section || {}) },
+      bespoke_studio: { ...current.bespoke_studio, ...(content.bespoke_studio || {}) },
+      pillars: content.pillars || current.pillars,
+      newsletter: { ...current.newsletter, ...(content.newsletter || {}) },
+    };
+    saveToStorage(STORAGE_KEYS.HOMEPAGE, updated);
+
+    // Call backend API if running
+    try {
+      await fetch('/api/admin/homepage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: updated }),
+      });
+    } catch (err) {
+      // Offline fallback is already written to storage
+    }
+
+    if (supabase) {
+      try {
+        await supabase
+          .from('store_settings')
+          .upsert({ key: 'homepage', value: updated });
+      } catch (err) {
+        console.warn('Could not sync homepage settings with Supabase:', err);
       }
     }
     return updated;
