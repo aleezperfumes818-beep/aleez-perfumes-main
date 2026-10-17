@@ -122,7 +122,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
         {!query.trim() ? (
           <div className="space-y-6">
             <div>
-              <p className="text-xs uppercase tracking-widest text-[#777777] mb-3 flex items-center space-x-2">
+              <p className="text-xs uppercase tracking-widest text-[#4A4A4A] mb-3 flex items-center space-x-2 font-medium">
                 <Sparkles className="w-3.5 h-3.5 text-[#B8860B]" />
                 <span>Popular Fragrance Searches</span>
               </p>
@@ -140,7 +140,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
             </div>
 
             <div className="pt-4 border-t border-[#EAE5DC]">
-              <p className="text-xs uppercase tracking-widest text-[#777777] mb-3">
+              <p className="text-xs uppercase tracking-widest text-[#4A4A4A] mb-3 font-medium">
                 Featured Recommendations
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -159,7 +159,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                       <h4 className="text-sm font-medium text-[#141414] group-hover:text-[#B8860B] truncate transition-colors">
                         {item.name}
                       </h4>
-                      <p className="text-xs text-[#777777] truncate">{item.fragrance_family || item.category_name}</p>
+                      <p className="text-xs text-[#4A4A4A] truncate">{item.fragrance_family || item.category_name}</p>
                     </div>
                     <span className="text-xs font-mono font-semibold text-[#B8860B]">
                       {formatPrice(item.sale_price || item.price)}
@@ -192,7 +192,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
             {results.length === 0 ? (
               <div className="text-center py-12 space-y-3">
                 <p className="text-lg font-serif text-[#141414]">No fragrances matched "{query}"</p>
-                <p className="text-xs text-[#777777] max-w-md mx-auto">
+                <p className="text-xs text-[#4A4A4A] max-w-md mx-auto">
                   Try searching for notes like "Oud", "Amber", "Rose", or check our bestsellers in the shop.
                 </p>
                 <button
@@ -226,13 +226,13 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] uppercase tracking-widest text-[#777777] block mb-1">
+                    <span className="text-[10px] uppercase tracking-widest text-[#4A4A4A] block mb-1 font-medium">
                       {product.category_name || 'Haute Parfumerie'}
                     </span>
                     <h4 className="font-serif text-base text-[#141414] group-hover:text-[#B8860B] transition-colors truncate font-medium">
                       {product.name}
                     </h4>
-                    <p className="text-xs text-[#666666] line-clamp-1 mb-2 font-light">
+                    <p className="text-xs text-[#4A4A4A] line-clamp-1 mb-2 font-light">
                       {product.top_notes ? `Notes: ${product.top_notes}` : product.description}
                     </p>
                     <div className="mt-auto pt-2 border-t border-[#EAE5DC] flex items-center justify-between">

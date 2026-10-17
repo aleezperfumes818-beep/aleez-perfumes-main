@@ -75,7 +75,7 @@ export const AboutPage: React.FC = () => {
         <div className="pt-2">
           <Link
             to="/shop"
-            className="inline-flex items-center space-x-2 px-8 py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-semibold rounded-lg shadow-gold-sm transition-all"
+            className="inline-flex items-center space-x-2 px-8 py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-semibold rounded-sm shadow-gold-sm transition-all"
           >
             <span>Explore The Collection</span>
             <ArrowRight className="w-4 h-4" />

@@ -19,7 +19,7 @@ export const WishlistPage: React.FC = () => {
         <h1 className="font-serif text-3xl sm:text-4xl text-[#141414] mt-1 font-medium">
           Saved Fragrances
         </h1>
-        <p className="text-xs text-[#777777] font-light mt-1">
+        <p className="text-xs text-[#4A4A4A] font-light mt-1">
           {wishlist.length} {wishlist.length === 1 ? 'fragrance' : 'fragrances'} in your wishlist
         </p>
       </div>
@@ -77,7 +77,7 @@ export const WishlistPage: React.FC = () => {
 
                 <div className="p-4 space-y-3 bg-white">
                   <div>
-                    <span className="text-[10px] uppercase tracking-widest text-[#777777] block">
+                    <span className="text-[10px] uppercase tracking-widest text-[#4A4A4A] block">
                       {product.category_name || 'Haute Parfumerie'}
                     </span>
                     <Link to={`/product/${product.slug}`}>

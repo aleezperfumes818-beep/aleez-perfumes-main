@@ -141,27 +141,25 @@ export const HomePage: React.FC = () => {
 
         {/* Hero Content */}
         <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pt-10">
-          <div className="inline-flex items-center space-x-2 px-5 py-2 rounded-full border border-[#D4AF37]/70 bg-black/50 backdrop-blur-md shadow-2xl animate-fade-in">
-            <Sparkles className="w-3.5 h-3.5 text-[#F5D77F] animate-pulse" />
-            <span className="text-[11px] sm:text-xs uppercase tracking-[0.3em] text-[#F5E9BF] font-semibold">
-              ALEEZ PARFUMS • HAUTE PARFUMERIE ATELIER
+          <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-sm border border-[#D4AF37]/50 bg-black/60 backdrop-blur-md shadow-2xl animate-fade-in">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.28em] text-[#F5E9BF] font-semibold">
+              HAUTE PARFUMERIE • PURE OUD EXTRACTIONS &amp; ATTARS
             </span>
-            <Sparkles className="w-3.5 h-3.5 text-[#F5D77F] animate-pulse" />
           </div>
 
           <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-wide text-white leading-[1.08] animate-slide-up drop-shadow-xl">
-            Discover Your <br />
-            <span className="italic font-light text-[#E5C378]">Signature Scent</span>
+            Artisanal Fragrance &amp; <br />
+            <span className="italic font-light text-[#E5C378]">Rare Botanicals</span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-stone-200 font-light leading-relaxed tracking-wide animate-fade-in drop-shadow">
-            Handcrafted artisanal formulations macerated for unmatched projection and longevity. Rare oud distillations, ethereal floral absolutes, and magnetic oriental blends.
+            Master-formulated in limited batches using authentic botanical absolutes, aged Cambodian oud, and pure oils. Handcrafted at 35% Extrait de Parfum concentration for profound sillage.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-fade-in">
             <Link
               to="/shop"
-              className="w-full sm:w-auto px-9 py-4 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-lg shadow-gold-md hover:shadow-gold-lg transition-all duration-300 flex items-center justify-center space-x-2 group"
+              className="w-full sm:w-auto px-8 py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.22em] font-semibold rounded-sm shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2 group"
             >
               <span>Explore Collection</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -169,16 +167,16 @@ export const HomePage: React.FC = () => {
 
             <Link
               to="/create-your-fragrance"
-              className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white text-white hover:text-black border border-white/70 text-xs uppercase tracking-[0.2em] font-semibold rounded-lg backdrop-blur-sm transition-all duration-300 shadow-sm flex items-center justify-center space-x-1.5"
+              className="w-full sm:w-auto px-8 py-3.5 bg-black/40 hover:bg-white text-white hover:text-black border border-white/60 hover:border-white text-xs uppercase tracking-[0.22em] font-semibold rounded-sm backdrop-blur-sm transition-all duration-300 shadow-sm flex items-center justify-center space-x-2"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#E5C378]" />
-              <span>Create Your Fragrance</span>
+              <span>Bespoke Atelier</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
 
-        {/* Ambient Video Control Badge (Bottom Right - Yusuf Bhai Style) */}
-        <div className="absolute bottom-6 right-6 z-20 flex items-center space-x-2.5 bg-black/70 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-xl text-white">
+        {/* Ambient Video Control Badge */}
+        <div className="absolute bottom-6 right-6 z-20 flex items-center space-x-2.5 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-sm border border-white/20 shadow-xl text-white">
           <button
             onClick={togglePlay}
             aria-label={isPlaying ? 'Pause video' : 'Play video'}
@@ -197,16 +195,16 @@ export const HomePage: React.FC = () => {
             {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
           </button>
           <span className="text-[10px] uppercase tracking-widest text-[#E5C378] font-medium pl-1 hidden sm:inline">
-            Aleez Film
+            Aleez Atelier
           </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
         </div>
 
         {/* Bottom subtle scroll indicator */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 hidden sm:flex flex-col items-center space-y-2 opacity-70 text-white">
           <span className="text-[9px] uppercase tracking-[0.3em] text-stone-300">Scroll to explore</span>
-          <div className="w-4 h-7 rounded-full border border-white/40 flex items-start justify-center p-1">
-            <div className="w-1 h-1.5 bg-[#E5C378] rounded-full animate-bounce" />
+          <div className="w-4 h-7 rounded-sm border border-white/40 flex items-start justify-center p-1">
+            <div className="w-1 h-1.5 bg-[#E5C378] rounded-sm animate-bounce" />
           </div>
         </div>
       </section>
@@ -217,7 +215,7 @@ export const HomePage: React.FC = () => {
       {spotlightProduct && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
-            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#FAF3E0] border border-[#DFC38A] text-[#7A5B10] text-[11px] uppercase tracking-[0.2em] font-semibold">
+            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] text-[#7A5B10] text-[11px] uppercase tracking-[0.2em] font-semibold">
               <Flame className="w-3.5 h-3.5 text-[#B8860B]" />
               <span>Weekly Curation</span>
             </div>
@@ -229,30 +227,28 @@ export const HomePage: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-[#EAE5DC] p-6 sm:p-10 lg:p-12 shadow-card hover:shadow-luxury transition-all duration-500">
+          <div className="bg-white rounded-lg border border-[#EAE5DC] p-6 sm:p-10 lg:p-12 shadow-card hover:shadow-luxury transition-all duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               {/* Product Visual */}
               <div className="lg:col-span-5 relative">
-                <div className="relative aspect-[4/5] rounded-xl overflow-hidden bg-[#F7F5F0] border border-[#EAE5DC] shadow-sm group">
+                <div className="relative aspect-[4/5] rounded-sm overflow-hidden bg-[#F7F5F0] border border-[#EAE5DC] shadow-sm group">
                   <img
                     src={
-                      spotlightProduct.images && spotlightProduct.images[0]
+                    spotlightProduct.images && spotlightProduct.images[0]
                         ? spotlightProduct.images[0].image_url
                         : 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80'
                     }
-                    alt={spotlightProduct.name}
+                    alt={`Handcrafted flacon of ${spotlightProduct.name}`}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute top-4 left-4 bg-[#B8860B] text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded shadow-sm">
+                  <div className="absolute top-4 left-4 bg-[#B8860B] text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-sm shadow-sm">
                     Spotlight Scent
                   </div>
-                  {spotlightProduct.rating && (
-                    <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[#EAE5DC] flex items-center space-x-1.5 text-xs shadow-sm">
-                      <Star className="w-3.5 h-3.5 fill-[#B8860B] text-[#B8860B]" />
-                      <span className="font-bold text-[#141414]">{spotlightProduct.rating.toFixed(1)}</span>
-                      <span className="text-[#777777]">({spotlightProduct.review_count || 68} reviews)</span>
-                    </div>
-                  )}
+                  <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-sm border border-[#EAE5DC] flex items-center space-x-2 text-xs shadow-sm">
+                    <span className="font-mono text-[10px] uppercase tracking-wider text-[#141414] font-semibold">35% Extrait De Parfum</span>
+                    <span className="text-stone-300">•</span>
+                    <span className="text-[10px] text-[#555555] font-mono">50 ML</span>
+                  </div>
                 </div>
               </div>
 
@@ -273,7 +269,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* Scent Notes Breakdown (Yusuf Bhai Scent Pyramid) */}
-                <div className="bg-[#FAF9F6] border border-[#EAE5DC] rounded-xl p-4 sm:p-5 space-y-3">
+                <div className="bg-[#FAF9F6] border border-[#EAE5DC] rounded-sm p-4 sm:p-5 space-y-3">
                   <h4 className="text-xs uppercase tracking-[0.2em] text-[#B8860B] font-semibold">
                     Harmonic Note Profile
                   </h4>
@@ -300,17 +296,18 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* Longevity & Concentration Badges */}
-                <div className="flex flex-wrap items-center gap-3 text-xs text-[#444444]">
-                  <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium flex items-center space-x-1.5">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>24+ Hours Projection</span>
+                <div className="flex flex-wrap items-center gap-2.5 text-xs text-[#444444]">
+                  <span className="px-3 py-1 rounded-sm bg-[#FAF8F5] text-[#7A5B10] border border-[#E8DFD0] font-medium flex items-center space-x-1.5">
+                    <Clock className="w-3.5 h-3.5 text-[#B8860B]" />
+                    <span>All-Day Projection</span>
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 font-medium flex items-center space-x-1.5">
-                    <Award className="w-3.5 h-3.5" />
-                    <span>35% Extrait De Parfum</span>
+                  <span className="px-3 py-1 rounded-sm bg-[#FAF8F5] text-[#7A5B10] border border-[#E8DFD0] font-medium flex items-center space-x-1.5">
+                    <Award className="w-3.5 h-3.5 text-[#B8860B]" />
+                    <span>35% Pure Extrait</span>
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-stone-100 text-stone-700 border border-stone-200 font-medium">
-                    ✓ Handcrafted in Small Batches
+                  <span className="px-3 py-1 rounded-sm bg-[#FAF8F5] text-[#7A5B10] border border-[#E8DFD0] font-medium flex items-center space-x-1.5">
+                    <Check className="w-3.5 h-3.5 text-[#B8860B]" />
+                    <span>Small-Batch Bottled</span>
                   </span>
                 </div>
 
@@ -334,10 +331,10 @@ export const HomePage: React.FC = () => {
 
                   {/* Size buttons */}
                   <div className="flex items-center space-x-2">
-                    <span className="text-xs uppercase tracking-wider text-[#777777]">Size:</span>
+                    <span className="text-xs uppercase tracking-wider text-[#4A4A4A] font-medium">Size:</span>
                     <button
                       onClick={() => setSelectedSpotlightSize('50ml')}
-                      className={`px-3 py-1 text-xs rounded-lg border font-medium transition-all ${
+                      className={`px-3 py-1 text-xs rounded-sm border font-medium transition-all ${
                         selectedSpotlightSize === '50ml'
                           ? 'bg-[#B8860B] text-white border-[#B8860B]'
                           : 'bg-white text-[#333333] border-[#EAE5DC] hover:border-[#B8860B]'
@@ -347,7 +344,7 @@ export const HomePage: React.FC = () => {
                     </button>
                     <button
                       onClick={() => setSelectedSpotlightSize('100ml')}
-                      className={`px-3 py-1 text-xs rounded-lg border font-medium transition-all ${
+                      className={`px-3 py-1 text-xs rounded-sm border font-medium transition-all ${
                         selectedSpotlightSize === '100ml'
                           ? 'bg-[#B8860B] text-white border-[#B8860B]'
                           : 'bg-white text-[#333333] border-[#EAE5DC] hover:border-[#B8860B]'
@@ -362,7 +359,7 @@ export const HomePage: React.FC = () => {
                 <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
                   <button
                     onClick={handleAddSpotlightToCart}
-                    className="w-full sm:flex-1 py-4 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-xl shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2"
+                    className="w-full sm:flex-1 py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-sm shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2"
                   >
                     {spotlightAdded ? (
                       <>
@@ -379,7 +376,7 @@ export const HomePage: React.FC = () => {
 
                   <button
                     onClick={() => setQuickViewProduct(spotlightProduct)}
-                    className="w-full sm:w-auto px-6 py-4 bg-white hover:bg-[#F5F2EB] text-[#141414] border border-[#EAE5DC] hover:border-[#B8860B] text-xs uppercase tracking-[0.15em] font-medium rounded-xl transition-all shadow-sm flex items-center justify-center space-x-2"
+                    className="w-full sm:w-auto px-6 py-3.5 bg-white hover:bg-[#F5F2EB] text-[#141414] border border-[#EAE5DC] hover:border-[#B8860B] text-xs uppercase tracking-[0.15em] font-medium rounded-sm transition-all shadow-sm flex items-center justify-center space-x-2"
                   >
                     <Eye className="w-4 h-4 text-[#B8860B]" />
                     <span>Quick View</span>
@@ -562,13 +559,13 @@ export const HomePage: React.FC = () => {
       {/* 5. THE BESPOKE PERFUME ATELIER (Yusuf Bhai's "Create Your Fragrance")      */}
       {/* ========================================================================= */}
       <section id="bespoke-studio" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-[#181818] rounded-3xl p-8 sm:p-12 lg:p-16 border border-[#DFC38A]/40 text-white relative overflow-hidden shadow-2xl">
+        <div className="bg-[#181818] rounded-md p-8 sm:p-12 lg:p-16 border border-[#DFC38A]/40 text-white relative overflow-hidden shadow-2xl">
           {/* Subtle background glow */}
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#B8860B]/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-[#B8860B]/10 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-3xl mx-auto text-center space-y-6">
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full border border-[#D4AF37]/50 bg-white/5 backdrop-blur-md text-[#E5C378] text-xs uppercase tracking-[0.2em] font-medium">
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-sm border border-[#D4AF37]/50 bg-white/5 backdrop-blur-md text-[#E5C378] text-xs uppercase tracking-[0.2em] font-medium">
               <Compass className="w-3.5 h-3.5 text-[#E5C378]" />
               <span>Bespoke Perfumery Counter</span>
             </div>
@@ -602,14 +599,18 @@ export const HomePage: React.FC = () => {
                     <button
                       key={note}
                       onClick={() => toggleCustomNote(note)}
-                      className={`px-3.5 py-1.5 rounded-full text-xs transition-all ${
+                      className={`px-3 py-1.5 rounded-sm text-xs transition-all flex items-center space-x-1 ${
                         isSelected
                           ? 'bg-[#B8860B] text-white border border-[#B8860B] shadow-sm'
                           : 'bg-white/10 text-stone-300 border border-white/20 hover:border-[#E5C378]'
                       }`}
                     >
-                      {isSelected ? '✓ ' : '+ '}
-                      {note}
+                      {isSelected ? (
+                        <Check className="w-3 h-3 text-white mr-1" />
+                      ) : (
+                        <span className="font-mono text-[#E5C378] mr-1">+</span>
+                      )}
+                      <span>{note}</span>
                     </button>
                   );
                 })}
@@ -620,10 +621,9 @@ export const HomePage: React.FC = () => {
             <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 to="/create-your-fragrance"
-                className="w-full sm:w-auto px-8 py-4 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-xl shadow-gold-md hover:shadow-gold-lg transition-all duration-300 flex items-center justify-center space-x-2 group"
+                className="w-full sm:w-auto px-8 py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-semibold rounded-sm shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2 group"
               >
-                <Sparkles className="w-4 h-4 text-[#F5E9BF]" />
-                <span>Launch Interactive Scent Studio</span>
+                <span>Launch Scent Studio</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
 
@@ -635,7 +635,7 @@ export const HomePage: React.FC = () => {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-7 py-4 bg-white/10 hover:bg-white text-white hover:text-black border border-white/60 text-xs uppercase tracking-[0.18em] font-semibold rounded-xl backdrop-blur-sm transition-all duration-300 flex items-center justify-center space-x-2"
+                className="w-full sm:w-auto px-7 py-3.5 bg-white/10 hover:bg-white text-white hover:text-black border border-white/60 text-xs uppercase tracking-[0.18em] font-semibold rounded-sm backdrop-blur-sm transition-all duration-300 flex items-center justify-center space-x-2"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Consult on WhatsApp</span>
@@ -653,8 +653,8 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 py-6 border-y border-[#EAE5DC]">
-          <div className="flex items-start space-x-4 p-4 rounded-xl bg-white border border-[#EAE5DC]/60 shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#B8860B]">
+          <div className="flex items-start space-x-4 p-4 rounded-sm bg-white border border-[#EAE5DC]/60 shadow-sm">
+            <div className="w-10 h-10 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#B8860B]">
               <Truck className="w-5 h-5" />
             </div>
             <div>
@@ -667,44 +667,44 @@ export const HomePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-start space-x-4 p-4 rounded-xl bg-white border border-[#EAE5DC]/60 shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#B8860B]">
-              <Clock className="w-5 h-5" />
+          <div className="flex items-start space-x-4 p-4 rounded-sm bg-white border border-[#EAE5DC]/60 shadow-sm">
+            <div className="w-10 h-10 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#855F06]">
+              <Clock className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <h4 className="font-serif text-base text-[#141414] font-medium">
-                18-24h Projection
+                Long-Lasting Sillage
               </h4>
-              <p className="text-xs text-[#666666] font-light mt-1">
-                35% Extrait De Parfum oil concentration for unmatched longevity.
+              <p className="text-xs text-[#4A4A4A] font-light mt-1">
+                Concentrated artisanal fragrance oils formulated for rich, lingering sillage (longevity varies by skin chemistry).
               </p>
             </div>
           </div>
 
-          <div className="flex items-start space-x-4 p-4 rounded-xl bg-white border border-[#EAE5DC]/60 shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#B8860B]">
-              <Droplets className="w-5 h-5" />
+          <div className="flex items-start space-x-4 p-4 rounded-sm bg-white border border-[#EAE5DC]/60 shadow-sm">
+            <div className="w-10 h-10 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#855F06]">
+              <Droplets className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <h4 className="font-serif text-base text-[#141414] font-medium">
-                Pure & Skin-Safe
+                Skin-Safe Formulations
               </h4>
-              <p className="text-xs text-[#666666] font-light mt-1">
-                100% hypoallergenic organic bases, non-toxic, and IFRA certified.
+              <p className="text-xs text-[#4A4A4A] font-light mt-1">
+                Crafted in strict compliance with IFRA international guidelines using skin-safe essences. Patch test recommended.
               </p>
             </div>
           </div>
 
-          <div className="flex items-start space-x-4 p-4 rounded-xl bg-white border border-[#EAE5DC]/60 shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#B8860B]">
-              <Shield className="w-5 h-5" />
+          <div className="flex items-start space-x-4 p-4 rounded-sm bg-white border border-[#EAE5DC]/60 shadow-sm">
+            <div className="w-10 h-10 rounded-sm bg-[#FAF3E0] border border-[#DFC38A] flex items-center justify-center flex-shrink-0 text-[#855F06]">
+              <Shield className="w-5 h-5" aria-hidden="true" />
             </div>
             <div>
               <h4 className="font-serif text-base text-[#141414] font-medium">
                 Secure Checkout
               </h4>
-              <p className="text-xs text-[#666666] font-light mt-1">
-                256-Bit SSL encryption & verified Razorpay gateway protection.
+              <p className="text-xs text-[#4A4A4A] font-light mt-1">
+                256-Bit SSL encryption &amp; verified Razorpay gateway protection.
               </p>
             </div>
           </div>
@@ -715,13 +715,13 @@ export const HomePage: React.FC = () => {
       {/* 7. VIP ATELIER NEWSLETTER                                                 */}
       {/* ========================================================================= */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
-        <span className="text-xs uppercase tracking-[0.25em] text-[#B8860B] font-semibold">
+        <span className="text-xs uppercase tracking-[0.25em] text-[#855F06] font-semibold">
           Private Reserve Access
         </span>
         <h3 className="font-serif text-3xl text-[#141414]">
           Join the Aleez Parfums Circle
         </h3>
-        <p className="text-sm text-[#555555] font-light max-w-md mx-auto">
+        <p className="text-sm text-[#4A4A4A] font-light max-w-md mx-auto">
           Subscribe for complimentary 10% off your initial order, bespoke formulation drops, and private harvest releases.
         </p>
         <form
@@ -732,18 +732,25 @@ export const HomePage: React.FC = () => {
           className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto pt-2"
         >
           <input
+            id="newsletter-email"
             type="email"
             required
+            aria-label="Email address for VIP newsletter"
             placeholder="Enter your email address"
-            className="w-full px-4 py-3 bg-white border border-[#EAE5DC] rounded-xl text-xs focus:outline-none focus:border-[#B8860B] text-[#141414] shadow-sm"
+            className="w-full px-4 py-3 bg-white border border-[#EAE5DC] rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-[#B8860B] focus:border-[#B8860B] text-[#141414] shadow-sm"
           />
           <button
             type="submit"
-            className="w-full sm:w-auto px-6 py-3 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-widest font-semibold rounded-xl transition-all shadow-sm flex-shrink-0"
+            className="w-full sm:w-auto px-6 py-3 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-widest font-semibold rounded-sm transition-all shadow-sm flex-shrink-0 focus:outline-none focus:ring-1 focus:ring-[#B8860B]"
           >
             Subscribe
           </button>
         </form>
+        <p className="text-[11px] text-[#555555] font-light max-w-md mx-auto pt-1">
+          By subscribing, you agree to our{' '}
+          <Link to="/privacy" className="text-[#855F06] underline hover:text-[#141414]">Privacy Policy</Link>.
+          You can <Link to="/unsubscribe" className="text-[#855F06] underline hover:text-[#141414]">unsubscribe at any time</Link> via the link in our emails or website footer.
+        </p>
       </section>
 
       {/* Quick View Modal */}

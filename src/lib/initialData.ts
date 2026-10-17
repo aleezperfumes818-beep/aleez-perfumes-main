@@ -193,7 +193,7 @@ export const initialProducts: Product[] = [
     category_name: "Artisanal Attars",
     price: 1499,
     sale_price: 1199,
-    description: "Pure concentrated botanical perfumed oil distilled from freshly handpicked Taif roses blended into an aged sandalwood base. 100% alcohol-free with 24-hour lasting potency.",
+    description: "Pure concentrated botanical perfumed oil distilled from freshly handpicked Taif roses blended into an aged sandalwood base. 100% alcohol-free with exceptional, lingering skin projection.",
     fragrance_family: "Pure Floral Oil",
     top_notes: "Taif Rose Petals, Dewy Morning Greens",
     heart_notes: "Damascena Absolute, Geranium Bourbon",

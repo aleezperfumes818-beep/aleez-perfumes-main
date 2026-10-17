@@ -210,7 +210,7 @@ Please guide me with the final maceration and order confirmation.`;
                   </span>
                   <h3 className="font-serif text-xl text-[#141414] font-medium">Choose Your Bottle Style</h3>
                 </div>
-                <span className="text-xs text-[#777777] font-light">Select 1</span>
+                <span className="text-xs text-[#4A4A4A] font-medium">Select 1</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -234,7 +234,7 @@ Please guide me with the final maceration and order confirmation.`;
                           <h4 className="font-serif text-sm font-medium text-[#141414]">{bottle.name}</h4>
                           {isSelected && <Check className="w-4 h-4 text-[#B8860B]" />}
                         </div>
-                        <p className="text-[11px] text-[#777777] font-light mt-1 line-clamp-2">
+                        <p className="text-[11px] text-[#4A4A4A] font-light mt-1 line-clamp-2">
                           {bottle.description}
                         </p>
                       </div>
@@ -252,7 +252,7 @@ Please guide me with the final maceration and order confirmation.`;
                   <div className="flex items-center space-x-3">
                     <button
                       onClick={() => setSelectedVolume('50ml')}
-                      className={`flex-1 py-2.5 rounded-lg border text-xs font-semibold tracking-wider transition-all ${
+                      className={`flex-1 py-2.5 rounded-sm border text-xs font-semibold tracking-wider transition-all ${
                         selectedVolume === '50ml'
                           ? 'bg-[#B8860B] text-white border-[#B8860B] shadow-sm'
                           : 'bg-white text-[#333333] border-[#EAE5DC] hover:border-[#B8860B]'
@@ -262,7 +262,7 @@ Please guide me with the final maceration and order confirmation.`;
                     </button>
                     <button
                       onClick={() => setSelectedVolume('100ml')}
-                      className={`flex-1 py-2.5 rounded-lg border text-xs font-semibold tracking-wider transition-all ${
+                      className={`flex-1 py-2.5 rounded-sm border text-xs font-semibold tracking-wider transition-all ${
                         selectedVolume === '100ml'
                           ? 'bg-[#B8860B] text-white border-[#B8860B] shadow-sm'
                           : 'bg-white text-[#333333] border-[#EAE5DC] hover:border-[#B8860B]'
@@ -301,7 +301,7 @@ Please guide me with the final maceration and order confirmation.`;
                   </span>
                   <div>
                     <h3 className="font-serif text-xl text-[#141414] font-medium">Top Notes (The Opening)</h3>
-                    <p className="text-xs text-[#777777] font-light">The immediate first impression (lasts 15-45 minutes)</p>
+                    <p className="text-xs text-[#4A4A4A] font-light">The immediate first impression (lasts 15-45 minutes)</p>
                   </div>
                 </div>
                 <span className="text-xs font-mono text-[#B8860B] bg-[#FAF3E0] px-2.5 py-1 rounded-full border border-[#DFC38A]">
@@ -353,7 +353,7 @@ Please guide me with the final maceration and order confirmation.`;
                   </span>
                   <div>
                     <h3 className="font-serif text-xl text-[#141414] font-medium">Heart Notes (The Character)</h3>
-                    <p className="text-xs text-[#777777] font-light">The core identity of your blend (lasts 3-6 hours)</p>
+                    <p className="text-xs text-[#4A4A4A] font-light">The core identity of your blend (lasts 3-6 hours)</p>
                   </div>
                 </div>
                 <span className="text-xs font-mono text-[#B8860B] bg-[#FAF3E0] px-2.5 py-1 rounded-full border border-[#DFC38A]">
@@ -405,7 +405,7 @@ Please guide me with the final maceration and order confirmation.`;
                   </span>
                   <div>
                     <h3 className="font-serif text-xl text-[#141414] font-medium">Base Notes (The Sillage & Longevity)</h3>
-                    <p className="text-xs text-[#777777] font-light">The foundation that projects for 18-24+ hours on skin and clothes</p>
+                    <p className="text-xs text-[#4A4A4A] font-light">The foundational accords that anchor your custom sillage and lasting depth</p>
                   </div>
                 </div>
                 <span className="text-xs font-mono text-[#B8860B] bg-[#FAF3E0] px-2.5 py-1 rounded-full border border-[#DFC38A]">
@@ -509,7 +509,7 @@ Please guide me with the final maceration and order confirmation.`;
                     <span className="font-serif text-3xl font-bold text-[#B8860B]">
                       {formatPrice(price)}
                     </span>
-                    <span className="text-[11px] text-[#777777] block font-light">
+                    <span className="text-[11px] text-[#4A4A4A] block font-light">
                       Includes custom compounding & bottle engraving
                     </span>
                   </div>
@@ -518,7 +518,7 @@ Please guide me with the final maceration and order confirmation.`;
                 <button
                   onClick={handleAddToCart}
                   disabled={isAdding}
-                  className="w-full py-4 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-xl shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2"
+                  className="w-full py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-sm shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2"
                 >
                   {justAdded ? (
                     <>
@@ -535,7 +535,7 @@ Please guide me with the final maceration and order confirmation.`;
 
                 <button
                   onClick={handleWhatsAppConsult}
-                  className="w-full py-3.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs uppercase tracking-[0.18em] font-semibold rounded-xl shadow-sm transition-all duration-300 flex items-center justify-center space-x-2"
+                  className="w-full py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs uppercase tracking-[0.18em] font-semibold rounded-sm shadow-sm transition-all duration-300 flex items-center justify-center space-x-2"
                 >
                   <MessageCircle className="w-4 h-4 fill-white" />
                   <span>Consult Master Perfumer on WhatsApp</span>

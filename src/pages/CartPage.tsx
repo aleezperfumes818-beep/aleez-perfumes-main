@@ -92,12 +92,12 @@ export const CartPage: React.FC = () => {
                   >
                     <img
                       src={primaryImage}
-                      alt={item.product.name}
+                      alt={`Luxury bottle of ${item.product.name}`}
                       className="w-24 h-24 object-cover rounded-lg bg-[#F5F2EB] flex-shrink-0 border border-[#EAE5DC]"
                     />
 
                     <div className="flex-1 text-center sm:text-left space-y-1">
-                      <span className="text-[10px] uppercase tracking-widest text-[#777777] block">
+                      <span className="text-[10px] uppercase tracking-widest text-[#4A4A4A] block font-medium">
                         {item.product.category_name || 'Haute Parfumerie'} • {item.product.volume_ml} ML
                       </span>
                       <Link
@@ -106,7 +106,7 @@ export const CartPage: React.FC = () => {
                       >
                         {item.product.name}
                       </Link>
-                      <span className="text-xs font-mono text-[#B8860B] font-semibold block">
+                      <span className="text-xs font-mono text-[#855F06] font-semibold block">
                         {formatPrice(currentPrice)} each
                       </span>
                     </div>
@@ -116,32 +116,34 @@ export const CartPage: React.FC = () => {
                       <div className="flex items-center border border-[#EAE5DC] rounded-lg bg-[#FAF9F6] px-2 py-1">
                         <button
                           onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                          className="text-[#666666] hover:text-[#141414] p-1"
+                          className="text-[#4A4A4A] hover:text-[#141414] p-1"
+                          aria-label="Decrease quantity"
                         >
-                          <Minus className="w-3.5 h-3.5" />
+                          <Minus className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                         <span className="font-mono text-sm px-3 text-[#141414] font-semibold">{item.quantity}</span>
                         <button
                           onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                           disabled={item.quantity >= item.product.stock_quantity}
-                          className="text-[#666666] hover:text-[#141414] p-1 disabled:opacity-30"
+                          className="text-[#4A4A4A] hover:text-[#141414] p-1 disabled:opacity-30"
+                          aria-label="Increase quantity"
                         >
-                          <Plus className="w-3.5 h-3.5" />
+                          <Plus className="w-3.5 h-3.5" aria-hidden="true" />
                         </button>
                       </div>
 
                       <button
                         onClick={() => removeFromCart(item.product.id)}
-                        className="p-2 text-[#999999] hover:text-red-600 transition-colors"
-                        aria-label="Remove item"
+                        className="p-2 text-[#4A4A4A] hover:text-red-600 transition-colors"
+                        aria-label="Remove item from bag"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4 h-4" aria-hidden="true" />
                       </button>
                     </div>
 
                     {/* Item Total */}
                     <div className="text-right sm:w-28">
-                      <span className="font-mono text-base font-bold text-[#B8860B]">
+                      <span className="font-mono text-base font-bold text-[#855F06]">
                         {formatPrice(currentPrice * item.quantity)}
                       </span>
                     </div>
@@ -158,7 +160,7 @@ export const CartPage: React.FC = () => {
                 Bag Summary
               </h2>
 
-              <div className="space-y-3 text-xs text-[#555555] font-light">
+              <div className="space-y-3 text-xs text-[#4A4A4A] font-light">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span className="font-mono text-[#141414] font-medium">{formatPrice(subtotal)}</span>
@@ -173,9 +175,13 @@ export const CartPage: React.FC = () => {
                     )}
                   </span>
                 </div>
+                <div className="pt-1 text-[11px] text-[#555555] font-light flex items-center space-x-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0" aria-hidden="true" />
+                  <span>All taxes included • Zero hidden fees</span>
+                </div>
                 <div className="pt-3 border-t border-[#EAE5DC] flex justify-between text-base font-serif text-[#141414]">
                   <span>Total</span>
-                  <span className="text-[#B8860B] font-mono font-bold text-lg">
+                  <span className="text-[#855F06] font-mono font-bold text-lg">
                     {formatPrice(total)}
                   </span>
                 </div>
@@ -190,11 +196,11 @@ export const CartPage: React.FC = () => {
               </button>
 
               <div className="space-y-2 text-center pt-2">
-                <div className="flex items-center justify-center space-x-1.5 text-[11px] text-[#777777] font-light">
+                <div className="flex items-center justify-center space-x-1.5 text-[11px] text-[#4A4A4A] font-medium">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#B8860B]" />
                   <span>Razorpay Verified • Online Prepaid Only</span>
                 </div>
-                <p className="text-[10px] text-[#888888]">
+                <p className="text-[10px] text-[#4A4A4A]">
                   Complimentary luxury box packaging included with every bottle.
                 </p>
               </div>

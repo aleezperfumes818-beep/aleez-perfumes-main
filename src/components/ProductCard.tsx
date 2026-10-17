@@ -79,7 +79,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         {/* Primary & Hover Images */}
         <img
           src={primaryImage}
-          alt={product.name}
+          alt={`Luxury bottle of ${product.name} fragrance`}
           className={`w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 ${
             secondaryImage !== primaryImage ? 'group-hover:opacity-0' : ''
           }`}
@@ -89,7 +89,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         {secondaryImage !== primaryImage && (
           <img
             src={secondaryImage}
-            alt={`${product.name} preview`}
+            alt={`Alternative flacon presentation of ${product.name}`}
             className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out opacity-0 group-hover:opacity-100 group-hover:scale-105"
             loading="lazy"
           />
@@ -148,7 +148,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
       <div className="p-4 flex flex-col flex-1 justify-between bg-white">
         <div>
           {/* Category & Volume */}
-          <div className="flex items-center justify-between text-[11px] text-[#777777] uppercase tracking-widest mb-1 font-light">
+          <div className="flex items-center justify-between text-[11px] text-[#4A4A4A] uppercase tracking-widest mb-1 font-medium">
             <span className="truncate">{product.category_name || 'Haute Parfumerie'}</span>
             <span>{product.volume_ml}ml</span>
           </div>
@@ -156,7 +156,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           {/* Inspired By Formulation Tag */}
           {(product.inspired_by || inspiredByMap[product.name]) && (
             <div className="mb-1.5">
-              <span className="inline-block text-[10px] uppercase tracking-wider text-[#7A5B10] bg-[#F7F3EB] border border-[#E8DFD0] px-2 py-0.5 rounded-full font-medium">
+              <span className="inline-block text-[10px] uppercase tracking-wider text-[#855F06] bg-[#FAF4E6] border border-[#DFC38A] px-2 py-0.5 rounded-sm font-medium">
                 {product.inspired_by
                   ? product.inspired_by.toLowerCase().startsWith('inspired by')
                     ? product.inspired_by
@@ -167,7 +167,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           )}
 
           {/* Title */}
-          <Link to={`/product/${product.slug}`}>
+          <Link to={`/product/${product.slug}`} className="focus:outline-none focus:underline">
             <h3 className="font-serif text-base sm:text-lg text-[#141414] group-hover:text-[#B8860B] transition-colors duration-200 leading-snug line-clamp-1 font-medium">
               {product.name}
             </h3>
@@ -175,7 +175,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
 
           {/* Fragrance Notes hint if available */}
           {product.top_notes && (
-            <p className="text-[11px] text-[#666666] mt-1 line-clamp-1 font-light italic">
+            <p className="text-[11px] text-[#555555] mt-1 line-clamp-1 font-light italic">
               {product.top_notes}
             </p>
           )}
@@ -184,11 +184,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         {/* Price & Add to Bag Row */}
         <div className="pt-3 mt-3 border-t border-[#EAE5DC]/80 flex items-center justify-between">
           <div className="flex items-baseline space-x-2">
-            <span className="font-mono text-base font-semibold text-[#B8860B]">
+            <span className="font-mono text-base font-semibold text-[#855F06]">
               {formatPrice(product.sale_price !== null && product.sale_price !== undefined ? product.sale_price : product.price)}
             </span>
             {product.sale_price && (
-              <span className="font-mono text-xs text-[#999999] line-through">
+              <span className="font-mono text-xs text-[#555555] line-through">
                 {formatPrice(product.price)}
               </span>
             )}

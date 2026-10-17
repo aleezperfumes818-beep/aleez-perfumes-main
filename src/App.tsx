@@ -12,6 +12,7 @@ import { CartDrawer } from './components/CartDrawer';
 import { SearchOverlay } from './components/SearchOverlay';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { LoadingScreen } from './components/LoadingScreen';
+import { CookieConsentBanner } from './components/CookieConsentBanner';
 
 // Customer Pages
 import { HomePage } from './pages/HomePage';
@@ -30,6 +31,9 @@ import { LoginPage } from './pages/LoginPage';
 import { ShippingPolicyPage } from './pages/ShippingPolicyPage';
 import { RefundPolicyPage } from './pages/RefundPolicyPage';
 import { PrivacyPolicyPage, TermsPage } from './pages/PolicyPages';
+import { DataDeletionPage } from './pages/DataDeletionPage';
+import { UnsubscribePage } from './pages/UnsubscribePage';
+import { LicensesPage } from './pages/LicensesPage';
 
 // Admin System
 import { AdminLayout } from './admin/AdminLayout';
@@ -77,13 +81,22 @@ const MainContent: React.FC = () => {
       ) : (
         // Public Luxury Customer Layout
         <div className="min-h-screen flex flex-col bg-[#FAF9F6] text-[#141414] selection:bg-[#B8860B] selection:text-white">
+          {/* Accessible Skip Link */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-[#B8860B] focus:text-white focus:rounded-lg focus:shadow-xl focus:outline-none focus:ring-2 focus:ring-[#141414] text-xs font-semibold uppercase tracking-wider"
+          >
+            Skip to main content
+          </a>
+
           <LoadingScreen />
           <Header onOpenSearch={() => setIsSearchOpen(true)} />
           <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
           <CartDrawer />
           <FloatingWhatsApp />
+          <CookieConsentBanner />
 
-          <main className="flex-1">
+          <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/shop" element={<ShopPage />} />
@@ -101,8 +114,14 @@ const MainContent: React.FC = () => {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/shipping" element={<ShippingPolicyPage />} />
               <Route path="/refund" element={<RefundPolicyPage />} />
+              <Route path="/refund-policy" element={<RefundPolicyPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/terms" element={<TermsPage />} />
+              <Route path="/terms-and-conditions" element={<TermsPage />} />
+              <Route path="/data-deletion" element={<DataDeletionPage />} />
+              <Route path="/unsubscribe" element={<UnsubscribePage />} />
+              <Route path="/licenses" element={<LicensesPage />} />
             </Routes>
           </main>
 

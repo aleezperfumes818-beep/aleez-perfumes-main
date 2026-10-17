@@ -32,9 +32,6 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({ currentProdu
         className="relative group w-14 h-14 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 focus:outline-none"
         aria-label="Chat with Aleez Perfumes on WhatsApp"
       >
-        {/* Subtle pulsing background ring */}
-        <span className="absolute -inset-1 rounded-full bg-[#25D366]/40 animate-ping opacity-75"></span>
-
         <MessageCircle className="w-7 h-7 fill-white text-white relative z-10" />
       </a>
     </div>

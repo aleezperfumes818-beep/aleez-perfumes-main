@@ -133,7 +133,7 @@ export const ProductDetailPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
       {/* Breadcrumb Navigation */}
-      <nav className="flex items-center space-x-2 text-xs text-[#777777] font-light">
+      <nav className="flex items-center space-x-2 text-xs text-[#4A4A4A] font-light">
         <Link to="/" className="hover:text-[#B8860B] transition-colors">
           Home
         </Link>
@@ -204,7 +204,7 @@ export const ProductDetailPage: React.FC = () => {
                       : 'border-[#EAE5DC] opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <img src={img.image_url} alt="" className="w-full h-full object-cover" />
+                  <img src={img.image_url} alt={`${product.name} view ${index + 1}`} className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -214,7 +214,7 @@ export const ProductDetailPage: React.FC = () => {
         {/* Product Information Column */}
         <div className="lg:col-span-5 space-y-6">
           <div className="border-b border-[#EAE5DC] pb-6 space-y-2">
-            <div className="flex items-center justify-between text-xs uppercase tracking-widest text-[#777777]">
+            <div className="flex items-center justify-between text-xs uppercase tracking-widest text-[#4A4A4A]">
               <span>{product.category_name || 'Haute Parfumerie'}</span>
               <span className="font-mono text-[#444444] font-medium">{product.volume_ml} ML / 1.7 FL. OZ.</span>
             </div>
@@ -226,7 +226,7 @@ export const ProductDetailPage: React.FC = () => {
             {/* Inspired By Formulation Tag */}
             {(product.inspired_by || (product.name && inspiredByMap[product.name])) && (
               <div className="pt-1 pb-1">
-                <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#7A5B10] bg-[#F7F3EB] border border-[#E8DFD0] px-3 py-1 rounded-full font-medium shadow-xs">
+                <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-[#7A5B10] bg-[#F7F3EB] border border-[#E8DFD0] px-3 py-1 rounded-sm font-medium">
                   <Sparkles className="w-3.5 h-3.5 text-[#B8860B]" />
                   {product.inspired_by
                     ? product.inspired_by.toLowerCase().startsWith('inspired by')
@@ -254,40 +254,41 @@ export const ProductDetailPage: React.FC = () => {
                 </span>
               )}
               {discountPercent && (
-                <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-300">
+                <span className="text-xs font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-sm border border-emerald-300">
                   {discountPercent}% OFF
                 </span>
               )}
             </div>
 
-            <div className="flex items-center space-x-2 pt-1 text-xs text-[#666666]">
-              <div className="flex text-[#B8860B]">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3.5 h-3.5 fill-[#B8860B]" />
-                ))}
-              </div>
-              <span className="font-mono font-semibold text-[#141414]">{product.rating}</span>
+            <p className="text-[11px] text-[#4A4A4A] font-light">
+              All prices inclusive of GST. No hidden handling or gateway fees.
+            </p>
+
+            <div className="flex items-center space-x-2 pt-1 text-xs text-[#666666] font-mono">
+              <span className="uppercase tracking-wider font-semibold text-[#141414]">35% Extrait De Parfum</span>
               <span>•</span>
-              <span>{product.review_count} verified client reviews</span>
+              <span>Handcrafted in India</span>
+              <span>•</span>
+              <span>Small-Batch Maceration</span>
             </div>
           </div>
 
           {/* Stock Indicator */}
           <div>
             {isOutOfStock ? (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800 flex items-center space-x-2">
+              <div className="p-3 bg-red-50 border border-red-200 rounded-sm text-xs text-red-800 flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-red-600" />
                 <span>Currently Out of Stock. Reserve your bottle on WhatsApp.</span>
               </div>
             ) : product.stock_quantity <= 5 ? (
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center space-x-2">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-sm text-xs text-amber-800 flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                 <span>Rare Batch: Only {product.stock_quantity} bottles remaining in stock</span>
               </div>
             ) : (
               <div className="text-xs text-emerald-700 font-medium flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-emerald-600" />
-                <span>In Stock & Ready for Immediate Dispatch</span>
+                <span>In Stock &amp; Ready for Immediate Dispatch</span>
               </div>
             )}
           </div>
@@ -295,7 +296,7 @@ export const ProductDetailPage: React.FC = () => {
           {/* Quantity Selector & Purchase CTAs */}
           <div className="space-y-3 pt-2">
             <div className="flex items-center space-x-3">
-              <div className="flex items-center border border-[#EAE5DC] rounded-xl bg-[#FAF9F6] px-3 py-2">
+              <div className="flex items-center border border-[#EAE5DC] rounded-sm bg-[#FAF9F6] px-3 py-2">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -321,7 +322,7 @@ export const ProductDetailPage: React.FC = () => {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className={`flex-1 py-3.5 rounded-xl text-xs uppercase tracking-[0.2em] font-bold transition-all duration-300 flex items-center justify-center space-x-2 ${
+                className={`flex-1 py-3.5 rounded-sm text-xs uppercase tracking-[0.2em] font-bold transition-all duration-300 flex items-center justify-center space-x-2 ${
                   isOutOfStock
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                     : justAdded
@@ -346,7 +347,7 @@ export const ProductDetailPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleWishlist(product)}
-                className={`p-3.5 rounded-xl border transition-colors ${
+                className={`p-3.5 rounded-sm border transition-colors ${
                   isWished
                     ? 'border-[#B8860B] bg-[#B8860B]/10 text-[#B8860B] shadow-sm'
                     : 'border-[#EAE5DC] bg-white text-[#555555] hover:text-[#141414] hover:border-[#999999]'
@@ -362,7 +363,7 @@ export const ProductDetailPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleBuyNow}
-                className="w-full py-3.5 rounded-xl bg-white border-2 border-[#B8860B] text-[#B8860B] hover:bg-[#B8860B] hover:text-white text-xs uppercase tracking-[0.2em] font-bold transition-all duration-300 shadow-sm"
+                className="w-full py-3.5 rounded-sm bg-white border-2 border-[#B8860B] text-[#B8860B] hover:bg-[#B8860B] hover:text-white text-xs uppercase tracking-[0.2em] font-bold transition-all duration-300 shadow-sm"
               >
                 Instant Buy Now
               </button>
@@ -373,7 +374,7 @@ export const ProductDetailPage: React.FC = () => {
               href={getWhatsAppUrl(product.name)}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full py-2.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] border border-[#25D366]/30 text-xs uppercase tracking-wider font-semibold transition-colors flex items-center justify-center space-x-2"
+              className="w-full py-2.5 rounded-sm bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] border border-[#25D366]/30 text-xs uppercase tracking-wider font-semibold transition-colors flex items-center justify-center space-x-2"
             >
               <MessageCircle className="w-4 h-4 text-[#25D366]" />
               <span>Inquire about this Scent on WhatsApp</span>
@@ -428,19 +429,28 @@ export const ProductDetailPage: React.FC = () => {
           )}
 
           {/* Shipping & Return Highlights */}
-          <div className="pt-4 border-t border-[#EAE5DC] space-y-2.5 text-xs text-[#555555] font-light">
+          <div className="pt-4 border-t border-[#EAE5DC] space-y-2.5 text-xs text-[#4A4A4A] font-light">
             <div className="flex items-center space-x-2">
-              <Truck className="w-4 h-4 text-[#B8860B] flex-shrink-0" />
+              <Truck className="w-4 h-4 text-[#855F06] flex-shrink-0" aria-hidden="true" />
               <span>Complimentary express delivery on orders over ₹999 across India.</span>
             </div>
             <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-4 h-4 text-[#B8860B] flex-shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-[#855F06] flex-shrink-0" aria-hidden="true" />
               <span>Prepaid online payment secured with Razorpay 256-bit encryption.</span>
             </div>
             <div className="flex items-center space-x-2">
-              <RotateCcw className="w-4 h-4 text-[#B8860B] flex-shrink-0" />
-              <span>Damage-in-transit replacement guarantee with unboxing video proof.</span>
+              <RotateCcw className="w-4 h-4 text-[#855F06] flex-shrink-0" aria-hidden="true" />
+              <span>
+                Transit damage replacement guarantee. Review our{' '}
+                <Link to="/refund" className="text-[#855F06] underline hover:text-[#141414]">
+                  Refund Policy
+                </Link>
+                .
+              </span>
             </div>
+            <p className="text-[11px] text-[#555555] pt-1">
+              * Note: Formulated adhering strictly to IFRA standards. As with all fine perfume oils, a brief patch test on the inner wrist is advised.
+            </p>
           </div>
         </div>
       </div>

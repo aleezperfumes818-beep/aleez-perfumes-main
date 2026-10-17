@@ -21,6 +21,17 @@ export const CartDrawer: React.FC = () => {
   const { formatPrice } = useSettings();
   const navigate = useNavigate();
 
+  // Keyboard navigation: Escape key closes the cart drawer
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isCartOpen) {
+        setIsCartOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isCartOpen, setIsCartOpen]);
+
   if (!isCartOpen) return null;
 
   const handleCheckout = () => {
@@ -31,7 +42,12 @@ export const CartDrawer: React.FC = () => {
   const amountNeededForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Your Shopping Bag"
+      className="fixed inset-0 z-50 overflow-hidden animate-fade-in"
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
@@ -43,18 +59,18 @@ export const CartDrawer: React.FC = () => {
           {/* Drawer Header */}
           <div className="p-5 border-b border-[#EAE5DC] flex items-center justify-between bg-[#FCFBF9]">
             <div className="flex items-center space-x-2">
-              <ShoppingBag className="w-5 h-5 text-[#B8860B]" />
+              <ShoppingBag className="w-5 h-5 text-[#855F06]" aria-hidden="true" />
               <h2 className="font-serif text-lg tracking-wider text-[#141414] font-medium">Your Shopping Bag</h2>
-              <span className="text-xs text-[#7A5B10] bg-[#B8860B]/10 px-2 py-0.5 rounded-full font-mono font-medium">
+              <span className="text-xs text-[#855F06] bg-[#FAF4E6] border border-[#DFC38A] px-2 py-0.5 rounded-full font-mono font-medium">
                 {cart.reduce((n, i) => n + i.quantity, 0)}
               </span>
             </div>
             <button
               onClick={() => setIsCartOpen(false)}
-              className="p-1.5 text-[#666666] hover:text-[#141414] rounded-full hover:bg-[#F5F2EB] transition-colors"
-              aria-label="Close bag"
+              className="p-1.5 text-[#4A4A4A] hover:text-[#141414] rounded-full hover:bg-[#F5F2EB] transition-colors focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
+              aria-label="Close shopping bag"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
 
@@ -88,7 +104,7 @@ export const CartDrawer: React.FC = () => {
                 </div>
                 <div className="space-y-1">
                   <h3 className="font-serif text-lg text-[#141414]">Your bag is currently empty</h3>
-                  <p className="text-xs text-[#777777] max-w-xs font-light">
+                  <p className="text-xs text-[#4A4A4A] max-w-xs font-light">
                     Explore our curated collection of haute perfumery, attars, and artisanal oud.
                   </p>
                 </div>
@@ -148,7 +164,7 @@ export const CartDrawer: React.FC = () => {
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                        <p className="text-xs text-[#777777] font-light mt-0.5">
+                        <p className="text-xs text-[#4A4A4A] font-light mt-0.5">
                           {item.product.volume_ml} ml • {item.product.category_name || 'Fragrance'}
                         </p>
                       </div>
@@ -200,7 +216,7 @@ export const CartDrawer: React.FC = () => {
           {/* Drawer Footer & Checkout Action */}
           {cart.length > 0 && (
             <div className="p-5 bg-[#FCFBF9] border-t border-[#EAE5DC] space-y-4">
-              <div className="space-y-2 text-xs text-[#555555] font-light">
+              <div className="space-y-2 text-xs text-[#4A4A4A] font-light">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span className="text-[#141414] font-mono font-medium">{formatPrice(subtotal)}</span>
@@ -215,22 +231,26 @@ export const CartDrawer: React.FC = () => {
                     )}
                   </span>
                 </div>
+                <div className="pt-1 text-[11px] text-[#555555] font-light flex items-center space-x-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0" aria-hidden="true" />
+                  <span>All taxes included • Zero hidden fees</span>
+                </div>
                 <div className="pt-2 border-t border-[#EAE5DC] flex justify-between text-base font-serif text-[#141414]">
                   <span>Estimated Total</span>
-                  <span className="text-[#B8860B] font-mono font-bold">{formatPrice(total)}</span>
+                  <span className="text-[#855F06] font-mono font-bold">{formatPrice(total)}</span>
                 </div>
               </div>
 
               <button
                 onClick={handleCheckout}
-                className="w-full py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-lg shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2"
+                className="w-full py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-sm shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
               >
                 <span>Proceed to Checkout</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </button>
 
-              <div className="flex items-center justify-center space-x-2 text-[11px] text-[#777777] font-light">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#B8860B]" />
+              <div className="flex items-center justify-center space-x-2 text-[11px] text-[#4A4A4A] font-light">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#855F06]" aria-hidden="true" />
                 <span>Prepaid online checkout via Razorpay • No COD</span>
               </div>
             </div>

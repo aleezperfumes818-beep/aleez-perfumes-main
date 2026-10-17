@@ -1,5 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#FFFFFF" stroke="#B8860B" stroke-width="4"/>
-  <path d="M50 18 L76 78 L63 78 L57 63 L43 63 L37 78 L24 78 Z M46 54 L54 54 L50 40 Z" fill="#B8860B"/>
-  <circle cx="50" cy="28" r="3" fill="#B8860B"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="100%" height="100%">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E5C378" />
+      <stop offset="50%" stop-color="#C59B27" />
+      <stop offset="100%" stop-color="#9E7307" />
+    </linearGradient>
+  </defs>
+  <!-- Pure Luxury Noir Background -->
+  <rect width="128" height="128" rx="8" fill="#0E0E0E" />
+  <rect x="6" y="6" width="116" height="116" rx="4" fill="none" stroke="url(#gold)" stroke-width="1.5" stroke-opacity="0.4" />
+  <rect x="10" y="10" width="108" height="108" rx="2" fill="none" stroke="url(#gold)" stroke-width="0.75" stroke-opacity="0.25" />
+
+  <!-- Perfume Flacon Stopper Finial -->
+  <path d="M64 22 L69 31 L59 31 Z" fill="url(#gold)" />
+  <rect x="60" y="31" width="8" height="3" fill="url(#gold)" />
+
+  <!-- Regal Monogram 'A' (Artisanal Haute Parfumerie) -->
+  <path d="M64 38 L84 94 L75 94 L70.5 81 L57.5 81 L53 94 L44 94 Z M60 73 L68 73 L64 54 Z" fill="url(#gold)" />
+  
+  <!-- Subtle atelier diamond accent -->
+  <polygon points="64,98 67,102 64,106 61,102" fill="url(#gold)" opacity="0.8" />
 </svg>

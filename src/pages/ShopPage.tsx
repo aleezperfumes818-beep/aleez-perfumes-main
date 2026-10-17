@@ -95,7 +95,7 @@ export const ShopPage: React.FC = () => {
       if (currentSort === 'price-low') return priceA - priceB;
       if (currentSort === 'price-high') return priceB - priceA;
       if (currentSort === 'newest') return (b.is_new_arrival ? 1 : 0) - (a.is_new_arrival ? 1 : 0);
-      if (currentSort === 'rating') return b.rating - a.rating;
+      if (currentSort === 'bestseller') return (b.is_bestseller ? 1 : 0) - (a.is_bestseller ? 1 : 0);
       return (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0);
     });
   }, [products, categories, currentCategory, currentFilter, currentSort, searchQuery, maxPrice]);
@@ -121,7 +121,7 @@ export const ShopPage: React.FC = () => {
           {/* Mobile Filter Toggle */}
           <button
             onClick={() => setMobileFiltersOpen(true)}
-            className="lg:hidden flex items-center space-x-2 px-3.5 py-2 bg-white border border-[#EAE5DC] rounded-lg text-xs uppercase tracking-wider text-[#333333] hover:text-[#B8860B] shadow-sm"
+            className="lg:hidden flex items-center space-x-2 px-3.5 py-2 bg-white border border-[#EAE5DC] rounded-sm text-xs uppercase tracking-wider text-[#333333] hover:text-[#B8860B] shadow-sm"
           >
             <SlidersHorizontal className="w-4 h-4 text-[#B8860B]" />
             <span>Filters</span>
@@ -129,7 +129,7 @@ export const ShopPage: React.FC = () => {
 
           {/* Active Search Badge */}
           {searchQuery && (
-            <div className="flex items-center space-x-2 bg-[#B8860B]/10 text-[#7A5B10] px-3 py-1.5 rounded-lg text-xs border border-[#B8860B]/30 font-medium">
+            <div className="flex items-center space-x-2 bg-[#B8860B]/10 text-[#7A5B10] px-3 py-1.5 rounded-sm text-xs border border-[#B8860B]/30 font-medium">
               <span>Search: "{searchQuery}"</span>
               <button onClick={() => updateParam('search', '')}>
                 <X className="w-3.5 h-3.5 hover:text-[#141414]" />
@@ -144,17 +144,17 @@ export const ShopPage: React.FC = () => {
 
         {/* Sort Dropdown */}
         <div className="flex items-center space-x-2 self-end sm:self-auto">
-          <span className="text-xs uppercase tracking-wider text-[#777777] font-medium">Sort By:</span>
+          <span className="text-xs uppercase tracking-wider text-[#4A4A4A] font-medium">Sort By:</span>
           <select
             value={currentSort}
             onChange={(e) => updateParam('sort', e.target.value)}
-            className="bg-white border border-[#EAE5DC] text-[#141414] text-xs rounded-lg px-3 py-2 focus:outline-none focus:border-[#B8860B] shadow-sm"
+            className="bg-white border border-[#EAE5DC] text-[#141414] text-xs rounded-sm px-3 py-2 focus:outline-none focus:border-[#B8860B] shadow-sm"
           >
             <option value="featured">Featured First</option>
+            <option value="bestseller">Curated Bestsellers</option>
             <option value="price-low">Price: Low to High</option>
             <option value="price-high">Price: High to Low</option>
             <option value="newest">Newest Arrivals</option>
-            <option value="rating">Top Rated</option>
           </select>
         </div>
       </div>
@@ -166,7 +166,7 @@ export const ShopPage: React.FC = () => {
           {(currentCategory !== 'all' || currentFilter !== 'all' || searchQuery || maxPrice < 5000) && (
             <div className="pb-4 border-b border-[#EAE5DC]">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs uppercase tracking-widest text-[#777777] font-medium">Active Filters</span>
+                <span className="text-xs uppercase tracking-widest text-[#4A4A4A] font-medium">Active Filters</span>
                 <button
                   onClick={clearAllFilters}
                   className="text-[11px] text-[#B8860B] hover:underline font-medium"
@@ -250,7 +250,7 @@ export const ShopPage: React.FC = () => {
               onChange={(e) => setMaxPrice(Number(e.target.value))}
               className="w-full accent-[#B8860B] cursor-pointer"
             />
-            <div className="flex justify-between text-[11px] text-[#777777] font-mono">
+            <div className="flex justify-between text-[11px] text-[#4A4A4A] font-mono">
               <span>₹1,000</span>
               <span>₹5,000</span>
             </div>
@@ -314,7 +314,7 @@ export const ShopPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-xs uppercase tracking-wider text-[#777777] font-semibold">Collections</span>
+                  <span className="text-xs uppercase tracking-wider text-[#4A4A4A] font-semibold">Collections</span>
                   <div className="space-y-1">
                     {[
                       { label: 'All Fragrances', value: 'all' },
@@ -338,7 +338,7 @@ export const ShopPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-2 pt-4 border-t border-[#EAE5DC]">
-                  <span className="text-xs uppercase tracking-wider text-[#777777] font-semibold">Categories</span>
+                  <span className="text-xs uppercase tracking-wider text-[#4A4A4A] font-semibold">Categories</span>
                   <div className="space-y-1">
                     <button
                       onClick={() => updateParam('category', 'all')}
@@ -392,7 +392,7 @@ export const ShopPage: React.FC = () => {
                 </button>
                 <button
                   onClick={clearAllFilters}
-                  className="w-full py-2 text-xs text-[#777777] hover:text-[#141414]"
+                  className="w-full py-2 text-xs text-[#4A4A4A] hover:text-[#141414] font-medium"
                 >
                   Reset Filters
                 </button>

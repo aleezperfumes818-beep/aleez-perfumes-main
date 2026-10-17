@@ -22,6 +22,17 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
   const { formatPrice } = useSettings();
   const navigate = useNavigate();
 
+  // Keyboard navigation: Escape key closes modal
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && product) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [product, onClose]);
+
   if (!product) return null;
 
   const isWished = isInWishlist(product.id);
@@ -53,17 +64,23 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-[#141414]">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Quick view of ${product.name}`}
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-[#141414]"
+      onClick={onClose}
+    >
       <div
         className="relative bg-white border border-[#EAE5DC] rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 text-[#666666] hover:text-[#141414] rounded-full bg-white/80 hover:bg-white border border-[#EAE5DC] transition-colors shadow-sm"
+          className="absolute top-4 right-4 z-20 p-2 text-[#4A4A4A] hover:text-[#141414] rounded-full bg-white/80 hover:bg-white border border-[#EAE5DC] transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
           aria-label="Close modal"
         >
-          <X className="w-5 h-5" />
+          <X className="w-5 h-5" aria-hidden="true" />
         </button>
 
         <div className="grid grid-cols-1 md:grid-cols-2">
@@ -93,7 +110,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                       selectedImageIndex === idx ? 'border-[#B8860B]' : 'border-[#EAE5DC] opacity-70 hover:opacity-100'
                     }`}
                   >
-                    <img src={img.image_url} alt="" className="w-full h-full object-cover" />
+                    <img src={img.image_url} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -103,7 +120,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
           {/* Details Column */}
           <div className="p-6 flex flex-col justify-between space-y-4 bg-white">
             <div>
-              <div className="flex items-center justify-between text-xs uppercase tracking-widest text-[#777777] mb-1">
+              <div className="flex items-center justify-between text-xs uppercase tracking-widest text-[#4A4A4A] mb-1">
                 <span>{product.category_name || 'Artisanal Perfume'}</span>
                 <span>{product.volume_ml} ML</span>
               </div>
@@ -113,7 +130,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
               {/* Inspired By Formulation Tag */}
               {(product.inspired_by || (product.name && inspiredByMap[product.name])) && (
                 <div className="mb-2">
-                  <span className="inline-block text-[10px] uppercase tracking-wider text-[#7A5B10] bg-[#F7F3EB] border border-[#E8DFD0] px-2 py-0.5 rounded-full font-medium">
+                  <span className="inline-block text-[10px] uppercase tracking-wider text-[#7A5B10] bg-[#F7F3EB] border border-[#E8DFD0] px-2.5 py-0.5 rounded-sm font-medium">
                     {product.inspired_by
                       ? product.inspired_by.toLowerCase().startsWith('inspired by')
                         ? product.inspired_by
@@ -144,7 +161,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
 
               {/* Fragrance Notes */}
               {(product.top_notes || product.heart_notes || product.base_notes) && (
-                <div className="space-y-1.5 p-3 rounded-lg bg-[#FAF9F6] border border-[#EAE5DC] text-[11px] mb-4">
+                <div className="space-y-1.5 p-3 rounded-sm bg-[#FAF9F6] border border-[#EAE5DC] text-[11px] mb-4">
                   {product.top_notes && (
                     <div className="text-[#333333]">
                       <span className="text-[#B8860B] font-semibold">Top:</span> {product.top_notes}
@@ -167,7 +184,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
             {/* Quantity & CTA Buttons */}
             <div className="space-y-3 pt-2 border-t border-[#EAE5DC]">
               <div className="flex items-center space-x-3">
-                <div className="flex items-center border border-[#EAE5DC] rounded-lg bg-[#FAF9F6] px-2 py-1">
+                <div className="flex items-center border border-[#EAE5DC] rounded-sm bg-[#FAF9F6] px-2 py-1">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                     className="text-[#666666] hover:text-[#141414] px-2"
@@ -187,7 +204,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                 <button
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className={`flex-1 py-2.5 rounded-lg text-xs uppercase tracking-wider font-semibold transition-all flex items-center justify-center space-x-2 ${
+                  className={`flex-1 py-2.5 rounded-sm text-xs uppercase tracking-wider font-semibold transition-all flex items-center justify-center space-x-2 ${
                     isOutOfStock
                       ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
                       : justAdded
@@ -210,7 +227,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
 
                 <button
                   onClick={() => toggleWishlist(product)}
-                  className={`p-2.5 rounded-lg border transition-colors ${
+                  className={`p-2.5 rounded-sm border transition-colors ${
                     isWished ? 'text-[#B8860B] border-[#B8860B] bg-[#B8860B]/10' : 'text-[#666666] hover:text-[#141414] border-[#EAE5DC] bg-white'
                   }`}
                   aria-label="Wishlist"
@@ -222,13 +239,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
               {!isOutOfStock && (
                 <button
                   onClick={handleBuyNow}
-                  className="w-full py-2.5 bg-white border border-[#B8860B] text-[#B8860B] hover:bg-[#B8860B] hover:text-white rounded-lg text-xs uppercase tracking-widest font-semibold transition-colors shadow-sm"
+                  className="w-full py-2.5 bg-white border border-[#B8860B] text-[#B8860B] hover:bg-[#B8860B] hover:text-white rounded-sm text-xs uppercase tracking-widest font-semibold transition-colors shadow-sm"
                 >
                   Instant Buy Now
                 </button>
               )}
 
-              <div className="flex justify-between items-center text-[11px] text-[#777777] pt-1">
+              <div className="flex justify-between items-center text-[11px] text-[#4A4A4A] pt-1">
                 <Link
                   to={`/product/${product.slug}`}
                   onClick={onClose}

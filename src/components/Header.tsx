@@ -135,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                   }`}
                 >
                   <span>Collections</span>
-                  <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform duration-200 text-[#777777] group-hover:text-[#B8860B]" />
+                  <ChevronDown className="w-3 h-3 group-hover:rotate-180 transition-transform duration-200 text-[#4A4A4A] group-hover:text-[#B8860B]" />
                 </button>
 
                 {/* Dropdown Card */}
@@ -169,11 +169,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               {/* 4. CREATE (Yusuf Bhai Style Prominent Option) */}
               <Link
                 to="/create-your-fragrance"
-                className="group relative flex items-center space-x-1.5 px-3 py-1.5 rounded-full border border-[#D4AF37] bg-gradient-to-r from-[#FAF3E0] to-[#F5E9BF]/60 text-[#7A5B10] hover:bg-[#B8860B] hover:text-white hover:border-[#B8860B] transition-all text-xs uppercase tracking-widest font-semibold shadow-xs"
+                className="group relative flex items-center space-x-1.5 px-3 py-1.5 rounded-sm border border-[#D4AF37] bg-[#FAF3E0] text-[#7A5B10] hover:bg-[#B8860B] hover:text-white hover:border-[#B8860B] transition-all text-xs uppercase tracking-widest font-semibold shadow-xs"
               >
-                <Sparkles className="w-3 h-3 text-[#B8860B] group-hover:text-white group-hover:rotate-12 transition-transform" />
-                <span>Create</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#B8860B] group-hover:bg-white animate-pulse" />
+                <Sparkles className="w-3 h-3 text-[#B8860B] group-hover:text-white transition-transform" />
+                <span>Create Scent</span>
               </Link>
 
               {/* 5. Our Story */}
@@ -203,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               {isAdmin && (
                 <Link
                   to="/admin"
-                  className="px-2.5 py-1 text-[11px] tracking-widest uppercase bg-[#B8860B]/10 text-[#8C6D23] border border-[#B8860B]/30 rounded hover:bg-[#B8860B] hover:text-white transition-colors"
+                  className="px-2.5 py-1 text-[11px] tracking-widest uppercase bg-[#B8860B]/10 text-[#8C6D23] border border-[#B8860B]/30 rounded-sm hover:bg-[#B8860B] hover:text-white transition-colors"
                 >
                   Admin Portal
                 </Link>
@@ -216,11 +215,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               <button
                 type="button"
                 onClick={onOpenSearch}
-                className="hidden lg:flex items-center space-x-2 text-[#4A4A4A] hover:text-[#B8860B] transition-colors py-1.5 px-3 rounded-full border border-[#EAE5DC] hover:border-[#B8860B]/40 bg-[#FAF9F6]"
+                className="hidden lg:flex items-center space-x-2 text-[#4A4A4A] hover:text-[#B8860B] transition-colors py-1.5 px-3 rounded-sm border border-[#EAE5DC] hover:border-[#B8860B]/40 bg-[#FAF9F6]"
                 aria-label="Search fragrances"
               >
                 <Search className="w-3.5 h-3.5 text-[#B8860B]" />
-                <span className="text-xs text-[#777777] font-light tracking-wider">Search...</span>
+                <span className="text-xs text-[#4A4A4A] font-medium tracking-wider">Search...</span>
               </button>
 
               {/* Account Link */}
@@ -273,7 +272,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <div className="lg:hidden fixed inset-0 top-[header-height] z-50 bg-[#FAF9F6]/98 backdrop-blur-xl border-t border-[#EAE5DC] animate-fade-in flex flex-col justify-between p-6 overflow-y-auto">
             <div className="space-y-6 pt-4">
               <div className="flex justify-between items-center border-b border-[#EAE5DC] pb-4">
-                <span className="text-xs uppercase tracking-[0.25em] text-[#777777]">Navigation</span>
+                <span className="text-xs uppercase tracking-[0.25em] text-[#4A4A4A] font-medium">Navigation</span>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="p-2 text-[#444444] hover:text-[#141414]"

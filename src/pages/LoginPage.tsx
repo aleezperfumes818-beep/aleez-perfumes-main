@@ -9,6 +9,8 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,6 +29,11 @@ export const LoginPage: React.FC = () => {
       if (isRegister) {
         if (!fullName.trim() || !phone.trim()) {
           setError('Please provide all registration details.');
+          setLoading(false);
+          return;
+        }
+        if (!agreeTerms) {
+          setError('You must agree to the Terms of Service and acknowledge the Privacy Policy to create an account.');
           setLoading(false);
           return;
         }
@@ -56,26 +63,26 @@ export const LoginPage: React.FC = () => {
     <div className="max-w-md mx-auto px-4 py-16 animate-fade-in text-[#141414]">
       <div className="bg-white border border-[#EAE5DC] rounded-2xl p-6 sm:p-8 space-y-6 shadow-card">
         <div className="text-center space-y-2">
-          <Link to="/" className="inline-block">
+          <Link to="/" className="inline-block" aria-label="Aleez Perfumes Home">
             <span className="font-serif text-2xl tracking-[0.22em] font-semibold text-[#141414] block">
               ALEEZ
             </span>
-            <span className="text-[10px] tracking-[0.35em] text-[#B8860B] uppercase block -mt-1 font-medium">
+            <span className="text-[10px] tracking-[0.35em] text-[#855F06] uppercase block -mt-1 font-semibold">
               Perfumes
             </span>
           </Link>
           <h1 className="font-serif text-2xl text-[#141414] pt-2 font-medium">
             {isRegister ? 'Join The Fragrance Club' : 'Welcome Back'}
           </h1>
-          <p className="text-xs text-[#666666] font-light">
+          <p className="text-xs text-[#4A4A4A] font-light">
             {isRegister
-              ? 'Create an account to track your orders and wishlist'
+              ? 'Create an account to track your orders, manage data, and access your wishlist'
               : 'Sign in to access your order history and details'}
           </p>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800">
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800 font-medium">
             {error}
           </div>
         )}
@@ -84,35 +91,37 @@ export const LoginPage: React.FC = () => {
           {isRegister && (
             <>
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1 font-medium">
-                  Full Name
+                <label htmlFor="reg-fullname" className="block text-xs uppercase tracking-wider text-[#383838] mb-1 font-medium">
+                  Full Name *
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                  <User className="w-4 h-4 text-gray-400 absolute left-3 top-3" aria-hidden="true" />
                   <input
+                    id="reg-fullname"
                     type="text"
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Farhan Malik"
-                    className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
+                    className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1 font-medium">
-                  Phone / WhatsApp
+                <label htmlFor="reg-phone" className="block text-xs uppercase tracking-wider text-[#383838] mb-1 font-medium">
+                  Phone / WhatsApp *
                 </label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+                  <Phone className="w-4 h-4 text-gray-400 absolute left-3 top-3" aria-hidden="true" />
                   <input
+                    id="reg-phone"
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+91 9876543210"
-                    className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
+                    className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
                   />
                 </div>
               </div>
@@ -120,50 +129,90 @@ export const LoginPage: React.FC = () => {
           )}
 
           <div>
-            <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1 font-medium">
-              Email Address
+            <label htmlFor="auth-email" className="block text-xs uppercase tracking-wider text-[#383838] mb-1 font-medium">
+              Email Address *
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+              <Mail className="w-4 h-4 text-gray-400 absolute left-3 top-3" aria-hidden="true" />
               <input
+                id="auth-email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="client@example.com"
-                className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
+                className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1 font-medium">
-              Password
+            <label htmlFor="auth-password" className="block text-xs uppercase tracking-wider text-[#383838] mb-1 font-medium">
+              Password *
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" />
+              <Lock className="w-4 h-4 text-gray-400 absolute left-3 top-3" aria-hidden="true" />
               <input
+                id="auth-password"
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
+                className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg pl-9 pr-3 py-2.5 text-xs text-[#141414] focus:outline-none"
               />
             </div>
           </div>
 
+          {/* Registration Consents */}
+          {isRegister && (
+            <div className="pt-1 space-y-2.5">
+              <label className="flex items-start space-x-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  required
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#B8860B] focus:ring-[#B8860B]"
+                />
+                <span className="text-xs text-[#383838] leading-relaxed">
+                  I agree to the{' '}
+                  <Link to="/terms" target="_blank" className="text-[#855F06] font-medium underline hover:text-[#141414]">
+                    Terms of Service
+                  </Link>{' '}
+                  and acknowledge the{' '}
+                  <Link to="/privacy" target="_blank" className="text-[#855F06] font-medium underline hover:text-[#141414]">
+                    Privacy Policy
+                  </Link>
+                  . *
+                </span>
+              </label>
+
+              <label className="flex items-start space-x-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={marketingConsent}
+                  onChange={(e) => setMarketingConsent(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#B8860B] focus:ring-[#B8860B]"
+                />
+                <span className="text-[11px] text-[#555555] font-light leading-relaxed">
+                  Send me exclusive fragrance drops and private harvest releases (Unsubscribe anytime via email or account portal).
+                </span>
+              </label>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-lg shadow-gold-sm transition-all flex items-center justify-center space-x-2"
+            className="w-full py-3.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-lg shadow-gold-sm transition-all flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
           >
             {loading ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
             ) : (
               <>
                 <span>{isRegister ? 'Create Account' : 'Sign In'}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </>
             )}
           </button>
@@ -183,7 +232,7 @@ export const LoginPage: React.FC = () => {
               : "Don't have an account yet? Create one"}
           </button>
 
-          <p className="text-[11px] text-[#777777]">
+          <p className="text-[11px] text-[#4A4A4A]">
             Store Owner?{' '}
             <Link to="/admin" className="text-[#B8860B] hover:underline font-medium">
               Admin Portal

@@ -32,6 +32,8 @@ export const CheckoutPage: React.FC = () => {
     state: user?.state || '',
     pincode: user?.pincode || '',
     notes: '',
+    agreeTerms: false,
+    marketingConsent: false,
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -71,6 +73,9 @@ export const CheckoutPage: React.FC = () => {
     if (!formData.state.trim()) errors.state = 'State is required';
     if (!formData.pincode.trim() || !/^[0-9]{6}$/.test(formData.pincode.trim())) {
       errors.pincode = 'Valid 6-digit postal pincode required';
+    }
+    if (!formData.agreeTerms) {
+      errors.agreeTerms = 'You must review and agree to the Terms, Refund Policy, and Privacy Policy to proceed.';
     }
 
     setFormErrors(errors);
@@ -268,7 +273,7 @@ export const CheckoutPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 text-[#141414]">
       {/* Checkout Breadcrumbs */}
-      <div className="flex items-center space-x-2 text-xs text-[#777777] font-light">
+      <div className="flex items-center space-x-2 text-xs text-[#4A4A4A] font-light">
         <Link to="/cart" className="hover:text-[#B8860B] flex items-center space-x-1">
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Return to Bag</span>
@@ -299,68 +304,88 @@ export const CheckoutPage: React.FC = () => {
       <form onSubmit={handlePayNow} className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* LEFT COLUMN: Shipping & Customer Details */}
         <div className="lg:col-span-7 space-y-8">
+          {/* Data Minimization Assurance */}
+          <div className="p-4 rounded-xl bg-[#FAF9F6] border border-[#EAE5DC] text-xs text-[#4A4A4A] space-y-1">
+            <span className="font-semibold text-[#141414] block">Data Minimization Commitment</span>
+            <p className="font-light leading-relaxed">
+              We strictly collect only the minimal contact and delivery coordinates required by our courier partners (BlueDart / Delhivery) to fulfill your bespoke fragrance package safely.
+            </p>
+          </div>
+
           {/* Customer Contact */}
           <div className="bg-white border border-[#EAE5DC] p-6 rounded-2xl space-y-4 shadow-card">
             <h2 className="font-serif text-xl text-[#141414] flex items-center justify-between font-medium">
               <span>1. Contact Information</span>
-              <span className="text-xs font-sans text-[#777777] font-light">For order notifications</span>
+              <span className="text-xs font-sans text-[#4A4A4A] font-light">For order notifications</span>
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1.5 font-medium">
+                <label htmlFor="chk-fullname" className="block text-xs uppercase tracking-wider text-[#383838] mb-1.5 font-medium">
                   Full Name *
                 </label>
                 <input
+                  id="chk-fullname"
                   type="text"
                   name="fullName"
+                  required
+                  aria-required="true"
+                  aria-invalid={!!formErrors.fullName}
                   value={formData.fullName}
                   onChange={handleInputChange}
                   placeholder="e.g. Farhan Malik"
-                  className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none ${
+                  className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none focus:ring-2 focus:ring-[#B8860B] ${
                     formErrors.fullName ? 'border-red-500' : 'border-[#EAE5DC] focus:border-[#B8860B]'
                   }`}
                 />
                 {formErrors.fullName && (
-                  <p className="text-xs text-red-600 mt-1">{formErrors.fullName}</p>
+                  <p className="text-xs text-red-600 mt-1 font-medium">{formErrors.fullName}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1.5 font-medium">
+                <label htmlFor="chk-email" className="block text-xs uppercase tracking-wider text-[#383838] mb-1.5 font-medium">
                   Email Address *
                 </label>
                 <input
+                  id="chk-email"
                   type="email"
                   name="email"
+                  required
+                  aria-required="true"
+                  aria-invalid={!!formErrors.email}
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="e.g. farhan@example.com"
-                  className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none ${
+                  className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none focus:ring-2 focus:ring-[#B8860B] ${
                     formErrors.email ? 'border-red-500' : 'border-[#EAE5DC] focus:border-[#B8860B]'
                   }`}
                 />
                 {formErrors.email && (
-                  <p className="text-xs text-red-600 mt-1">{formErrors.email}</p>
+                  <p className="text-xs text-red-600 mt-1 font-medium">{formErrors.email}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1.5 font-medium">
+                <label htmlFor="chk-phone" className="block text-xs uppercase tracking-wider text-[#383838] mb-1.5 font-medium">
                   Mobile / WhatsApp Number *
                 </label>
                 <input
+                  id="chk-phone"
                   type="tel"
                   name="phone"
+                  required
+                  aria-required="true"
+                  aria-invalid={!!formErrors.phone}
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="e.g. +91 9876543210"
-                  className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none ${
+                  className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none focus:ring-2 focus:ring-[#B8860B] ${
                     formErrors.phone ? 'border-red-500' : 'border-[#EAE5DC] focus:border-[#B8860B]'
                   }`}
                 />
                 {formErrors.phone && (
-                  <p className="text-xs text-red-600 mt-1">{formErrors.phone}</p>
+                  <p className="text-xs text-red-600 mt-1 font-medium">{formErrors.phone}</p>
                 )}
               </div>
             </div>
@@ -370,114 +395,131 @@ export const CheckoutPage: React.FC = () => {
           <div className="bg-white border border-[#EAE5DC] p-6 rounded-2xl space-y-4 shadow-card">
             <h2 className="font-serif text-xl text-[#141414] flex items-center justify-between font-medium">
               <span>2. Delivery Address</span>
-              <span className="text-xs font-sans text-[#777777] font-light flex items-center space-x-1">
-                <Truck className="w-3.5 h-3.5 text-[#B8860B]" />
+              <span className="text-xs font-sans text-[#4A4A4A] font-light flex items-center space-x-1">
+                <Truck className="w-3.5 h-3.5 text-[#855F06]" aria-hidden="true" />
                 <span>Pan-India Courier</span>
               </span>
             </h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1.5 font-medium">
+                <label htmlFor="chk-address" className="block text-xs uppercase tracking-wider text-[#383838] mb-1.5 font-medium">
                   Street Address & Apartment / Landmark *
                 </label>
                 <input
+                  id="chk-address"
                   type="text"
                   name="address"
+                  required
+                  aria-required="true"
+                  aria-invalid={!!formErrors.address}
                   value={formData.address}
                   onChange={handleInputChange}
                   placeholder="House / Flat No., Building, Street Name"
-                  className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none ${
+                  className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none focus:ring-2 focus:ring-[#B8860B] ${
                     formErrors.address ? 'border-red-500' : 'border-[#EAE5DC] focus:border-[#B8860B]'
                   }`}
                 />
                 {formErrors.address && (
-                  <p className="text-xs text-red-600 mt-1">{formErrors.address}</p>
+                  <p className="text-xs text-red-600 mt-1 font-medium">{formErrors.address}</p>
                 )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1.5 font-medium">
+                  <label htmlFor="chk-city" className="block text-xs uppercase tracking-wider text-[#383838] mb-1.5 font-medium">
                     City *
                   </label>
                   <input
+                    id="chk-city"
                     type="text"
                     name="city"
+                    required
+                    aria-required="true"
+                    aria-invalid={!!formErrors.city}
                     value={formData.city}
                     onChange={handleInputChange}
                     placeholder="e.g. Mumbai"
-                    className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none ${
+                    className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none focus:ring-2 focus:ring-[#B8860B] ${
                       formErrors.city ? 'border-red-500' : 'border-[#EAE5DC] focus:border-[#B8860B]'
                     }`}
                   />
                   {formErrors.city && (
-                    <p className="text-xs text-red-600 mt-1">{formErrors.city}</p>
+                    <p className="text-xs text-red-600 mt-1 font-medium">{formErrors.city}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1.5 font-medium">
+                  <label htmlFor="chk-state" className="block text-xs uppercase tracking-wider text-[#383838] mb-1.5 font-medium">
                     State *
                   </label>
                   <input
+                    id="chk-state"
                     type="text"
                     name="state"
+                    required
+                    aria-required="true"
+                    aria-invalid={!!formErrors.state}
                     value={formData.state}
                     onChange={handleInputChange}
                     placeholder="e.g. Maharashtra"
-                    className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none ${
+                    className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none focus:ring-2 focus:ring-[#B8860B] ${
                       formErrors.state ? 'border-red-500' : 'border-[#EAE5DC] focus:border-[#B8860B]'
                     }`}
                   />
                   {formErrors.state && (
-                    <p className="text-xs text-red-600 mt-1">{formErrors.state}</p>
+                    <p className="text-xs text-red-600 mt-1 font-medium">{formErrors.state}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-[#444444] mb-1.5 font-medium">
+                  <label htmlFor="chk-pincode" className="block text-xs uppercase tracking-wider text-[#383838] mb-1.5 font-medium">
                     PIN Code (6 digits) *
                   </label>
                   <input
+                    id="chk-pincode"
                     type="text"
                     name="pincode"
                     maxLength={6}
+                    required
+                    aria-required="true"
+                    aria-invalid={!!formErrors.pincode}
                     value={formData.pincode}
                     onChange={handleInputChange}
                     placeholder="e.g. 400001"
-                    className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none ${
+                    className={`w-full bg-[#FAF9F6] border rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none focus:ring-2 focus:ring-[#B8860B] ${
                       formErrors.pincode ? 'border-red-500' : 'border-[#EAE5DC] focus:border-[#B8860B]'
                     }`}
                   />
                   {formErrors.pincode && (
-                    <p className="text-xs text-red-600 mt-1">{formErrors.pincode}</p>
+                    <p className="text-xs text-red-600 mt-1 font-medium">{formErrors.pincode}</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-[#666666] mb-1.5 font-medium">
+                <label htmlFor="chk-notes" className="block text-xs uppercase tracking-wider text-[#4A4A4A] mb-1.5 font-medium">
                   Special Delivery Instructions (Optional)
                 </label>
                 <textarea
+                  id="chk-notes"
                   name="notes"
                   rows={2}
                   value={formData.notes}
                   onChange={handleInputChange}
                   placeholder="Optional delivery notes or gift message..."
-                  className="w-full bg-[#FAF9F6] border border-[#EAE5DC] rounded-lg px-3.5 py-2 text-xs text-[#141414] focus:outline-none focus:border-[#B8860B]"
+                  className="w-full bg-[#FAF9F6] border border-[#EAE5DC] rounded-lg px-3.5 py-2 text-xs text-[#141414] focus:outline-none focus:ring-2 focus:ring-[#B8860B] focus:border-[#B8860B]"
                 />
               </div>
             </div>
           </div>
 
           {/* Payment Method - RAZORPAY ONLY */}
-          <div className="bg-white border border-[#B8860B]/40 p-6 rounded-2xl space-y-4 shadow-card">
+          <div className="bg-white border border-[#DFC38A] p-6 rounded-2xl space-y-4 shadow-card">
             <h2 className="font-serif text-xl text-[#141414] flex items-center justify-between font-medium">
               <span>3. Payment Method</span>
-              <span className="text-xs font-mono text-[#7A5B10] bg-[#B8860B]/10 px-2 py-0.5 rounded font-medium">
-                Prepaid Only
+              <span className="text-xs font-mono text-[#855F06] bg-[#FAF4E6] border border-[#DFC38A] px-2 py-0.5 rounded font-medium">
+                Prepaid Only • No COD
               </span>
             </h2>
 
@@ -487,21 +529,21 @@ export const CheckoutPage: React.FC = () => {
                   <div className="w-2.5 h-2.5 rounded-full bg-[#B8860B]" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-[#141414]">
+                  <h3 className="text-sm font-semibold text-[#141414]">
                     Razorpay Secure Online Payment
-                  </h4>
-                  <p className="text-xs text-[#666666] font-light">
+                  </h3>
+                  <p className="text-xs text-[#4A4A4A] font-light">
                     UPI (Google Pay, PhonePe, Paytm), Credit/Debit Cards, Net Banking
                   </p>
                 </div>
               </div>
-              <Lock className="w-4 h-4 text-[#B8860B]" />
+              <Lock className="w-4 h-4 text-[#855F06]" aria-hidden="true" />
             </div>
 
-            <div className="text-[11px] text-[#777777] font-light flex items-center space-x-1.5 pt-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#B8860B]" />
+            <div className="text-[11px] text-[#4A4A4A] font-light flex items-center space-x-1.5 pt-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#855F06]" aria-hidden="true" />
               <span>
-                To guarantee purity and prevent transit tampering, Aleez Perfumes accepts online prepaid orders exclusively. No COD.
+                To guarantee purity and prevent counterfeit transit tampering, Aleez Perfumes accepts online prepaid orders exclusively.
               </span>
             </div>
           </div>
@@ -530,7 +572,7 @@ export const CheckoutPage: React.FC = () => {
                       <div className="relative w-12 h-12 rounded-lg bg-[#FAF9F6] flex-shrink-0 overflow-hidden border border-[#EAE5DC]">
                         <img
                           src={item.product.images[0]?.image_url}
-                          alt={item.product.name}
+                          alt={`Luxury flacon of ${item.product.name}`}
                           className="w-full h-full object-cover"
                         />
                         <span className="absolute -top-1 -right-1 bg-[#B8860B] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
@@ -539,10 +581,10 @@ export const CheckoutPage: React.FC = () => {
                       </div>
                       <div>
                         <h4 className="text-[#141414] font-medium line-clamp-1">{item.product.name}</h4>
-                        <p className="text-[#777777] text-[11px]">{item.product.volume_ml} ML</p>
+                        <p className="text-[#4A4A4A] text-[11px]">{item.product.volume_ml} ML</p>
                       </div>
                     </div>
-                    <span className="font-mono text-[#B8860B] font-semibold">
+                    <span className="font-mono text-[#855F06] font-semibold">
                       {formatPrice(price * item.quantity)}
                     </span>
                   </div>
@@ -550,10 +592,10 @@ export const CheckoutPage: React.FC = () => {
               })}
             </div>
 
-            {/* Calculation Breakdown */}
-            <div className="space-y-2 text-xs text-[#555555] font-light pt-2">
+            {/* Calculation Breakdown with Zero Hidden Fees Notice */}
+            <div className="space-y-2 text-xs text-[#4A4A4A] font-light pt-2">
               <div className="flex justify-between">
-                <span>Subtotal</span>
+                <span>Subtotal (All Taxes Included)</span>
                 <span className="font-mono text-[#141414] font-medium">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between">
@@ -566,19 +608,87 @@ export const CheckoutPage: React.FC = () => {
                   )}
                 </span>
               </div>
+              <div className="pt-2 text-[11px] text-[#555555] font-light flex items-center space-x-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 flex-shrink-0" aria-hidden="true" />
+                <span>Zero hidden fees • All prices inclusive of GST</span>
+              </div>
               <div className="pt-3 border-t border-[#EAE5DC] flex justify-between text-base font-serif text-[#141414]">
                 <span>Total Amount</span>
-                <span className="text-[#B8860B] font-mono font-bold text-lg">
+                <span className="text-[#855F06] font-mono font-bold text-lg">
                   {formatPrice(total)}
                 </span>
               </div>
+            </div>
+
+            {/* Mandatory Legal & Optional Marketing Consent Checkboxes */}
+            <div className="p-3.5 rounded-xl bg-[#FAF9F6] border border-[#EAE5DC] space-y-2.5">
+              <label className="flex items-start space-x-2.5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  id="chk-agreeTerms"
+                  name="agreeTerms"
+                  required
+                  aria-required="true"
+                  checked={formData.agreeTerms}
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, agreeTerms: e.target.checked }));
+                    if (formErrors.agreeTerms) {
+                      setFormErrors((prev) => {
+                        const copy = { ...prev };
+                        delete copy.agreeTerms;
+                        return copy;
+                      });
+                    }
+                  }}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-[#B8860B] focus:ring-[#B8860B]"
+                />
+                <span className="text-xs text-[#383838] leading-relaxed">
+                  I have read and agree to the{' '}
+                  <Link to="/terms" target="_blank" className="text-[#855F06] font-medium underline hover:text-[#141414]">
+                    Terms of Service
+                  </Link>{' '}
+                  and{' '}
+                  <Link to="/refund" target="_blank" className="text-[#855F06] font-medium underline hover:text-[#141414]">
+                    Refund Policy
+                  </Link>
+                  , and consent to order data processing per the{' '}
+                  <Link to="/privacy" target="_blank" className="text-[#855F06] font-medium underline hover:text-[#141414]">
+                    Privacy Policy
+                  </Link>
+                  . *
+                </span>
+              </label>
+              {formErrors.agreeTerms && (
+                <p className="text-xs text-red-600 font-medium pl-6">{formErrors.agreeTerms}</p>
+              )}
+
+              {/* Optional Marketing Opt-In Checkbox (UNCHECKED BY DEFAULT - NO DARK PATTERNS) */}
+              <label className="flex items-start space-x-2.5 cursor-pointer pt-2 border-t border-[#EAE5DC]">
+                <input
+                  type="checkbox"
+                  id="chk-marketingConsent"
+                  name="marketingConsent"
+                  checked={formData.marketingConsent}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, marketingConsent: e.target.checked }))
+                  }
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-[#B8860B] focus:ring-[#B8860B]"
+                />
+                <span className="text-[11px] text-[#555555] font-light leading-relaxed">
+                  Keep me updated on exclusive perfume launches and VIP harvest scents (You can{' '}
+                  <Link to="/unsubscribe" target="_blank" className="text-[#855F06] hover:underline">
+                    unsubscribe anytime
+                  </Link>
+                  ).
+                </span>
+              </label>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isProcessing}
-              className={`w-full py-4 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-xl shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2 ${
+              className={`w-full py-4 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-sm shadow-gold-sm transition-all duration-300 flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-[#B8860B] ${
                 isProcessing ? 'opacity-70 cursor-wait' : ''
               }`}
             >
@@ -589,18 +699,18 @@ export const CheckoutPage: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Lock className="w-4 h-4" />
+                  <Lock className="w-4 h-4" aria-hidden="true" />
                   <span>Complete Payment • {formatPrice(total)}</span>
                 </>
               )}
             </button>
 
             <div className="text-center space-y-2 pt-2">
-              <p className="text-[11px] text-[#777777] font-light flex items-center justify-center space-x-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#B8860B]" />
+              <p className="text-[11px] text-[#4A4A4A] font-light flex items-center justify-center space-x-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#855F06]" aria-hidden="true" />
                 <span>256-Bit SSL Encrypted Online Payment</span>
               </p>
-              <p className="text-[10px] text-[#888888]">
+              <p className="text-[10px] text-[#555555]">
                 Aleez Perfumes guarantees 100% authentic formulations & secure fulfillment.
               </p>
             </div>

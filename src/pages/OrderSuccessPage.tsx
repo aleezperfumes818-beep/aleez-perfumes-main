@@ -70,7 +70,7 @@ export const OrderSuccessPage: React.FC = () => {
       <div className="bg-white border border-[#EAE5DC] rounded-2xl p-6 sm:p-8 space-y-6 shadow-card print:border-none print:shadow-none">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#EAE5DC] gap-4">
           <div>
-            <span className="text-[11px] uppercase tracking-wider text-[#777777] block font-medium">
+            <span className="text-[11px] uppercase tracking-wider text-[#4A4A4A] block font-medium">
               Order Reference
             </span>
             <span className="font-mono text-base sm:text-lg font-bold text-[#B8860B]">
@@ -79,7 +79,7 @@ export const OrderSuccessPage: React.FC = () => {
           </div>
 
           <div>
-            <span className="text-[11px] uppercase tracking-wider text-[#777777] block font-medium">
+            <span className="text-[11px] uppercase tracking-wider text-[#4A4A4A] block font-medium">
               Payment Status
             </span>
             <span className="inline-flex items-center space-x-1 text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2.5 py-0.5 rounded">
@@ -89,7 +89,7 @@ export const OrderSuccessPage: React.FC = () => {
           </div>
 
           <div>
-            <span className="text-[11px] uppercase tracking-wider text-[#777777] block font-medium">
+            <span className="text-[11px] uppercase tracking-wider text-[#4A4A4A] block font-medium">
               Order Status
             </span>
             <span className="text-xs uppercase tracking-wider text-[#141414] font-semibold">
@@ -102,7 +102,7 @@ export const OrderSuccessPage: React.FC = () => {
         {order && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs text-[#555555] font-light">
             <div>
-              <span className="uppercase tracking-wider text-[#777777] font-semibold block mb-1">
+              <span className="uppercase tracking-wider text-[#4A4A4A] font-semibold block mb-1">
                 Recipient Details
               </span>
               <p className="font-medium text-[#141414]">{order.customer_name}</p>
@@ -111,7 +111,7 @@ export const OrderSuccessPage: React.FC = () => {
             </div>
 
             <div>
-              <span className="uppercase tracking-wider text-[#777777] font-semibold block mb-1">
+              <span className="uppercase tracking-wider text-[#4A4A4A] font-semibold block mb-1">
                 Shipping Destination
               </span>
               <p className="text-[#141414]">{order.shipping_address}</p>
@@ -126,7 +126,7 @@ export const OrderSuccessPage: React.FC = () => {
         {/* Order Items */}
         {order?.items && order.items.length > 0 && (
           <div className="pt-4 border-t border-[#EAE5DC] space-y-3">
-            <span className="uppercase tracking-wider text-[#777777] text-xs font-semibold block">
+            <span className="uppercase tracking-wider text-[#4A4A4A] text-xs font-semibold block">
               Ordered Fragrances
             </span>
             <div className="space-y-2">
@@ -139,16 +139,16 @@ export const OrderSuccessPage: React.FC = () => {
                     {item.product_image && (
                       <img
                         src={item.product_image}
-                        alt=""
+                        alt={`Flacon of ${item.product_name}`}
                         className="w-10 h-10 object-cover rounded-md bg-[#F5F2EB]"
                       />
                     )}
                     <div>
                       <span className="text-[#141414] font-medium block">{item.product_name}</span>
-                      <span className="text-[#777777]">Qty: {item.quantity}</span>
+                      <span className="text-[#4A4A4A]">Qty: {item.quantity}</span>
                     </div>
                   </div>
-                  <span className="font-mono text-[#B8860B] font-semibold">
+                  <span className="font-mono text-[#855F06] font-semibold">
                     {formatPrice(item.total_price)}
                   </span>
                 </div>
@@ -157,10 +157,25 @@ export const OrderSuccessPage: React.FC = () => {
 
             {/* Total */}
             <div className="pt-3 border-t border-[#EAE5DC] flex justify-between text-sm">
-              <span className="text-[#141414] font-medium">Total Paid</span>
-              <span className="font-mono text-[#B8860B] font-bold text-base">
+              <div>
+                <span className="text-[#141414] font-medium block">Total Paid</span>
+                <span className="text-[11px] text-[#555555] font-light">Inclusive of all taxes (GST) • Zero hidden fees</span>
+              </div>
+              <span className="font-mono text-[#855F06] font-bold text-base">
                 {formatPrice(order.total_amount)}
               </span>
+            </div>
+
+            {/* Email Receipt & Unsubscribe Notice */}
+            <div className="p-3.5 bg-[#FAF9F6] border border-[#EAE5DC] rounded-xl text-xs text-[#4A4A4A] space-y-1">
+              <span className="font-semibold text-[#141414] block">Official Email Receipt Dispatched</span>
+              <p className="font-light leading-relaxed">
+                A formal invoice and receipt have been dispatched to <strong>{order.customer_email}</strong>. You may manage communication preferences or{' '}
+                <Link to="/unsubscribe" className="text-[#855F06] underline hover:text-[#141414]">
+                  unsubscribe from marketing announcements
+                </Link>{' '}
+                at any time without affecting essential order and delivery tracking updates.
+              </p>
             </div>
           </div>
         )}

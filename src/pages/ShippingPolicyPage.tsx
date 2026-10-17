@@ -11,28 +11,28 @@ export const ShippingPolicyPage: React.FC = () => {
         <h1 className="font-serif text-3xl sm:text-4xl text-[#141414] mt-1 font-medium">
           Shipping & Delivery Policy
         </h1>
-        <p className="text-xs text-[#777777] font-light mt-1">Last updated: 2026</p>
+        <p className="text-xs text-[#4A4A4A] font-light mt-1">Last updated: 2026</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="p-5 rounded-xl bg-white border border-[#EAE5DC] space-y-2 shadow-card">
           <Truck className="w-5 h-5 text-[#B8860B]" />
           <h3 className="font-medium text-[#141414] text-sm">Free Express Shipping</h3>
-          <p className="text-xs text-[#666666] font-light">
+          <p className="text-xs text-[#4A4A4A] font-light">
             Complimentary delivery across India on orders above ₹999. Standard fee of ₹99 applies below threshold.
           </p>
         </div>
         <div className="p-5 rounded-xl bg-white border border-[#EAE5DC] space-y-2 shadow-card">
           <Clock className="w-5 h-5 text-[#B8860B]" />
           <h3 className="font-medium text-[#141414] text-sm">Transit Timelines</h3>
-          <p className="text-xs text-[#666666] font-light">
+          <p className="text-xs text-[#4A4A4A] font-light">
             Orders are typically dispatched within 24-48 hours. Metro deliveries arrive in 2-4 business days.
           </p>
         </div>
         <div className="p-5 rounded-xl bg-white border border-[#EAE5DC] space-y-2 shadow-card">
           <Package className="w-5 h-5 text-[#B8860B]" />
           <h3 className="font-medium text-[#141414] text-sm">Discreet Luxury Packaging</h3>
-          <p className="text-xs text-[#666666] font-light">
+          <p className="text-xs text-[#4A4A4A] font-light">
             Every bottle is encased in shock-absorbent cushioning and bespoke presentation cartons.
           </p>
         </div>

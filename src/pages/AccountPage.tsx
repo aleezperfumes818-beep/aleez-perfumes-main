@@ -63,7 +63,7 @@ export const AccountPage: React.FC = () => {
           <h1 className="font-serif text-3xl sm:text-4xl text-[#141414] mt-1 font-medium">
             Welcome, {user.full_name || 'Connoisseur'}
           </h1>
-          <p className="text-xs text-[#777777] font-light mt-0.5">{user.email}</p>
+          <p className="text-xs text-[#4A4A4A] font-light mt-0.5">{user.email}</p>
         </div>
 
         <div className="flex items-center space-x-3">
@@ -96,7 +96,7 @@ export const AccountPage: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-serif text-lg text-[#141414] font-medium">Client Details</h3>
-                <span className="text-[10px] uppercase tracking-wider text-[#777777] font-mono">
+                <span className="text-[10px] uppercase tracking-wider text-[#4A4A4A] font-mono">
                   Account Type: {user.role.toUpperCase()}
                 </span>
               </div>
@@ -148,11 +148,38 @@ export const AccountPage: React.FC = () => {
 
               <button
                 type="submit"
-                className="w-full py-2.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-widest font-bold rounded-lg transition-colors shadow-sm"
+                className="w-full py-2.5 bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-widest font-bold rounded-lg transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
               >
                 Save Profile Changes
               </button>
             </form>
+          </div>
+
+          {/* Privacy & Data Rights Management */}
+          <div className="bg-white border border-[#EAE5DC] rounded-2xl p-6 space-y-4 shadow-card">
+            <div className="flex items-center space-x-2 text-[#855F06]">
+              <ShieldCheck className="w-5 h-5" aria-hidden="true" />
+              <h3 className="font-serif text-lg text-[#141414] font-medium">Privacy & Data Rights</h3>
+            </div>
+            <p className="text-xs text-[#4A4A4A] font-light leading-relaxed">
+              Under the DPDP Act 2023, you maintain complete autonomy over your personal records.
+            </p>
+            <div className="space-y-2 pt-1 text-xs">
+              <Link
+                to="/data-deletion"
+                className="w-full py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200 rounded-lg flex items-center justify-between font-medium transition-colors"
+              >
+                <span>Request Data Deletion / Erasure</span>
+                <span aria-hidden="true">→</span>
+              </Link>
+              <Link
+                to="/unsubscribe"
+                className="w-full py-2 px-3 bg-[#FAF9F6] hover:bg-gray-100 text-[#383838] border border-[#EAE5DC] rounded-lg flex items-center justify-between transition-colors"
+              >
+                <span>Email Preferences & Unsubscribe</span>
+                <span aria-hidden="true">→</span>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -173,7 +200,7 @@ export const AccountPage: React.FC = () => {
             ) : orders.length === 0 ? (
               <div className="text-center py-12 space-y-3">
                 <p className="font-serif text-lg text-[#141414]">No orders placed yet</p>
-                <p className="text-xs text-[#777777] max-w-sm mx-auto">
+                <p className="text-xs text-[#4A4A4A] max-w-sm mx-auto">
                   When you acquire fragrances from Aleez Perfumes, your verified invoices and dispatch coordinates will appear here.
                 </p>
                 <Link
@@ -195,7 +222,7 @@ export const AccountPage: React.FC = () => {
                         <span className="font-mono text-xs font-bold text-[#B8860B] block">
                           #{ord.order_number}
                         </span>
-                        <span className="text-[11px] text-[#777777]">
+                        <span className="text-[11px] text-[#4A4A4A]">
                           {new Date(ord.created_at).toLocaleDateString('en-IN', {
                             day: 'numeric',
                             month: 'short',
@@ -218,7 +245,7 @@ export const AccountPage: React.FC = () => {
                       {ord.items?.map((it, idx) => (
                         <div key={idx} className="flex justify-between items-center text-xs">
                           <span className="text-[#333333]">
-                            {it.product_name} <span className="text-[#777777]">× {it.quantity}</span>
+                            {it.product_name} <span className="text-[#4A4A4A]">× {it.quantity}</span>
                           </span>
                           <span className="font-mono text-[#555555]">
                             {formatPrice(it.total_price)}
