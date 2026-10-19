@@ -430,23 +430,60 @@ app.post('/api/admin/products', async (req, res) => {
       is_active: product.is_active !== undefined ? product.is_active : true,
     };
 
+    if (product.price_50ml !== undefined && product.price_50ml !== null && product.price_50ml !== '') {
+      dbPayload.price_50ml = Number(product.price_50ml);
+    }
+    if (product.sale_price_50ml !== undefined && product.sale_price_50ml !== null && product.sale_price_50ml !== '') {
+      dbPayload.sale_price_50ml = Number(product.sale_price_50ml);
+    }
+    if (product.price_100ml !== undefined && product.price_100ml !== null && product.price_100ml !== '') {
+      dbPayload.price_100ml = Number(product.price_100ml);
+    }
+    if (product.sale_price_100ml !== undefined && product.sale_price_100ml !== null && product.sale_price_100ml !== '') {
+      dbPayload.sale_price_100ml = Number(product.sale_price_100ml);
+    }
+
     let { data: savedProduct, error: pError } = await supabase
       .from('products')
       .upsert(dbPayload)
       .select('*')
       .single();
 
-    // If inspired_by column is not yet migrated in Supabase, retry without failing
-    if (pError && pError.message && pError.message.includes('inspired_by')) {
-      delete dbPayload.inspired_by;
-      const retry = await supabase.from('products').upsert(dbPayload).select('*').single();
-      savedProduct = retry.data;
-      pError = retry.error;
+    // If optional columns are not yet in Supabase table, strip and retry safely
+    if (pError && pError.message) {
+      let needsRetry = false;
+      ['inspired_by', 'price_50ml', 'sale_price_50ml', 'price_100ml', 'sale_price_100ml'].forEach((col) => {
+        if (pError.message.includes(col)) {
+          delete dbPayload[col];
+          needsRetry = true;
+        }
+      });
+      if (needsRetry) {
+        const retry = await supabase.from('products').upsert(dbPayload).select('*').single();
+        savedProduct = retry.data;
+        pError = retry.error;
+      }
     }
 
     if (pError) {
       console.error('Supabase product upsert error:', pError);
       return res.status(500).json({ error: pError.message });
+    }
+
+    // Attach prices to return object in case columns are in local cache
+    if (savedProduct) {
+      if (product.price_50ml !== undefined && product.price_50ml !== null && product.price_50ml !== '') {
+        savedProduct.price_50ml = Number(product.price_50ml);
+      }
+      if (product.sale_price_50ml !== undefined && product.sale_price_50ml !== null && product.sale_price_50ml !== '') {
+        savedProduct.sale_price_50ml = Number(product.sale_price_50ml);
+      }
+      if (product.price_100ml !== undefined && product.price_100ml !== null && product.price_100ml !== '') {
+        savedProduct.price_100ml = Number(product.price_100ml);
+      }
+      if (product.sale_price_100ml !== undefined && product.sale_price_100ml !== null && product.sale_price_100ml !== '') {
+        savedProduct.sale_price_100ml = Number(product.sale_price_100ml);
+      }
     }
 
     // Handle product images if provided

@@ -42,6 +42,10 @@ export const AdminProducts: React.FC = () => {
     category_id: '',
     price: '',
     sale_price: '',
+    price_50ml: '',
+    sale_price_50ml: '',
+    price_100ml: '',
+    sale_price_100ml: '',
     volume_ml: 50,
     stock_quantity: 20,
     sku: '',
@@ -105,6 +109,10 @@ export const AdminProducts: React.FC = () => {
       category_id: categories[0]?.id || '',
       price: '',
       sale_price: '',
+      price_50ml: '',
+      sale_price_50ml: '',
+      price_100ml: '',
+      sale_price_100ml: '',
       volume_ml: 50,
       stock_quantity: 25,
       sku: `ALZ-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -132,6 +140,10 @@ export const AdminProducts: React.FC = () => {
       category_id: product.category_id,
       price: product.price.toString(),
       sale_price: product.sale_price !== null && product.sale_price !== undefined ? product.sale_price.toString() : '',
+      price_50ml: product.price_50ml !== null && product.price_50ml !== undefined ? product.price_50ml.toString() : product.price.toString(),
+      sale_price_50ml: product.sale_price_50ml !== null && product.sale_price_50ml !== undefined ? product.sale_price_50ml.toString() : (product.sale_price?.toString() || ''),
+      price_100ml: product.price_100ml !== null && product.price_100ml !== undefined ? product.price_100ml.toString() : (product.price ? Math.round(product.price * 1.6).toString() : ''),
+      sale_price_100ml: product.sale_price_100ml !== null && product.sale_price_100ml !== undefined ? product.sale_price_100ml.toString() : '',
       volume_ml: product.volume_ml,
       stock_quantity: product.stock_quantity,
       sku: product.sku,
@@ -230,7 +242,18 @@ export const AdminProducts: React.FC = () => {
   const validateForm = () => {
     const errors: Record<string, string> = {};
     if (!formData.name.trim()) errors.name = 'Fragrance name is required';
-    if (!formData.price || Number(formData.price) <= 0) errors.price = 'Valid price is required';
+    
+    // Auto-sync base price from 50ml or vice versa if either is filled
+    if (!formData.price && formData.price_50ml) {
+      formData.price = formData.price_50ml;
+    } else if (!formData.price_50ml && formData.price) {
+      formData.price_50ml = formData.price;
+    }
+
+    const effectivePrice = Number(formData.price_50ml || formData.price);
+    if (!effectivePrice || effectivePrice <= 0) {
+      errors.price = 'Valid price is required for 50ml or general catalog price';
+    }
     if (!formData.description.trim()) errors.description = 'Fragrance description is required';
 
     // Auto-generate slug if omitted
@@ -273,6 +296,13 @@ export const AdminProducts: React.FC = () => {
               },
             ];
 
+      const p50 = formData.price_50ml ? Number(formData.price_50ml) : (Number(formData.price) || 0);
+      const sp50 = formData.sale_price_50ml ? Number(formData.sale_price_50ml) : (formData.sale_price ? Number(formData.sale_price) : null);
+      const p100 = formData.price_100ml ? Number(formData.price_100ml) : Math.round(p50 * 1.6);
+      const sp100 = formData.sale_price_100ml ? Number(formData.sale_price_100ml) : null;
+      const basePrice = Number(formData.price) || p50;
+      const baseSalePrice = formData.sale_price ? Number(formData.sale_price) : sp50;
+
       const productPayload: Partial<Product> = {
         id: editingProduct?.id,
         name: formData.name.trim(),
@@ -280,9 +310,13 @@ export const AdminProducts: React.FC = () => {
         slug: formData.slug.trim(),
         category_id: formData.category_id,
         category_name: selectedCat?.name || 'Fragrance',
-        price: Number(formData.price),
-        sale_price: formData.sale_price ? Number(formData.sale_price) : null,
-        volume_ml: Number(formData.volume_ml),
+        price: basePrice,
+        sale_price: baseSalePrice,
+        price_50ml: p50,
+        sale_price_50ml: sp50,
+        price_100ml: p100,
+        sale_price_100ml: sp100,
+        volume_ml: Number(formData.volume_ml) || 50,
         stock_quantity: Number(formData.stock_quantity),
         sku: formData.sku.trim(),
         description: formData.description.trim(),
@@ -705,51 +739,150 @@ export const AdminProducts: React.FC = () => {
                 </div>
               </div>
 
-              {/* Price, Sale Price, Stock */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                    Regular Price (₹ INR) *
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="2499"
-                    className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
-                  />
-                  {formErrors.price && (
-                    <p className="text-xs text-red-500 mt-1">{formErrors.price}</p>
-                  )}
+              {/* Bottle Sizes & Tiered Pricing (50 ML & 100 ML) */}
+              <div className="bg-neutral-50 rounded-lg border border-neutral-300 p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xs uppercase tracking-wider text-black font-semibold">
+                      Bottle Sizes &amp; Pricing (50 ML &amp; 100 ML)
+                    </h4>
+                    <p className="text-[11px] text-neutral-500 font-light">
+                      Set separate prices and sale offers for 50ml and 100ml flacons
+                    </p>
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider bg-black text-white px-2 py-0.5 rounded font-mono font-bold">
+                    Dual Size
+                  </span>
                 </div>
 
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                    Sale Price (₹ INR, Optional)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.sale_price}
-                    onChange={(e) => setFormData({ ...formData, sale_price: e.target.value })}
-                    placeholder="1999"
-                    className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* 50 ML Tier */}
+                  <div className="p-3 bg-white rounded border border-neutral-200 space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-black">
+                        50 ML Flacon
+                      </span>
+                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider">Standard Size</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                          50ml Price (₹) *
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          required
+                          value={formData.price_50ml || formData.price}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData((prev) => ({
+                              ...prev,
+                              price_50ml: val,
+                              price: prev.price === '' || prev.price === prev.price_50ml ? val : prev.price,
+                            }));
+                          }}
+                          placeholder="1899"
+                          className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                          50ml Sale (₹)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={formData.sale_price_50ml}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData((prev) => ({
+                              ...prev,
+                              sale_price_50ml: val,
+                              sale_price: prev.sale_price === '' || prev.sale_price === prev.sale_price_50ml ? val : prev.sale_price,
+                            }));
+                          }}
+                          placeholder="Optional"
+                          className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 100 ML Tier */}
+                  <div className="p-3 bg-white rounded border border-neutral-200 space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-black">
+                        100 ML Flacon
+                      </span>
+                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider">Grand Size</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                          100ml Price (₹) *
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={formData.price_100ml}
+                          onChange={(e) => setFormData({ ...formData, price_100ml: e.target.value })}
+                          placeholder="2899"
+                          className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                          100ml Sale (₹)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={formData.sale_price_100ml}
+                          onChange={(e) => setFormData({ ...formData, sale_price_100ml: e.target.value })}
+                          placeholder="Optional"
+                          className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                    Available Stock Quantity *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.stock_quantity}
-                    onChange={(e) => setFormData({ ...formData, stock_quantity: Number(e.target.value) })}
-                    className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
-                  />
+                {/* Stock & Base Catalog Price */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-neutral-200">
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                      Store Catalog Display Price (₹ INR)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      placeholder="1899"
+                      className="w-full bg-white border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                    />
+                    {formErrors.price && (
+                      <p className="text-xs text-red-500 mt-1">{formErrors.price}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                      Available Stock Quantity *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={formData.stock_quantity}
+                      onChange={(e) => setFormData({ ...formData, stock_quantity: Number(e.target.value) })}
+                      className="w-full bg-white border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                    />
+                  </div>
                 </div>
               </div>
 

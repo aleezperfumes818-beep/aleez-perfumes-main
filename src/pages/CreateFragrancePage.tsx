@@ -281,7 +281,7 @@ Please guide me with the final maceration and order confirmation.`;
                     type="text"
                     value={customName}
                     onChange={(e) => setCustomName(e.target.value)}
-                    placeholder="e.g. Signature Farhan Noir"
+                    placeholder="e.g. Royal Amber Essence"
                     maxLength={28}
                     className="w-full px-3.5 py-2.5 text-xs bg-white border border-[#EAE5DC] rounded-lg focus:outline-none focus:border-[#B8860B] text-[#141414]"
                   />

@@ -44,6 +44,7 @@ import { AdminOrders } from './admin/AdminOrders';
 import { AdminTeam } from './admin/AdminTeam';
 import { AdminSettings } from './admin/AdminSettings';
 import { AdminHomepage } from './admin/AdminHomepage';
+import { AdminLoginPage } from './pages/AdminLoginPage';
 
 // Helper to scroll to top on route navigation
 const ScrollToTop: React.FC = () => {
@@ -57,7 +58,8 @@ const ScrollToTop: React.FC = () => {
 // Main App Container to manage Customer layout vs Admin layout
 const MainContent: React.FC = () => {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAdminLoginRoute = location.pathname === '/admin/login';
+  const isAdminRoute = location.pathname.startsWith('/admin') && !isAdminLoginRoute;
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Determine if on product page to extract product name for WhatsApp
@@ -67,7 +69,9 @@ const MainContent: React.FC = () => {
     <>
       <ScrollToTop />
 
-      {isAdminRoute ? (
+      {isAdminLoginRoute ? (
+        <AdminLoginPage />
+      ) : isAdminRoute ? (
         // Completely Separate Protected Admin Layout
         <AdminLayout>
           <Routes>

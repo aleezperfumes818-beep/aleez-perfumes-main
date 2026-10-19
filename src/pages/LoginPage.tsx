@@ -120,7 +120,7 @@ export const LoginPage: React.FC = () => {
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+91 9876543210"
+                    placeholder="10-digit mobile number"
                     className="w-full bg-neutral-50 border border-neutral-300 focus:border-black focus:ring-1 focus:ring-black rounded pl-9 pr-3 py-2.5 text-xs text-black focus:outline-none"
                   />
                 </div>
@@ -225,12 +225,22 @@ export const LoginPage: React.FC = () => {
               setIsRegister(!isRegister);
               setError(null);
             }}
-            className="text-xs text-neutral-700 hover:text-black underline font-medium"
+            className="text-xs text-neutral-700 hover:text-black underline font-medium block w-full"
           >
             {isRegister
               ? 'Already have an account? Sign in'
               : "Don't have an account yet? Create one"}
           </button>
+
+          <div className="pt-2">
+            <Link
+              to="/admin/login"
+              className="text-[11px] text-neutral-400 hover:text-black transition-colors tracking-wider uppercase font-medium inline-flex items-center gap-1"
+            >
+              <span>Store Administrator Portal</span>
+              <span>→</span>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

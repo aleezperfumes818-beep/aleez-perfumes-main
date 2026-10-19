@@ -323,14 +323,6 @@ export const CheckoutPage: React.FC = () => {
       <form onSubmit={handlePayNow} className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* LEFT COLUMN: Shipping & Customer Details */}
         <div className="lg:col-span-7 space-y-8">
-          {/* Data Minimization Assurance */}
-          <div className="p-4 rounded-sm bg-neutral-50 border border-neutral-200 text-xs text-neutral-600 space-y-1">
-            <span className="font-semibold text-black block">Data Minimization Commitment</span>
-            <p className="font-light leading-relaxed">
-              We strictly collect only the minimal contact and delivery coordinates required by our courier partners (BlueDart / Delhivery) to fulfill your fragrance package safely.
-            </p>
-          </div>
-
           {/* Customer Contact */}
           <div className="bg-white border border-neutral-200 p-6 rounded-sm space-y-4 shadow-sm">
             <h2 className="font-serif text-xl text-black flex items-center justify-between font-normal">
@@ -352,7 +344,7 @@ export const CheckoutPage: React.FC = () => {
                   aria-invalid={!!formErrors.fullName}
                   value={formData.fullName}
                   onChange={handleInputChange}
-                  placeholder="e.g. Farhan Malik"
+                  placeholder="Your full name"
                   className={`w-full bg-neutral-50 border rounded-sm px-3.5 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black ${
                     formErrors.fullName ? 'border-red-500' : 'border-neutral-300 focus:border-black'
                   }`}
@@ -375,7 +367,7 @@ export const CheckoutPage: React.FC = () => {
                   aria-invalid={!!formErrors.email}
                   value={formData.email}
                   onChange={handleInputChange}
-                  placeholder="e.g. farhan@example.com"
+                  placeholder="Your email address"
                   className={`w-full bg-neutral-50 border rounded-sm px-3.5 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black ${
                     formErrors.email ? 'border-red-500' : 'border-neutral-300 focus:border-black'
                   }`}
@@ -398,7 +390,7 @@ export const CheckoutPage: React.FC = () => {
                   aria-invalid={!!formErrors.phone}
                   value={formData.phone}
                   onChange={handleInputChange}
-                  placeholder="e.g. +91 9876543210"
+                  placeholder="10-digit mobile number"
                   className={`w-full bg-neutral-50 border rounded-sm px-3.5 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black ${
                     formErrors.phone ? 'border-red-500' : 'border-neutral-300 focus:border-black'
                   }`}
@@ -434,7 +426,7 @@ export const CheckoutPage: React.FC = () => {
                   aria-invalid={!!formErrors.address}
                   value={formData.address}
                   onChange={handleInputChange}
-                  placeholder="House / Flat No., Building, Street Name"
+                  placeholder="House/flat no., building, street address"
                   className={`w-full bg-neutral-50 border rounded-sm px-3.5 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black ${
                     formErrors.address ? 'border-red-500' : 'border-neutral-300 focus:border-black'
                   }`}
@@ -458,7 +450,7 @@ export const CheckoutPage: React.FC = () => {
                     aria-invalid={!!formErrors.city}
                     value={formData.city}
                     onChange={handleInputChange}
-                    placeholder="e.g. Mumbai"
+                    placeholder="City"
                     className={`w-full bg-neutral-50 border rounded-sm px-3.5 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black ${
                       formErrors.city ? 'border-red-500' : 'border-neutral-300 focus:border-black'
                     }`}
@@ -481,7 +473,7 @@ export const CheckoutPage: React.FC = () => {
                     aria-invalid={!!formErrors.state}
                     value={formData.state}
                     onChange={handleInputChange}
-                    placeholder="e.g. Maharashtra"
+                    placeholder="State"
                     className={`w-full bg-neutral-50 border rounded-sm px-3.5 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black ${
                       formErrors.state ? 'border-red-500' : 'border-neutral-300 focus:border-black'
                     }`}
@@ -505,7 +497,7 @@ export const CheckoutPage: React.FC = () => {
                     aria-invalid={!!formErrors.pincode}
                     value={formData.pincode}
                     onChange={handleInputChange}
-                    placeholder="e.g. 400001"
+                    placeholder="6-digit PIN code"
                     className={`w-full bg-neutral-50 border rounded-sm px-3.5 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black font-mono ${
                       formErrors.pincode ? 'border-red-500' : 'border-neutral-300 focus:border-black'
                     }`}

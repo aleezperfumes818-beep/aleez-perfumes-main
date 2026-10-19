@@ -206,7 +206,7 @@ export const DataDeletionPage: React.FC = () => {
                     required
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    placeholder="e.g. Farhan Malik"
+                    placeholder="Your full name"
                     className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none"
                   />
                 </div>
@@ -222,7 +222,7 @@ export const DataDeletionPage: React.FC = () => {
                       required
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="e.g. farhan@example.com"
+                      placeholder="name@example.com"
                       className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none"
                     />
                   </div>
@@ -237,7 +237,7 @@ export const DataDeletionPage: React.FC = () => {
                       required
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="e.g. +91 9876543210"
+                      placeholder="10-digit mobile number"
                       className="w-full bg-[#FAF9F6] border border-[#EAE5DC] focus:border-[#B8860B] focus:ring-1 focus:ring-[#B8860B] rounded-lg px-3.5 py-2.5 text-sm text-[#141414] focus:outline-none"
                     />
                   </div>

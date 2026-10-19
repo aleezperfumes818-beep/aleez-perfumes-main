@@ -311,9 +311,9 @@ export const initialOrders: Order[] = [
   {
     id: "ord-101",
     order_number: "ALZ-892401-419",
-    customer_name: "Farhan Malik",
-    customer_email: "farhan.malik@example.com",
-    customer_phone: "+91 9876543210",
+    customer_name: "Boutique Client",
+    customer_email: "client@aleezperfumes.com",
+    customer_phone: "+91 9000000000",
     shipping_address: "Flat 402, Royal Palms, Banjara Hills",
     shipping_city: "Hyderabad",
     shipping_state: "Telangana",

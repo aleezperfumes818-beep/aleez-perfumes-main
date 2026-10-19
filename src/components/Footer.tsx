@@ -210,7 +210,7 @@ export const Footer: React.FC = () => {
               </div>
 
               <div className="pt-1">
-                <Link to="/admin" className="text-neutral-400 hover:text-black transition-colors text-[11px]">
+                <Link to="/admin/login" className="text-neutral-400 hover:text-black transition-colors text-[11px]">
                   Store Admin Portal →
                 </Link>
               </div>
