@@ -138,11 +138,11 @@ export const AdminProducts: React.FC = () => {
       inspired_by: product.inspired_by || '',
       slug: product.slug,
       category_id: product.category_id,
-      price: product.price.toString(),
-      sale_price: product.sale_price !== null && product.sale_price !== undefined ? product.sale_price.toString() : '',
-      price_50ml: product.price_50ml !== null && product.price_50ml !== undefined ? product.price_50ml.toString() : product.price.toString(),
-      sale_price_50ml: product.sale_price_50ml !== null && product.sale_price_50ml !== undefined ? product.sale_price_50ml.toString() : (product.sale_price?.toString() || ''),
-      price_100ml: product.price_100ml !== null && product.price_100ml !== undefined ? product.price_100ml.toString() : (product.price ? Math.round(product.price * 1.6).toString() : ''),
+      price: (product.price_50ml ?? product.price ?? '').toString(),
+      sale_price: product.sale_price_50ml !== null && product.sale_price_50ml !== undefined ? product.sale_price_50ml.toString() : (product.sale_price !== null && product.sale_price !== undefined ? product.sale_price.toString() : ''),
+      price_50ml: (product.price_50ml ?? product.price ?? '').toString(),
+      sale_price_50ml: product.sale_price_50ml !== null && product.sale_price_50ml !== undefined ? product.sale_price_50ml.toString() : (product.sale_price !== null && product.sale_price !== undefined ? product.sale_price.toString() : ''),
+      price_100ml: product.price_100ml !== null && product.price_100ml !== undefined ? product.price_100ml.toString() : '',
       sale_price_100ml: product.sale_price_100ml !== null && product.sale_price_100ml !== undefined ? product.sale_price_100ml.toString() : '',
       volume_ml: product.volume_ml,
       stock_quantity: product.stock_quantity,
@@ -852,37 +852,23 @@ export const AdminProducts: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Stock & Base Catalog Price */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-neutral-200">
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                      Store Catalog Display Price (₹ INR)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      placeholder="1899"
-                      className="w-full bg-white border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
-                    />
-                    {formErrors.price && (
-                      <p className="text-xs text-red-500 mt-1">{formErrors.price}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                      Available Stock Quantity *
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      value={formData.stock_quantity}
-                      onChange={(e) => setFormData({ ...formData, stock_quantity: Number(e.target.value) })}
-                      className="w-full bg-white border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
-                    />
-                  </div>
+                {/* Available Stock Quantity */}
+                <div className="pt-2 border-t border-neutral-200">
+                  <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                    Available Stock Quantity *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={formData.stock_quantity}
+                    onChange={(e) => setFormData({ ...formData, stock_quantity: Number(e.target.value) })}
+                    placeholder="50"
+                    className="w-full bg-stone-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                  />
+                  {formErrors.stock_quantity && (
+                    <p className="text-xs text-red-500 mt-1">{formErrors.stock_quantity}</p>
+                  )}
                 </div>
               </div>
 

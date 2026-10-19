@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Package,
@@ -22,15 +22,10 @@ interface AdminLayoutProps {
 }
 
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const { user, isAdmin, adminLogin, logout, isLoading } = useAuth();
+  const { user, isAdmin, logout, isLoading } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Admin Login state for unauthenticated users attempting to access /admin
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const [loginLoading, setLoginLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [safetyTimeout, setSafetyTimeout] = useState(false);
 
@@ -40,30 +35,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
-
-  React.useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    if (searchParams.get('admin_preview') === '1' && !isAdmin) {
-      adminLogin('aleez.perfumes818@gmail.com', 'AleezAdmin2026!');
-    }
-  }, [location.search, isAdmin]);
-
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError(null);
-    setLoginLoading(true);
-
-    try {
-      const res = await adminLogin(adminEmail, adminPassword);
-      if (!res.success) {
-        setLoginError(res.error || 'Invalid administrator credentials');
-      }
-    } catch (err: any) {
-      setLoginError(err.message || 'Authentication error');
-    } finally {
-      setLoginLoading(false);
-    }
-  };
 
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
@@ -83,82 +54,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     );
   }
 
-  // If not authenticated as Admin, display dedicated Admin Authentication screen
+  // If not authenticated as Admin, redirect directly to dedicated Admin Login page
   if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white border border-neutral-200 rounded-xl p-8 space-y-6 shadow-md">
-          <div className="text-center space-y-2">
-            <div className="w-14 h-14 bg-neutral-100 border border-neutral-300 rounded-full flex items-center justify-center mx-auto text-black">
-              <Shield className="w-7 h-7" />
-            </div>
-            <h1 className="font-serif text-2xl text-black pt-2">
-              Aleez Perfumes Administration
-            </h1>
-            <p className="text-xs text-neutral-500 font-light">
-              Restricted management portal. Authorized store administrators only.
-            </p>
-          </div>
-
-          {loginError && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded">
-              {loginError}
-            </div>
-          )}
-
-          <form onSubmit={handleAdminLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                Admin Email
-              </label>
-              <input
-                type="email"
-                required
-                value={adminEmail}
-                onChange={(e) => setAdminEmail(e.target.value)}
-                placeholder="example@gmail.com"
-                className="w-full bg-neutral-50 border border-neutral-200 focus:border-black rounded px-3.5 py-2.5 text-xs text-black focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                Admin Password / Secret Key
-              </label>
-              <input
-                type="password"
-                required
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
-                placeholder="••••••••••••"
-                className="w-full bg-neutral-50 border border-neutral-200 focus:border-black rounded px-3.5 py-2.5 text-xs text-black focus:outline-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loginLoading}
-              className="w-full py-3.5 bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-[0.2em] font-semibold rounded shadow-sm transition-all flex items-center justify-center space-x-2"
-            >
-              {loginLoading ? (
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <Lock className="w-4 h-4" />
-                  <span>Authenticate Portal</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          <div className="pt-4 border-t border-neutral-200 text-center">
-            <Link to="/" className="text-xs text-neutral-500 hover:text-black flex items-center justify-center space-x-1">
-              <span>← Return to Public Boutique</span>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+    return <Navigate to="/admin/login" replace />;
   }
 
   // Authenticated Admin Dashboard Layout

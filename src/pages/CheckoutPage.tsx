@@ -302,10 +302,7 @@ export const CheckoutPage: React.FC = () => {
       </div>
 
       <div className="border-b border-neutral-200 pb-4">
-        <span className="text-xs uppercase tracking-[0.25em] text-neutral-500 font-semibold">
-          Checkout
-        </span>
-        <h1 className="font-serif text-3xl sm:text-4xl text-black mt-1 font-normal">
+        <h1 className="font-serif text-3xl sm:text-4xl text-black font-normal">
           Express Checkout
         </h1>
       </div>

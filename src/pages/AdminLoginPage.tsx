@@ -40,11 +40,6 @@ export const AdminLoginPage: React.FC = () => {
     }
   };
 
-  const handleFillDemoCredentials = () => {
-    setEmail('aleez.perfumes818@gmail.com');
-    setPassword('AleezAdmin2026!');
-    setError(null);
-  };
 
   return (
     <div className="min-h-screen bg-neutral-100 flex flex-col justify-center items-center p-4 sm:p-6 text-black select-none">
@@ -86,7 +81,7 @@ export const AdminLoginPage: React.FC = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@aleezperfumes.com"
+                placeholder="example@gmail.com"
                 className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded-sm pl-9 pr-3 py-2.5 text-xs text-black focus:outline-none focus:ring-1 focus:ring-black"
               />
             </div>
@@ -133,20 +128,6 @@ export const AdminLoginPage: React.FC = () => {
             )}
           </button>
         </form>
-
-        {/* Quick Demo Helper Button */}
-        <div className="p-3.5 bg-neutral-50 border border-neutral-200 rounded-sm text-center space-y-2">
-          <p className="text-[11px] text-neutral-500 font-light">
-            Need demo admin access credentials?
-          </p>
-          <button
-            type="button"
-            onClick={handleFillDemoCredentials}
-            className="text-xs uppercase tracking-wider text-black font-semibold hover:underline inline-flex items-center space-x-1"
-          >
-            <span>Auto-fill Demo Admin Credentials</span>
-          </button>
-        </div>
 
         <div className="pt-2 border-t border-neutral-200 flex items-center justify-between text-xs text-neutral-500 font-light">
           <Link to="/" className="hover:text-black flex items-center space-x-1">

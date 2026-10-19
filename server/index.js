@@ -89,7 +89,7 @@ app.post('/api/razorpay/create-order', async (req, res) => {
       if (supabase) {
         const { data, error } = await supabase
           .from('products')
-          .select('id, name, price, sale_price, stock_quantity, is_active')
+          .select('id, name, price, sale_price, stock_quantity, is_active, description')
           .eq('id', item.productId)
           .single();
 
@@ -124,7 +124,47 @@ app.post('/api/razorpay/create-order', async (req, res) => {
         });
       }
 
-      const unitPrice = product.sale_price ? Number(product.sale_price) : Number(product.price);
+      // Check for size pricing metadata encoded in description
+      let sizeMeta = null;
+      if (product.description) {
+        const match = product.description.match(/<!--sizes:(.*?)-->/);
+        if (match) {
+          try {
+            sizeMeta = JSON.parse(match[1]);
+          } catch (e) {}
+        }
+      }
+
+      const is100ml = item.selected_size === '100ml' || item.size === '100ml' || item.volume_ml === 100;
+      let unitPrice = 0;
+
+      if (is100ml) {
+        if (sizeMeta && sizeMeta.sp100 !== null && sizeMeta.sp100 !== undefined && sizeMeta.sp100 !== '') {
+          unitPrice = Number(sizeMeta.sp100);
+        } else if (sizeMeta && sizeMeta.p100 !== null && sizeMeta.p100 !== undefined && sizeMeta.p100 !== '') {
+          unitPrice = Number(sizeMeta.p100);
+        } else if (product.sale_price_100ml != null) {
+          unitPrice = Number(product.sale_price_100ml);
+        } else if (product.price_100ml != null) {
+          unitPrice = Number(product.price_100ml);
+        } else {
+          const basePrice = product.sale_price ? Number(product.sale_price) : Number(product.price);
+          unitPrice = Math.round(basePrice * 1.6);
+        }
+      } else {
+        if (sizeMeta && sizeMeta.sp50 !== null && sizeMeta.sp50 !== undefined && sizeMeta.sp50 !== '') {
+          unitPrice = Number(sizeMeta.sp50);
+        } else if (sizeMeta && sizeMeta.p50 !== null && sizeMeta.p50 !== undefined && sizeMeta.p50 !== '') {
+          unitPrice = Number(sizeMeta.p50);
+        } else if (product.sale_price_50ml != null) {
+          unitPrice = Number(product.sale_price_50ml);
+        } else if (product.price_50ml != null) {
+          unitPrice = Number(product.price_50ml);
+        } else {
+          unitPrice = product.sale_price ? Number(product.sale_price) : Number(product.price);
+        }
+      }
+
       const itemTotal = unitPrice * requestedQty;
       validatedSubtotal += itemTotal;
 
@@ -408,14 +448,24 @@ app.post('/api/admin/products', async (req, res) => {
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '');
 
+    const p50 = product.price_50ml !== undefined && product.price_50ml !== null && product.price_50ml !== '' ? Number(product.price_50ml) : (Number(product.price) || 0);
+    const sp50 = product.sale_price_50ml !== undefined && product.sale_price_50ml !== null && product.sale_price_50ml !== '' ? Number(product.sale_price_50ml) : null;
+    const p100 = product.price_100ml !== undefined && product.price_100ml !== null && product.price_100ml !== '' ? Number(product.price_100ml) : Math.round(p50 * 1.6);
+    const sp100 = product.sale_price_100ml !== undefined && product.sale_price_100ml !== null && product.sale_price_100ml !== '' ? Number(product.sale_price_100ml) : null;
+
+    const rawDesc = product.description || '';
+    const cleanDesc = rawDesc.replace(/<!--sizes:(.*?)-->/g, '').trim();
+    const sizeMeta = { p50, sp50, p100, sp100 };
+    const encodedDesc = `${cleanDesc}\n<!--sizes:${JSON.stringify(sizeMeta)}-->`;
+
     const dbPayload = {
       id: productId,
       name: product.name.trim(),
       slug,
       category_id: categoryId,
-      price: Number(product.price) || 0,
-      sale_price: product.sale_price ? Number(product.sale_price) : null,
-      description: product.description || '',
+      price: p50,
+      sale_price: sp50,
+      description: encodedDesc,
       fragrance_family: product.fragrance_family || null,
       inspired_by: product.inspired_by ? product.inspired_by.trim() : null,
       top_notes: product.top_notes || null,
@@ -470,20 +520,15 @@ app.post('/api/admin/products', async (req, res) => {
       return res.status(500).json({ error: pError.message });
     }
 
-    // Attach prices to return object in case columns are in local cache
+    // Attach prices and clean description to return object
     if (savedProduct) {
-      if (product.price_50ml !== undefined && product.price_50ml !== null && product.price_50ml !== '') {
-        savedProduct.price_50ml = Number(product.price_50ml);
-      }
-      if (product.sale_price_50ml !== undefined && product.sale_price_50ml !== null && product.sale_price_50ml !== '') {
-        savedProduct.sale_price_50ml = Number(product.sale_price_50ml);
-      }
-      if (product.price_100ml !== undefined && product.price_100ml !== null && product.price_100ml !== '') {
-        savedProduct.price_100ml = Number(product.price_100ml);
-      }
-      if (product.sale_price_100ml !== undefined && product.sale_price_100ml !== null && product.sale_price_100ml !== '') {
-        savedProduct.sale_price_100ml = Number(product.sale_price_100ml);
-      }
+      savedProduct.price = p50;
+      savedProduct.sale_price = sp50;
+      savedProduct.price_50ml = p50;
+      savedProduct.sale_price_50ml = sp50;
+      savedProduct.price_100ml = p100;
+      savedProduct.sale_price_100ml = sp100;
+      savedProduct.description = cleanDesc;
     }
 
     // Handle product images if provided

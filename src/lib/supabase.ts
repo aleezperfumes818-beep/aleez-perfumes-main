@@ -58,6 +58,49 @@ const withTimeout = <T>(promise: PromiseLike<T>, timeoutMs = 3500): Promise<T> =
   ]);
 };
 
+// Helper functions for dual 50ml and 100ml pricing persistence
+export function parseSizeMetadata(description?: string): {
+  cleanDescription: string;
+  price_50ml?: number;
+  sale_price_50ml?: number | null;
+  price_100ml?: number;
+  sale_price_100ml?: number | null;
+} {
+  if (!description) return { cleanDescription: '' };
+  const match = description.match(/<!--sizes:(.*?)-->/);
+  if (!match) return { cleanDescription: description };
+  try {
+    const meta = JSON.parse(match[1]);
+    const clean = description.replace(/<!--sizes:(.*?)-->/g, '').trim();
+    return {
+      cleanDescription: clean,
+      price_50ml: meta.p50 !== undefined && meta.p50 !== null && meta.p50 !== '' ? Number(meta.p50) : undefined,
+      sale_price_50ml: meta.sp50 !== undefined && meta.sp50 !== null && meta.sp50 !== '' ? Number(meta.sp50) : null,
+      price_100ml: meta.p100 !== undefined && meta.p100 !== null && meta.p100 !== '' ? Number(meta.p100) : undefined,
+      sale_price_100ml: meta.sp100 !== undefined && meta.sp100 !== null && meta.sp100 !== '' ? Number(meta.sp100) : null,
+    };
+  } catch {
+    return { cleanDescription: description };
+  }
+}
+
+export function encodeSizeMetadata(
+  description: string,
+  p50?: number,
+  sp50?: number | null,
+  p100?: number,
+  sp100?: number | null
+): string {
+  const clean = (description || '').replace(/<!--sizes:(.*?)-->/g, '').trim();
+  const metaObj = {
+    p50: p50 !== undefined && p50 !== null && (p50 as any) !== '' ? Number(p50) : null,
+    sp50: sp50 !== undefined && sp50 !== null && (sp50 as any) !== '' ? Number(sp50) : null,
+    p100: p100 !== undefined && p100 !== null && (p100 as any) !== '' ? Number(p100) : null,
+    sp100: sp100 !== undefined && sp100 !== null && (sp100 as any) !== '' ? Number(sp100) : null,
+  };
+  return `${clean}\n<!--sizes:${JSON.stringify(metaObj)}-->`;
+}
+
 // Database Service Layer
 export const dbService = {
   // --- PRODUCTS ---
@@ -72,27 +115,47 @@ export const dbService = {
         );
 
         if (!error && data && data.length > 0) {
-          return data.map((p) => ({
-            ...p,
-            price_50ml: p.price_50ml ?? p.price,
-            sale_price_50ml: p.sale_price_50ml !== undefined ? p.sale_price_50ml : p.sale_price,
-            price_100ml: p.price_100ml ?? Math.round(p.price * 1.6),
-            sale_price_100ml: p.sale_price_100ml !== undefined ? p.sale_price_100ml : (p.sale_price ? Math.round(p.sale_price * 1.6) : null),
-            images: p.product_images || [],
-          }));
+          return data.map((p) => {
+            const parsed = parseSizeMetadata(p.description);
+            const p50 = parsed.price_50ml ?? (p.price_50ml !== undefined && p.price_50ml !== null ? Number(p.price_50ml) : Number(p.price));
+            const sp50 = parsed.sale_price_50ml !== undefined ? parsed.sale_price_50ml : (p.sale_price_50ml !== undefined && p.sale_price_50ml !== null ? Number(p.sale_price_50ml) : (p.sale_price ? Number(p.sale_price) : null));
+            const p100 = parsed.price_100ml ?? (p.price_100ml !== undefined && p.price_100ml !== null ? Number(p.price_100ml) : Math.round(p50 * 1.6));
+            const sp100 = parsed.sale_price_100ml !== undefined ? parsed.sale_price_100ml : (p.sale_price_100ml !== undefined && p.sale_price_100ml !== null ? Number(p.sale_price_100ml) : null);
+            return {
+              ...p,
+              description: parsed.cleanDescription,
+              price: p50,
+              sale_price: sp50,
+              price_50ml: p50,
+              sale_price_50ml: sp50,
+              price_100ml: p100,
+              sale_price_100ml: sp100,
+              images: p.product_images || [],
+            };
+          });
         }
       } catch (err) {
         console.warn('Supabase fetch products failed, falling back to local store', err);
       }
     }
     const local = getFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, initialProducts);
-    return local.map((p) => ({
-      ...p,
-      price_50ml: p.price_50ml ?? p.price,
-      sale_price_50ml: p.sale_price_50ml !== undefined ? p.sale_price_50ml : p.sale_price,
-      price_100ml: p.price_100ml ?? Math.round(p.price * 1.6),
-      sale_price_100ml: p.sale_price_100ml !== undefined ? p.sale_price_100ml : (p.sale_price ? Math.round(p.sale_price * 1.6) : null),
-    }));
+    return local.map((p) => {
+      const parsed = parseSizeMetadata(p.description);
+      const p50 = parsed.price_50ml ?? (p.price_50ml !== undefined && p.price_50ml !== null ? Number(p.price_50ml) : Number(p.price));
+      const sp50 = parsed.sale_price_50ml !== undefined ? parsed.sale_price_50ml : (p.sale_price_50ml !== undefined && p.sale_price_50ml !== null ? Number(p.sale_price_50ml) : (p.sale_price ? Number(p.sale_price) : null));
+      const p100 = parsed.price_100ml ?? (p.price_100ml !== undefined && p.price_100ml !== null ? Number(p.price_100ml) : Math.round(p50 * 1.6));
+      const sp100 = parsed.sale_price_100ml !== undefined ? parsed.sale_price_100ml : (p.sale_price_100ml !== undefined && p.sale_price_100ml !== null ? Number(p.sale_price_100ml) : null);
+      return {
+        ...p,
+        description: parsed.cleanDescription,
+        price: p50,
+        sale_price: sp50,
+        price_50ml: p50,
+        sale_price_50ml: sp50,
+        price_100ml: p100,
+        sale_price_100ml: sp100,
+      };
+    });
   },
 
   async getProductBySlug(slug: string): Promise<Product | null> {
@@ -124,19 +187,28 @@ export const dbService = {
         ? product.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
         : `product-${Date.now()}`);
 
+    const p50 = product.price_50ml !== undefined && product.price_50ml !== null && (product.price_50ml as unknown) !== '' ? Number(product.price_50ml) : (Number(product.price) || 0);
+    const sp50 = product.sale_price_50ml !== undefined && product.sale_price_50ml !== null && (product.sale_price_50ml as unknown) !== '' ? Number(product.sale_price_50ml) : null;
+    const p100 = product.price_100ml !== undefined && product.price_100ml !== null && (product.price_100ml as unknown) !== '' ? Number(product.price_100ml) : Math.round(p50 * 1.6);
+    const sp100 = product.sale_price_100ml !== undefined && product.sale_price_100ml !== null && (product.sale_price_100ml as unknown) !== '' ? Number(product.sale_price_100ml) : null;
+
+    const rawDesc = product.description || '';
+    const cleanDesc = rawDesc.replace(/<!--sizes:(.*?)-->/g, '').trim();
+    const encodedDesc = encodeSizeMetadata(cleanDesc, p50, sp50, p100, sp100);
+
     let updatedProduct: Product = {
       id: productId,
       name: product.name || 'Untitled Fragrance',
       slug,
       category_id: product.category_id && isValidUUID(product.category_id) ? product.category_id : '',
       category_name: product.category_name,
-      price: Number(product.price) || 0,
-      sale_price: product.sale_price ? Number(product.sale_price) : null,
-      price_50ml: product.price_50ml !== undefined && product.price_50ml !== null && (product.price_50ml as unknown) !== '' ? Number(product.price_50ml) : (Number(product.price) || 0),
-      sale_price_50ml: product.sale_price_50ml !== undefined && product.sale_price_50ml !== null && (product.sale_price_50ml as unknown) !== '' ? Number(product.sale_price_50ml) : null,
-      price_100ml: product.price_100ml !== undefined && product.price_100ml !== null && (product.price_100ml as unknown) !== '' ? Number(product.price_100ml) : Math.round((Number(product.price) || 0) * 1.6),
-      sale_price_100ml: product.sale_price_100ml !== undefined && product.sale_price_100ml !== null && (product.sale_price_100ml as unknown) !== '' ? Number(product.sale_price_100ml) : null,
-      description: product.description || '',
+      price: p50,
+      sale_price: sp50,
+      price_50ml: p50,
+      sale_price_50ml: sp50,
+      price_100ml: p100,
+      sale_price_100ml: sp100,
+      description: encodedDesc,
       fragrance_family: product.fragrance_family || '',
       inspired_by: product.inspired_by || '',
       top_notes: product.top_notes || '',
@@ -184,6 +256,18 @@ export const dbService = {
     } catch (apiErr) {
       console.warn('Backend product save endpoint unreachable, using local fallback:', apiErr);
     }
+
+    // Ensure returned and cached product has clean description and explicit size prices
+    updatedProduct = {
+      ...updatedProduct,
+      description: cleanDesc,
+      price: p50,
+      sale_price: sp50,
+      price_50ml: p50,
+      sale_price_50ml: sp50,
+      price_100ml: p100,
+      sale_price_100ml: sp100,
+    };
 
     // 2. Update local storage cache
     const existingIdx = products.findIndex(
