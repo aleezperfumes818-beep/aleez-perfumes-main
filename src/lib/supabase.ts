@@ -74,6 +74,10 @@ export const dbService = {
         if (!error && data && data.length > 0) {
           return data.map((p) => ({
             ...p,
+            price_50ml: p.price_50ml ?? p.price,
+            sale_price_50ml: p.sale_price_50ml !== undefined ? p.sale_price_50ml : p.sale_price,
+            price_100ml: p.price_100ml ?? Math.round(p.price * 1.6),
+            sale_price_100ml: p.sale_price_100ml !== undefined ? p.sale_price_100ml : (p.sale_price ? Math.round(p.sale_price * 1.6) : null),
             images: p.product_images || [],
           }));
         }
@@ -81,7 +85,14 @@ export const dbService = {
         console.warn('Supabase fetch products failed, falling back to local store', err);
       }
     }
-    return getFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, initialProducts);
+    const local = getFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, initialProducts);
+    return local.map((p) => ({
+      ...p,
+      price_50ml: p.price_50ml ?? p.price,
+      sale_price_50ml: p.sale_price_50ml !== undefined ? p.sale_price_50ml : p.sale_price,
+      price_100ml: p.price_100ml ?? Math.round(p.price * 1.6),
+      sale_price_100ml: p.sale_price_100ml !== undefined ? p.sale_price_100ml : (p.sale_price ? Math.round(p.sale_price * 1.6) : null),
+    }));
   },
 
   async getProductBySlug(slug: string): Promise<Product | null> {
@@ -121,6 +132,10 @@ export const dbService = {
       category_name: product.category_name,
       price: Number(product.price) || 0,
       sale_price: product.sale_price ? Number(product.sale_price) : null,
+      price_50ml: product.price_50ml !== undefined && product.price_50ml !== null && (product.price_50ml as unknown) !== '' ? Number(product.price_50ml) : (Number(product.price) || 0),
+      sale_price_50ml: product.sale_price_50ml !== undefined && product.sale_price_50ml !== null && (product.sale_price_50ml as unknown) !== '' ? Number(product.sale_price_50ml) : null,
+      price_100ml: product.price_100ml !== undefined && product.price_100ml !== null && (product.price_100ml as unknown) !== '' ? Number(product.price_100ml) : Math.round((Number(product.price) || 0) * 1.6),
+      sale_price_100ml: product.sale_price_100ml !== undefined && product.sale_price_100ml !== null && (product.sale_price_100ml as unknown) !== '' ? Number(product.sale_price_100ml) : null,
       description: product.description || '',
       fragrance_family: product.fragrance_family || '',
       inspired_by: product.inspired_by || '',

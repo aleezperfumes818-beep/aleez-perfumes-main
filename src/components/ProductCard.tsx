@@ -47,7 +47,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
     if (isOutOfStock) return;
 
     setIsAdding(true);
-    const result = addToCart(product, 1);
+    const effectivePrice = product.sale_price_50ml ?? product.price_50ml ?? product.sale_price ?? product.price;
+    const result = addToCart(product, 1, '50ml', effectivePrice);
     if (result.success) {
       setJustAdded(true);
       setTimeout(() => setJustAdded(false), 1800);
@@ -150,7 +151,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           {/* Category & Volume */}
           <div className="flex items-center justify-between text-[11px] text-neutral-500 uppercase tracking-widest mb-1 font-medium">
             <span className="truncate">{product.category_name || 'Haute Parfumerie'}</span>
-            <span>{product.volume_ml}ml</span>
+            <span>50ml • 100ml</span>
           </div>
 
           {/* Inspired By Formulation Tag */}

@@ -15,6 +15,7 @@ interface QuickViewModalProps {
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [selectedSize, setSelectedSize] = useState<'50ml' | '100ml'>('50ml');
   const [justAdded, setJustAdded] = useState(false);
 
   const { addToCart, setIsCartOpen } = useCart();
@@ -37,7 +38,16 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
 
   const isWished = isInWishlist(product.id);
   const isOutOfStock = product.stock_quantity <= 0;
-  const currentPrice = product.sale_price !== null && product.sale_price !== undefined ? product.sale_price : product.price;
+
+  const price50 = product.price_50ml ?? product.price;
+  const salePrice50 = product.sale_price_50ml !== undefined ? product.sale_price_50ml : product.sale_price;
+
+  const price100 = product.price_100ml ?? Math.round(product.price * 1.6);
+  const salePrice100 = product.sale_price_100ml !== undefined ? product.sale_price_100ml : (product.sale_price ? Math.round(product.sale_price * 1.6) : null);
+
+  const activeRegularPrice = selectedSize === '50ml' ? price50 : price100;
+  const activeSalePrice = selectedSize === '50ml' ? salePrice50 : salePrice100;
+  const currentPrice = activeSalePrice !== null && activeSalePrice !== undefined ? activeSalePrice : activeRegularPrice;
 
   const images = product.images && product.images.length > 0
     ? product.images
@@ -45,7 +55,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
 
   const handleAddToCart = () => {
     if (isOutOfStock) return;
-    const res = addToCart(product, quantity);
+    const res = addToCart(product, quantity, selectedSize, currentPrice);
     if (res.success) {
       setJustAdded(true);
       setTimeout(() => {
@@ -58,7 +68,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
 
   const handleBuyNow = () => {
     if (isOutOfStock) return;
-    addToCart(product, quantity);
+    addToCart(product, quantity, selectedSize, currentPrice);
     onClose();
     navigate('/checkout');
   };
@@ -68,16 +78,16 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
       role="dialog"
       aria-modal="true"
       aria-label={`Quick view of ${product.name}`}
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-[#141414]"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black"
       onClick={onClose}
     >
       <div
-        className="relative bg-white border border-[#EAE5DC] rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden my-8"
+        className="relative bg-white border border-neutral-200 rounded-sm max-w-3xl w-full shadow-2xl overflow-hidden my-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 text-[#4A4A4A] hover:text-[#141414] rounded-full bg-white/80 hover:bg-white border border-[#EAE5DC] transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
+          className="absolute top-4 right-4 z-20 p-2 text-neutral-600 hover:text-black rounded-full bg-white/90 hover:bg-neutral-100 border border-neutral-200 transition-colors shadow-sm focus:outline-none"
           aria-label="Close modal"
         >
           <X className="w-5 h-5" aria-hidden="true" />
@@ -85,15 +95,15 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
 
         <div className="grid grid-cols-1 md:grid-cols-2">
           {/* Gallery Column */}
-          <div className="p-6 bg-[#F8F6F2] flex flex-col justify-between border-r border-[#EAE5DC]/60">
-            <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-white mb-3 border border-[#EAE5DC]">
+          <div className="p-6 bg-neutral-50 flex flex-col justify-between border-r border-neutral-200">
+            <div className="relative aspect-square w-full rounded-sm overflow-hidden bg-white mb-3 border border-neutral-200">
               <img
                 src={images[selectedImageIndex]?.image_url}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
               {product.is_bestseller && (
-                <span className="absolute top-3 left-3 bg-[#B8860B] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded shadow">
+                <span className="absolute top-3 left-3 bg-black text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-sm shadow-sm">
                   Bestseller
                 </span>
               )}
@@ -106,8 +116,8 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                   <button
                     key={img.id || idx}
                     onClick={() => setSelectedImageIndex(idx)}
-                    className={`w-14 h-14 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all bg-white ${
-                      selectedImageIndex === idx ? 'border-[#B8860B]' : 'border-[#EAE5DC] opacity-70 hover:opacity-100'
+                    className={`w-14 h-14 rounded-sm overflow-hidden border flex-shrink-0 transition-all bg-white ${
+                      selectedImageIndex === idx ? 'border-black ring-1 ring-black' : 'border-neutral-200 opacity-70 hover:opacity-100'
                     }`}
                   >
                     <img src={img.image_url} alt={`${product.name} view ${idx + 1}`} className="w-full h-full object-cover" />
@@ -120,17 +130,17 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
           {/* Details Column */}
           <div className="p-6 flex flex-col justify-between space-y-4 bg-white">
             <div>
-              <div className="flex items-center justify-between text-xs uppercase tracking-widest text-[#4A4A4A] mb-1">
-                <span>{product.category_name || 'Artisanal Perfume'}</span>
-                <span>{product.volume_ml} ML</span>
+              <div className="flex items-center justify-between text-xs uppercase tracking-widest text-neutral-500 mb-1">
+                <span>{product.category_name || 'Haute Parfumerie'}</span>
+                <span className="font-mono text-neutral-600 font-medium">{selectedSize.toUpperCase()} Extrait</span>
               </div>
 
-              <h2 className="font-serif text-2xl text-[#141414] mb-1 font-medium">{product.name}</h2>
+              <h2 className="font-serif text-2xl text-black mb-1 font-normal">{product.name}</h2>
 
               {/* Inspired By Formulation Tag */}
               {(product.inspired_by || (product.name && inspiredByMap[product.name])) && (
                 <div className="mb-2">
-                  <span className="inline-block text-[10px] uppercase tracking-wider text-[#7A5B10] bg-[#F7F3EB] border border-[#E8DFD0] px-2.5 py-0.5 rounded-sm font-medium">
+                  <span className="inline-block text-[10px] uppercase tracking-wider text-black bg-neutral-100 border border-neutral-200 px-2.5 py-0.5 rounded-sm font-medium">
                     {product.inspired_by
                       ? product.inspired_by.toLowerCase().startsWith('inspired by')
                         ? product.inspired_by
@@ -140,41 +150,79 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                 </div>
               )}
 
-              {/* Price & Rating */}
-              <div className="flex items-center space-x-3 mb-4">
-                <span className="font-mono text-xl font-bold text-[#B8860B]">
+              {/* Price & Stock */}
+              <div className="flex items-center space-x-3 mb-3">
+                <span className="font-mono text-xl font-bold text-black">
                   {formatPrice(currentPrice)}
                 </span>
-                {product.sale_price && (
-                  <span className="font-mono text-sm text-[#999999] line-through">
-                    {formatPrice(product.price)}
+                {activeSalePrice && (
+                  <span className="font-mono text-sm text-neutral-400 line-through">
+                    {formatPrice(activeRegularPrice)}
                   </span>
                 )}
-                <span className="text-xs text-emerald-700 font-medium ml-auto">
+                <span className="text-xs text-neutral-600 font-medium ml-auto">
                   {product.stock_quantity > 0 ? `In Stock (${product.stock_quantity})` : 'Out of Stock'}
                 </span>
               </div>
 
-              <p className="text-xs text-[#555555] font-light leading-relaxed line-clamp-3 mb-4">
+              {/* Size Selector (50 ML vs 100 ML) */}
+              <div className="mb-3 space-y-1.5">
+                <label className="block text-[11px] uppercase tracking-wider text-neutral-600 font-semibold">
+                  Select Size
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSize('50ml')}
+                    className={`py-2 px-3 rounded-sm border text-xs flex justify-between items-center transition-all ${
+                      selectedSize === '50ml'
+                        ? 'border-black bg-black text-white'
+                        : 'border-neutral-200 bg-white text-black hover:border-black'
+                    }`}
+                  >
+                    <span className="font-serif font-semibold">50 ML</span>
+                    <span className="font-mono font-medium">
+                      {formatPrice(salePrice50 !== null && salePrice50 !== undefined ? salePrice50 : price50)}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSelectedSize('100ml')}
+                    className={`py-2 px-3 rounded-sm border text-xs flex justify-between items-center transition-all ${
+                      selectedSize === '100ml'
+                        ? 'border-black bg-black text-white'
+                        : 'border-neutral-200 bg-white text-black hover:border-black'
+                    }`}
+                  >
+                    <span className="font-serif font-semibold">100 ML</span>
+                    <span className="font-mono font-medium">
+                      {formatPrice(salePrice100 !== null && salePrice100 !== undefined ? salePrice100 : price100)}
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-xs text-neutral-600 font-light leading-relaxed line-clamp-2 mb-3">
                 {product.description}
               </p>
 
               {/* Fragrance Notes */}
               {(product.top_notes || product.heart_notes || product.base_notes) && (
-                <div className="space-y-1.5 p-3 rounded-sm bg-[#FAF9F6] border border-[#EAE5DC] text-[11px] mb-4">
+                <div className="space-y-1 p-2.5 rounded-sm bg-neutral-50 border border-neutral-200 text-[11px] mb-3">
                   {product.top_notes && (
-                    <div className="text-[#333333]">
-                      <span className="text-[#B8860B] font-semibold">Top:</span> {product.top_notes}
+                    <div className="text-neutral-700">
+                      <span className="text-black font-semibold">Top:</span> {product.top_notes}
                     </div>
                   )}
                   {product.heart_notes && (
-                    <div className="text-[#333333]">
-                      <span className="text-[#B8860B] font-semibold">Heart:</span> {product.heart_notes}
+                    <div className="text-neutral-700">
+                      <span className="text-black font-semibold">Heart:</span> {product.heart_notes}
                     </div>
                   )}
                   {product.base_notes && (
-                    <div className="text-[#333333]">
-                      <span className="text-[#B8860B] font-semibold">Base:</span> {product.base_notes}
+                    <div className="text-neutral-700">
+                      <span className="text-black font-semibold">Base:</span> {product.base_notes}
                     </div>
                   )}
                 </div>
@@ -182,20 +230,20 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
             </div>
 
             {/* Quantity & CTA Buttons */}
-            <div className="space-y-3 pt-2 border-t border-[#EAE5DC]">
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center border border-[#EAE5DC] rounded-sm bg-[#FAF9F6] px-2 py-1">
+            <div className="space-y-2.5 pt-2 border-t border-neutral-200">
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center border border-neutral-300 rounded-sm bg-neutral-50 px-2 py-1">
                   <button
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="text-[#666666] hover:text-[#141414] px-2"
+                    className="text-neutral-600 hover:text-black px-2 text-xs"
                   >
                     -
                   </button>
-                  <span className="font-mono text-xs px-2 text-[#141414] font-semibold">{quantity}</span>
+                  <span className="font-mono text-xs px-2 text-black font-semibold">{quantity}</span>
                   <button
                     onClick={() => setQuantity((q) => Math.min(product.stock_quantity, q + 1))}
                     disabled={quantity >= product.stock_quantity}
-                    className="text-[#666666] hover:text-[#141414] px-2"
+                    className="text-neutral-600 hover:text-black px-2 text-xs"
                   >
                     +
                   </button>
@@ -204,23 +252,23 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                 <button
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className={`flex-1 py-2.5 rounded-sm text-xs uppercase tracking-wider font-semibold transition-all flex items-center justify-center space-x-2 ${
+                  className={`flex-1 py-2.5 rounded-sm text-xs uppercase tracking-wider font-semibold transition-all flex items-center justify-center space-x-1.5 ${
                     isOutOfStock
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                      ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
                       : justAdded
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-[#B8860B] text-white hover:bg-[#9E7307] shadow-gold-sm'
+                      ? 'bg-neutral-900 text-white'
+                      : 'bg-black text-white hover:bg-neutral-800 shadow-sm'
                   }`}
                 >
                   {justAdded ? (
                     <>
                       <Check className="w-4 h-4" />
-                      <span>Added to Bag</span>
+                      <span>Added ({selectedSize.toUpperCase()})</span>
                     </>
                   ) : (
                     <>
                       <ShoppingBag className="w-4 h-4" />
-                      <span>Add to Bag</span>
+                      <span>Add to Bag • {formatPrice(currentPrice * quantity)}</span>
                     </>
                   )}
                 </button>
@@ -228,34 +276,34 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                 <button
                   onClick={() => toggleWishlist(product)}
                   className={`p-2.5 rounded-sm border transition-colors ${
-                    isWished ? 'text-[#B8860B] border-[#B8860B] bg-[#B8860B]/10' : 'text-[#666666] hover:text-[#141414] border-[#EAE5DC] bg-white'
+                    isWished ? 'text-white border-black bg-black' : 'text-neutral-600 hover:text-black border-neutral-300 bg-white'
                   }`}
                   aria-label="Wishlist"
                 >
-                  <Heart className={`w-4 h-4 ${isWished ? 'fill-[#B8860B]' : ''}`} />
+                  <Heart className={`w-4 h-4 ${isWished ? 'fill-white' : ''}`} />
                 </button>
               </div>
 
               {!isOutOfStock && (
                 <button
                   onClick={handleBuyNow}
-                  className="w-full py-2.5 bg-white border border-[#B8860B] text-[#B8860B] hover:bg-[#B8860B] hover:text-white rounded-sm text-xs uppercase tracking-widest font-semibold transition-colors shadow-sm"
+                  className="w-full py-2 bg-white border border-black text-black hover:bg-black hover:text-white rounded-sm text-xs uppercase tracking-widest font-semibold transition-colors shadow-sm"
                 >
-                  Instant Buy Now
+                  Instant Buy Now ({selectedSize.toUpperCase()})
                 </button>
               )}
 
-              <div className="flex justify-between items-center text-[11px] text-[#4A4A4A] pt-1">
+              <div className="flex justify-between items-center text-[11px] text-neutral-500 pt-1">
                 <Link
                   to={`/product/${product.slug}`}
                   onClick={onClose}
-                  className="text-[#B8860B] hover:underline flex items-center space-x-1 font-medium"
+                  className="text-black hover:underline flex items-center space-x-1 font-medium"
                 >
                   <span>View full product page</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
                 <span className="flex items-center space-x-1">
-                  <ShieldCheck className="w-3 h-3 text-[#B8860B]" />
+                  <ShieldCheck className="w-3 h-3 text-black" />
                   <span>Pan-India Delivery</span>
                 </span>
               </div>

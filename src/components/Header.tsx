@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
+import { Logo } from './Logo';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
@@ -68,8 +69,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
       <header
         className={`sticky top-0 z-40 transition-all duration-300 ${
           isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-sm py-3 border-b border-neutral-200'
-            : 'bg-white/90 backdrop-blur-sm py-4 border-b border-neutral-200'
+            ? 'bg-white/95 backdrop-blur-md shadow-sm py-2.5 border-b border-neutral-200'
+            : 'bg-white/90 backdrop-blur-sm py-3.5 border-b border-neutral-200'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,15 +96,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               </button>
             </div>
 
-            {/* Logo: ALEEZ PERFUMES */}
+            {/* AZ Monogram Logo */}
             <div className="flex items-center flex-shrink-0 mr-6 sm:mr-8 lg:mr-10 xl:mr-16">
-              <Link to="/" className="group flex flex-col items-center sm:items-start text-center">
-                <span className="font-serif text-xl sm:text-2xl lg:text-2xl tracking-[0.24em] font-semibold text-black group-hover:text-neutral-700 transition-colors duration-300">
-                  ALEEZ
-                </span>
-                <span className="text-[9px] sm:text-[10px] tracking-[0.38em] text-neutral-500 uppercase -mt-0.5 font-medium">
-                  Perfumes
-                </span>
+              <Link to="/" className="group flex items-center" aria-label="AZ Home">
+                <Logo variant="dark" size="md" />
               </Link>
             </div>
 

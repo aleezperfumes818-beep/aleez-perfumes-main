@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Mail, Instagram, ShieldCheck, Truck, Sparkles, Award, Cookie } from 'lucide-react';
+import { Logo } from './Logo';
 import { useSettings } from '../context/SettingsContext';
 
 export const Footer: React.FC = () => {
@@ -43,13 +44,8 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           {/* Brand Presentation */}
           <div className="lg:col-span-2 space-y-4">
-            <Link to="/" className="inline-block" aria-label="Aleez Perfumes Home">
-              <span className="font-serif text-2xl tracking-[0.25em] font-semibold text-black block">
-                ALEEZ
-              </span>
-              <span className="text-[10px] tracking-[0.4em] text-neutral-500 uppercase block -mt-1 font-semibold">
-                Perfumes
-              </span>
+            <Link to="/" className="inline-block" aria-label="AZ Home">
+              <Logo variant="dark" size="lg" />
             </Link>
             <p className="text-sm text-neutral-600 font-light leading-relaxed max-w-sm">
               Discover your signature scent. We curate exquisite Eau de Parfum, pure artisanal attars, and aged oud compositions designed to leave a lasting impression of refined distinction.

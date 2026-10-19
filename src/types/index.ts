@@ -15,6 +15,10 @@ export interface Product {
   category_name?: string;
   price: number;
   sale_price?: number | null;
+  price_50ml?: number;
+  sale_price_50ml?: number | null;
+  price_100ml?: number;
+  sale_price_100ml?: number | null;
   description: string;
   fragrance_family?: string;
   inspired_by?: string;
@@ -49,6 +53,8 @@ export interface Category {
 export interface CartItem {
   product: Product;
   quantity: number;
+  selected_size?: '50ml' | '100ml';
+  selected_price?: number;
 }
 
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
@@ -63,6 +69,7 @@ export interface OrderItem {
   unit_price: number;
   quantity: number;
   total_price: number;
+  selected_size?: string;
 }
 
 export interface Order {

@@ -3,9 +3,14 @@ import { CartItem, Product } from '../types';
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product, quantity?: number) => { success: boolean; message?: string };
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => { success: boolean; message?: string };
+  addToCart: (
+    product: Product,
+    quantity?: number,
+    selectedSize?: '50ml' | '100ml',
+    selectedPrice?: number
+  ) => { success: boolean; message?: string };
+  removeFromCart: (productId: string, selectedSize?: string) => void;
+  updateQuantity: (productId: string, quantity: number, selectedSize?: string) => { success: boolean; message?: string };
   clearCart: () => void;
   subtotal: number;
   shippingCharge: number;
@@ -43,7 +48,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [cart]);
 
-  const addToCart = (product: Product, quantity = 1): { success: boolean; message?: string } => {
+  const getItemEffectivePrice = (product: Product, size?: '50ml' | '100ml', customPrice?: number): number => {
+    if (customPrice !== undefined && customPrice !== null && !isNaN(customPrice)) {
+      return customPrice;
+    }
+    const targetSize = size || (product.volume_ml === 100 ? '100ml' : '50ml');
+    if (targetSize === '50ml') {
+      return (
+        product.sale_price_50ml ??
+        product.price_50ml ??
+        product.sale_price ??
+        product.price
+      );
+    } else {
+      return (
+        product.sale_price_100ml ??
+        product.price_100ml ??
+        Math.round((product.sale_price ?? product.price) * 1.5)
+      );
+    }
+  };
+
+  const addToCart = (
+    product: Product,
+    quantity = 1,
+    selectedSize: '50ml' | '100ml' = '50ml',
+    selectedPrice?: number
+  ): { success: boolean; message?: string } => {
     if (!product.is_active) {
       return { success: false, message: 'This fragrance is currently unavailable.' };
     }
@@ -52,11 +83,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, message: 'Sorry, this fragrance is currently out of stock.' };
     }
 
+    const calculatedPrice = getItemEffectivePrice(product, selectedSize, selectedPrice);
+
     let message = '';
     let success = true;
 
     setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
+      const existing = prev.find(
+        (item) => item.product.id === product.id && (item.selected_size || '50ml') === selectedSize
+      );
+
       if (existing) {
         const newQty = existing.quantity + quantity;
         if (newQty > product.stock_quantity) {
@@ -64,9 +100,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           message = `Cannot add more. Only ${product.stock_quantity} available in stock.`;
           return prev;
         }
-        message = `Updated ${product.name} quantity to ${newQty}.`;
+        message = `Updated ${product.name} (${selectedSize}) quantity to ${newQty}.`;
         return prev.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: newQty } : item
+          item.product.id === product.id && (item.selected_size || '50ml') === selectedSize
+            ? { ...item, quantity: newQty, selected_price: calculatedPrice }
+            : item
         );
       } else {
         if (quantity > product.stock_quantity) {
@@ -74,8 +112,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           message = `Only ${product.stock_quantity} available in stock.`;
           return prev;
         }
-        message = `${product.name} added to your bag.`;
-        return [...prev, { product, quantity }];
+        message = `${product.name} (${selectedSize}) added to your bag.`;
+        return [
+          ...prev,
+          {
+            product,
+            quantity,
+            selected_size: selectedSize,
+            selected_price: calculatedPrice,
+          },
+        ];
       }
     });
 
@@ -86,9 +132,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { success, message };
   };
 
-  const updateQuantity = (productId: string, quantity: number): { success: boolean; message?: string } => {
+  const updateQuantity = (
+    productId: string,
+    quantity: number,
+    selectedSize?: string
+  ): { success: boolean; message?: string } => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productId, selectedSize);
       return { success: true, message: 'Item removed from bag.' };
     }
 
@@ -96,7 +146,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let message = '';
 
     setCart((prev) => {
-      const item = prev.find((i) => i.product.id === productId);
+      const item = prev.find(
+        (i) => i.product.id === productId && (!selectedSize || (i.selected_size || '50ml') === selectedSize)
+      );
       if (!item) return prev;
 
       if (quantity > item.product.stock_quantity) {
@@ -105,14 +157,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return prev;
       }
 
-      return prev.map((i) => (i.product.id === productId ? { ...i, quantity } : i));
+      return prev.map((i) =>
+        i.product.id === productId && (!selectedSize || (i.selected_size || '50ml') === selectedSize)
+          ? { ...i, quantity }
+          : i
+      );
     });
 
     return { success, message };
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.product.id !== productId));
+  const removeFromCart = (productId: string, selectedSize?: string) => {
+    setCart((prev) =>
+      prev.filter(
+        (item) => !(item.product.id === productId && (!selectedSize || (item.selected_size || '50ml') === selectedSize))
+      )
+    );
   };
 
   const clearCart = () => {
@@ -120,10 +180,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const subtotal = cart.reduce((sum, item) => {
-    const price = item.product.sale_price !== null && item.product.sale_price !== undefined
-      ? item.product.sale_price
-      : item.product.price;
-    return sum + price * item.quantity;
+    const itemPrice = getItemEffectivePrice(item.product, item.selected_size, item.selected_price);
+    return sum + itemPrice * item.quantity;
   }, 0);
 
   const shippingCharge = subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0 ? 0 : STANDARD_SHIPPING_FEE;
