@@ -268,10 +268,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
           <div className="lg:hidden fixed inset-0 top-[header-height] z-50 bg-white/98 backdrop-blur-xl border-t border-neutral-200 animate-fade-in flex flex-col justify-between p-6 overflow-y-auto">
             <div className="space-y-6 pt-4">
               <div className="flex justify-between items-center border-b border-neutral-200 pb-4">
-                <span className="text-xs uppercase tracking-[0.25em] text-neutral-600 font-medium">Navigation</span>
+                <Link
+                  to="/"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center"
+                  aria-label="AZ Home"
+                >
+                  <Logo variant="dark" size="sm" showText={true} />
+                </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="p-2 text-neutral-600 hover:text-black"
+                  aria-label="Close navigation menu"
                 >
                   <X className="w-5 h-5" />
                 </button>

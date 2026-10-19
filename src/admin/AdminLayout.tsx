@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Logo } from '../components/Logo';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -72,11 +73,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          <Link to="/admin" className="flex items-center space-x-2">
+          <Link to="/admin" className="flex items-center space-x-2.5">
+            <Logo variant="dark" size="sm" showText={false} />
             <span className="font-serif text-lg tracking-[0.2em] font-bold text-luxury-dark">
               ALEEZ
             </span>
-            <span className="text-[10px] uppercase tracking-widest bg-luxury-gold/10 text-luxury-gold border border-luxury-gold/30 px-2 py-0.5 rounded font-mono font-medium">
+            <span className="text-[10px] uppercase tracking-widest bg-black text-white px-2 py-0.5 rounded font-mono font-medium">
               Admin Portal
             </span>
           </Link>
@@ -118,6 +120,15 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           } lg:static`}
         >
           <div className="p-6 space-y-6">
+            <div className="pb-4 border-b border-luxury-border">
+              <Link to="/admin" className="block">
+                <Logo variant="dark" size="sm" showText={true} />
+                <span className="text-[10px] uppercase tracking-widest text-stone-400 font-mono block mt-1.5">
+                  Administration Hub
+                </span>
+              </Link>
+            </div>
+
             <div className="space-y-1">
               <span className="text-[10px] uppercase tracking-widest text-stone-400 font-mono font-medium">
                 Store Operations
