@@ -58,7 +58,7 @@ export const Footer: React.FC = () => {
                 className="w-9 h-9 rounded-full bg-neutral-50 border border-neutral-300 flex items-center justify-center text-neutral-800 hover:text-black hover:border-black transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-black"
                 aria-label="Direct WhatsApp Concierge"
               >
-                <MessageSquare className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+                <MessageSquare className="w-4 h-4 text-neutral-800" aria-hidden="true" />
               </a>
               <a
                 href={`mailto:${settings.email}`}

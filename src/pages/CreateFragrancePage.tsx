@@ -115,13 +115,13 @@ export const CreateFragrancePage: React.FC = () => {
       sale_price: null,
       category_id: 'custom-creations',
       category_name: 'Custom Atelier',
-      sku: `BESP-${selectedVolume.toUpperCase()}-${Date.now().toString().slice(-4)}`,
+      sku: `ALZ-CUSTOM-${selectedVolume.toUpperCase()}-${Date.now().toString().slice(-4)}`,
       stock_quantity: 99,
       is_featured: false,
       is_bestseller: false,
       is_new_arrival: true,
       is_active: true,
-      fragrance_family: 'Bespoke Blend',
+      fragrance_family: 'Signature Custom Blend',
       concentration: '35% Extrait De Parfum',
       bottle_size: selectedVolume.toUpperCase(),
       top_notes: selectedTopNotes.join(', '),
@@ -141,7 +141,7 @@ export const CreateFragrancePage: React.FC = () => {
       updated_at: new Date().toISOString(),
     };
 
-    addToCart(customProduct as any, 1);
+    addToCart(customProduct as any, 1, selectedVolume, price);
     setIsAdding(false);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2500);

@@ -281,7 +281,10 @@ app.post('/api/razorpay/create-order', async (req, res) => {
 // --- 3. VERIFY RAZORPAY PAYMENT (SERVER-SIDE SIGNATURE CHECK & STOCK REDUCTION) ---
 app.post('/api/razorpay/verify-payment', async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_number } = req.body;
+    const order_number = req.body.order_number || req.body.orderNumber;
+    const razorpay_order_id = req.body.razorpay_order_id || req.body.razorpayOrderId || req.body.orderCreationId;
+    const razorpay_payment_id = req.body.razorpay_payment_id || req.body.razorpayPaymentId;
+    const razorpay_signature = req.body.razorpay_signature || req.body.razorpaySignature;
 
     if (!order_number) {
       return res.status(400).json({ success: false, message: 'Order number is required.' });
@@ -369,6 +372,8 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
 
     return res.json({
       success: true,
+      verified: true,
+      order_number,
       orderNumber: order_number,
       message: 'Payment verified and order confirmed successfully.',
       paymentId: razorpay_payment_id,
