@@ -103,25 +103,25 @@ export const CookieConsentBanner: React.FC = () => {
         <aside
           role="region"
           aria-label="Cookie and Privacy Consent"
-          className="fixed bottom-0 inset-x-0 z-50 p-4 sm:p-6 bg-white/95 backdrop-blur-md border-t border-[#EAE5DC] shadow-2xl transition-all duration-300 animate-slide-up"
+          className="fixed bottom-0 inset-x-0 z-50 p-4 sm:p-6 bg-white/95 backdrop-blur-md border-t border-neutral-200 shadow-2xl transition-all duration-300 animate-slide-up"
         >
           <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
             {/* Banner Description */}
-            <div className="flex items-start space-x-3.5 text-xs text-[#383838] font-light leading-relaxed max-w-4xl">
-              <div className="w-9 h-9 rounded-full bg-[#FAF4E6] border border-[#DFC38A] text-[#855F06] flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="flex items-start space-x-3.5 text-xs text-neutral-600 font-light leading-relaxed max-w-4xl">
+              <div className="w-9 h-9 rounded-full bg-neutral-100 border border-neutral-200 text-black flex items-center justify-center flex-shrink-0 mt-0.5">
                 <Cookie className="w-5 h-5" aria-hidden="true" />
               </div>
               <div className="space-y-1">
-                <p className="font-medium text-[#141414] text-sm">
+                <p className="font-medium text-black text-sm">
                   Your Privacy & Fragrance Experience
                 </p>
                 <p>
                   Aleez Perfumes uses strictly essential cookies to manage your fragrance shopping cart, login session, and secure Razorpay payment transactions. With your consent, we also deploy anonymous analytics to improve our scent formulations. We never sell your personal data. Read our{' '}
-                  <Link to="/privacy" className="text-[#855F06] font-medium underline hover:text-[#141414]">
+                  <Link to="/privacy" className="text-black font-medium underline hover:text-neutral-600">
                     Privacy Policy
                   </Link>{' '}
                   and{' '}
-                  <Link to="/terms" className="text-[#855F06] font-medium underline hover:text-[#141414]">
+                  <Link to="/terms" className="text-black font-medium underline hover:text-neutral-600">
                     Terms of Service
                   </Link>
                   .
@@ -134,7 +134,7 @@ export const CookieConsentBanner: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowPreferencesModal(true)}
-                className="px-4 py-2.5 rounded-lg border border-[#EAE5DC] text-[#4A4A4A] hover:text-[#141414] hover:border-gray-400 bg-white text-xs uppercase tracking-wider font-semibold transition-colors flex items-center space-x-1.5 focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
+                className="px-4 py-2.5 rounded-lg border border-neutral-200 text-neutral-700 hover:text-black hover:border-black bg-white text-xs uppercase tracking-wider font-semibold transition-colors flex items-center space-x-1.5 focus:outline-none focus:ring-2 focus:ring-black"
               >
                 <Settings2 className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>Preferences</span>
@@ -143,7 +143,7 @@ export const CookieConsentBanner: React.FC = () => {
               <button
                 type="button"
                 onClick={handleRejectNonEssential}
-                className="px-4 py-2.5 rounded-lg border border-[#EAE5DC] text-[#4A4A4A] hover:text-[#141414] hover:border-gray-400 bg-white text-xs uppercase tracking-wider font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
+                className="px-4 py-2.5 rounded-lg border border-neutral-200 text-neutral-700 hover:text-black hover:border-black bg-white text-xs uppercase tracking-wider font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-black"
               >
                 Reject Non-Essential
               </button>
@@ -151,7 +151,7 @@ export const CookieConsentBanner: React.FC = () => {
               <button
                 type="button"
                 onClick={handleAcceptAll}
-                className="px-5 py-2.5 rounded-lg bg-[#B8860B] hover:bg-[#9E7307] text-white text-xs uppercase tracking-wider font-bold transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-[#B8860B]"
+                className="px-5 py-2.5 rounded-lg bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-wider font-bold transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-black"
               >
                 Accept All
               </button>
@@ -166,58 +166,58 @@ export const CookieConsentBanner: React.FC = () => {
           role="dialog"
           aria-modal="true"
           aria-labelledby="cookie-modal-title"
-          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-[#141414]"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black"
         >
           <div
-            className="relative bg-white border border-[#EAE5DC] rounded-2xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto"
+            className="relative bg-white border border-neutral-200 rounded-2xl max-w-xl w-full p-6 sm:p-8 space-y-6 shadow-2xl max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-[#EAE5DC]">
+            <div className="flex items-center justify-between pb-4 border-b border-neutral-200">
               <div className="flex items-center space-x-2.5">
-                <ShieldCheck className="w-5 h-5 text-[#855F06]" aria-hidden="true" />
-                <h2 id="cookie-modal-title" className="font-serif text-xl sm:text-2xl text-[#141414] font-medium">
+                <ShieldCheck className="w-5 h-5 text-black" aria-hidden="true" />
+                <h2 id="cookie-modal-title" className="font-serif text-xl sm:text-2xl text-black font-medium">
                   Cookie & Privacy Preferences
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setShowPreferencesModal(false)}
-                className="p-1.5 text-gray-400 hover:text-black rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-1.5 text-neutral-400 hover:text-black rounded-lg hover:bg-neutral-100 transition-colors"
                 aria-label="Close modal"
               >
                 <X className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
 
-            <p className="text-xs text-[#4A4A4A] font-light leading-relaxed">
+            <p className="text-xs text-neutral-600 font-light leading-relaxed">
               Customize which categories of cookies you consent to. You can adjust these settings at any time by clicking the "Cookie Settings" link in our website footer.
             </p>
 
             {/* Cookie Categories */}
             <div className="space-y-4 text-xs">
               {/* Category 1: Essential (Mandatory) */}
-              <div className="p-4 rounded-xl bg-[#FAF9F6] border border-[#EAE5DC] space-y-1.5">
+              <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 font-semibold text-[#141414]">
-                    <Lock className="w-3.5 h-3.5 text-[#855F06]" aria-hidden="true" />
+                  <div className="flex items-center space-x-2 font-semibold text-black">
+                    <Lock className="w-3.5 h-3.5 text-black" aria-hidden="true" />
                     <span>Strictly Essential Cookies</span>
                   </div>
-                  <span className="text-[10px] uppercase font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-300">
+                  <span className="text-[10px] uppercase font-bold text-black bg-neutral-100 px-2 py-0.5 rounded border border-neutral-300">
                     Always Active
                   </span>
                 </div>
-                <p className="text-[#555555] font-light leading-relaxed">
+                <p className="text-neutral-600 font-light leading-relaxed">
                   Required for essential store features: keeping selected perfumes in your bag, authenticating client accounts, CSRF token security, and tokenizing advance payments through PCI-DSS Level 1 compliant Razorpay. Cannot be switched off.
                 </p>
               </div>
 
               {/* Category 2: Performance & Analytics */}
-              <div className="p-4 rounded-xl bg-white border border-[#EAE5DC] space-y-2">
+              <div className="p-4 rounded-xl bg-white border border-neutral-200 space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="font-semibold text-[#141414] block">Performance & Formulation Analytics</span>
-                    <span className="text-[11px] text-[#555555] font-light">
+                    <span className="font-semibold text-black block">Performance & Formulation Analytics</span>
+                    <span className="text-[11px] text-neutral-600 font-light">
                       Anonymous browsing insights to optimize page load speeds and inventory forecasting.
                     </span>
                   </div>
@@ -231,17 +231,17 @@ export const CookieConsentBanner: React.FC = () => {
                       className="sr-only peer"
                       aria-label="Toggle Analytics Cookies"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#B8860B] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-[#B8860B]"></div>
+                    <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-black rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-black"></div>
                   </label>
                 </div>
               </div>
 
               {/* Category 3: Marketing & Exclusive Drops */}
-              <div className="p-4 rounded-xl bg-white border border-[#EAE5DC] space-y-2">
+              <div className="p-4 rounded-xl bg-white border border-neutral-200 space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="font-semibold text-[#141414] block">Marketing & VIP Scent Drops</span>
-                    <span className="text-[11px] text-[#555555] font-light">
+                    <span className="font-semibold text-black block">Marketing & VIP Scent Drops</span>
+                    <span className="text-[11px] text-neutral-600 font-light">
                       Enables tailored fragrance recommendations and private reserve announcement banners.
                     </span>
                   </div>
@@ -255,18 +255,18 @@ export const CookieConsentBanner: React.FC = () => {
                       className="sr-only peer"
                       aria-label="Toggle Marketing Cookies"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#B8860B] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-[#B8860B]"></div>
+                    <div className="w-11 h-6 bg-neutral-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-black rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-neutral-300 after:border after:rounded-full after:h-5 after:width-5 after:transition-all peer-checked:bg-black"></div>
                   </label>
                 </div>
               </div>
             </div>
 
             {/* Modal Actions */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-[#EAE5DC]">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-neutral-200">
               <Link
                 to="/data-deletion"
                 onClick={() => setShowPreferencesModal(false)}
-                className="text-xs text-[#855F06] hover:underline font-medium"
+                className="text-xs text-black hover:underline font-medium"
               >
                 Request Personal Data Erasure →
               </Link>
@@ -275,14 +275,14 @@ export const CookieConsentBanner: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleRejectNonEssential}
-                  className="px-4 py-2 border border-[#EAE5DC] rounded-lg text-xs font-semibold text-[#4A4A4A] hover:text-[#141414] hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 border border-neutral-200 rounded-lg text-xs font-semibold text-neutral-700 hover:text-black hover:bg-neutral-100 transition-colors"
                 >
                   Reject All Optional
                 </button>
                 <button
                   type="button"
                   onClick={handleSaveCustom}
-                  className="px-5 py-2 bg-[#B8860B] hover:bg-[#9E7307] text-white rounded-lg text-xs uppercase tracking-wider font-bold transition-colors shadow-sm"
+                  className="px-5 py-2 bg-black hover:bg-neutral-800 text-white rounded-lg text-xs uppercase tracking-wider font-bold transition-colors shadow-sm"
                 >
                   Save Preferences
                 </button>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Filter, SlidersHorizontal, X, Search, Sparkles, Check } from 'lucide-react';
+import { SlidersHorizontal, X, Sparkles, Check } from 'lucide-react';
 import { ProductCard, inspiredByMap } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
 import { Product, Category } from '../types';
@@ -101,54 +101,54 @@ export const ShopPage: React.FC = () => {
   }, [products, categories, currentCategory, currentFilter, currentSort, searchQuery, maxPrice]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 text-black">
       {/* Page Title & Breadcrumbs */}
-      <div className="border-b border-[#EAE5DC] pb-8 mb-8">
-        <span className="text-xs uppercase tracking-[0.25em] text-[#B8860B] font-semibold">
+      <div className="border-b border-neutral-200 pb-8 mb-8">
+        <span className="text-xs uppercase tracking-[0.25em] text-neutral-500 font-semibold">
           Online Boutique
         </span>
-        <h1 className="font-serif text-3xl sm:text-5xl text-[#141414] mt-1 font-medium">
+        <h1 className="font-serif text-3xl sm:text-5xl text-black mt-1 font-medium">
           Fragrance Collection
         </h1>
-        <p className="text-sm text-[#555555] font-light mt-2 max-w-xl">
+        <p className="text-sm text-neutral-600 font-light mt-2 max-w-xl">
           Explore handcrafted perfumes, rare attars, and pure aged oud distillations curated for timeless sophistication.
         </p>
       </div>
 
       {/* Control Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-[#EAE5DC]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-neutral-200">
         <div className="flex items-center space-x-3">
           {/* Mobile Filter Toggle */}
           <button
             onClick={() => setMobileFiltersOpen(true)}
-            className="lg:hidden flex items-center space-x-2 px-3.5 py-2 bg-white border border-[#EAE5DC] rounded-sm text-xs uppercase tracking-wider text-[#333333] hover:text-[#B8860B] shadow-sm"
+            className="lg:hidden flex items-center space-x-2 px-3.5 py-2 bg-white border border-neutral-200 rounded-sm text-xs uppercase tracking-wider text-black hover:border-black shadow-sm transition-colors"
           >
-            <SlidersHorizontal className="w-4 h-4 text-[#B8860B]" />
+            <SlidersHorizontal className="w-4 h-4 text-black" />
             <span>Filters</span>
           </button>
 
           {/* Active Search Badge */}
           {searchQuery && (
-            <div className="flex items-center space-x-2 bg-[#B8860B]/10 text-[#7A5B10] px-3 py-1.5 rounded-sm text-xs border border-[#B8860B]/30 font-medium">
+            <div className="flex items-center space-x-2 bg-neutral-100 text-black px-3 py-1.5 rounded-sm text-xs border border-neutral-300 font-medium">
               <span>Search: "{searchQuery}"</span>
               <button onClick={() => updateParam('search', '')}>
-                <X className="w-3.5 h-3.5 hover:text-[#141414]" />
+                <X className="w-3.5 h-3.5 hover:text-neutral-600" />
               </button>
             </div>
           )}
 
-          <span className="text-xs text-[#666666] font-light hidden sm:inline-block">
-            Showing <span className="text-[#141414] font-mono font-medium">{filteredProducts.length}</span> fragrances
+          <span className="text-xs text-neutral-500 font-light hidden sm:inline-block">
+            Showing <span className="text-black font-mono font-medium">{filteredProducts.length}</span> fragrances
           </span>
         </div>
 
         {/* Sort Dropdown */}
         <div className="flex items-center space-x-2 self-end sm:self-auto">
-          <span className="text-xs uppercase tracking-wider text-[#4A4A4A] font-medium">Sort By:</span>
+          <span className="text-xs uppercase tracking-wider text-neutral-600 font-medium">Sort By:</span>
           <select
             value={currentSort}
             onChange={(e) => updateParam('sort', e.target.value)}
-            className="bg-white border border-[#EAE5DC] text-[#141414] text-xs rounded-sm px-3 py-2 focus:outline-none focus:border-[#B8860B] shadow-sm"
+            className="bg-white border border-neutral-300 text-black text-xs rounded-sm px-3 py-2 focus:outline-none focus:border-black shadow-sm"
           >
             <option value="featured">Featured First</option>
             <option value="bestseller">Curated Bestsellers</option>
@@ -162,14 +162,14 @@ export const ShopPage: React.FC = () => {
       {/* Main Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* DESKTOP SIDEBAR FILTERS */}
-        <aside className="hidden lg:block space-y-8 pr-6 border-r border-[#EAE5DC]">
+        <aside className="hidden lg:block space-y-8 pr-6 border-r border-neutral-200">
           {(currentCategory !== 'all' || currentFilter !== 'all' || searchQuery || maxPrice < 5000) && (
-            <div className="pb-4 border-b border-[#EAE5DC]">
+            <div className="pb-4 border-b border-neutral-200">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-xs uppercase tracking-widest text-[#4A4A4A] font-medium">Active Filters</span>
+                <span className="text-xs uppercase tracking-widest text-neutral-500 font-medium">Active Filters</span>
                 <button
                   onClick={clearAllFilters}
-                  className="text-[11px] text-[#B8860B] hover:underline font-medium"
+                  className="text-[11px] text-black hover:underline font-medium"
                 >
                   Clear All
                 </button>
@@ -179,7 +179,7 @@ export const ShopPage: React.FC = () => {
 
           {/* Special Collections */}
           <div className="space-y-3">
-            <h3 className="text-xs uppercase tracking-[0.2em] font-semibold text-[#141414]">Collections</h3>
+            <h3 className="text-xs uppercase tracking-[0.2em] font-semibold text-black">Collections</h3>
             <div className="space-y-1">
               {[
                 { label: 'All Fragrances', value: 'all' },
@@ -192,31 +192,31 @@ export const ShopPage: React.FC = () => {
                   onClick={() => updateParam('filter', item.value)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center justify-between ${
                     currentFilter === item.value
-                      ? 'bg-[#B8860B]/10 text-[#7A5B10] font-semibold border border-[#B8860B]/30'
-                      : 'text-[#444444] hover:text-[#141414] hover:bg-[#F5F2EB]'
+                      ? 'bg-black text-white font-semibold'
+                      : 'text-neutral-700 hover:text-black hover:bg-neutral-100'
                   }`}
                 >
                   <span>{item.label}</span>
-                  {currentFilter === item.value && <Check className="w-3.5 h-3.5 text-[#B8860B]" />}
+                  {currentFilter === item.value && <Check className="w-3.5 h-3.5 text-white" />}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Categories */}
-          <div className="space-y-3 pt-6 border-t border-[#EAE5DC]">
-            <h3 className="text-xs uppercase tracking-[0.2em] font-semibold text-[#141414]">Categories</h3>
+          <div className="space-y-3 pt-6 border-t border-neutral-200">
+            <h3 className="text-xs uppercase tracking-[0.2em] font-semibold text-black">Categories</h3>
             <div className="space-y-1">
               <button
                 onClick={() => updateParam('category', 'all')}
                 className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center justify-between ${
                   currentCategory === 'all'
-                    ? 'bg-[#B8860B]/10 text-[#7A5B10] font-semibold border border-[#B8860B]/30'
-                    : 'text-[#444444] hover:text-[#141414] hover:bg-[#F5F2EB]'
+                    ? 'bg-black text-white font-semibold'
+                    : 'text-neutral-700 hover:text-black hover:bg-neutral-100'
                 }`}
               >
                 <span>All Categories</span>
-                {currentCategory === 'all' && <Check className="w-3.5 h-3.5 text-[#B8860B]" />}
+                {currentCategory === 'all' && <Check className="w-3.5 h-3.5 text-white" />}
               </button>
               {categories.map((cat) => (
                 <button
@@ -224,22 +224,22 @@ export const ShopPage: React.FC = () => {
                   onClick={() => updateParam('category', cat.slug)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center justify-between ${
                     currentCategory === cat.slug
-                      ? 'bg-[#B8860B]/10 text-[#7A5B10] font-semibold border border-[#B8860B]/30'
-                      : 'text-[#444444] hover:text-[#141414] hover:bg-[#F5F2EB]'
+                      ? 'bg-black text-white font-semibold'
+                      : 'text-neutral-700 hover:text-black hover:bg-neutral-100'
                   }`}
                 >
                   <span>{cat.name}</span>
-                  {currentCategory === cat.slug && <Check className="w-3.5 h-3.5 text-[#B8860B]" />}
+                  {currentCategory === cat.slug && <Check className="w-3.5 h-3.5 text-white" />}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Price Range Filter */}
-          <div className="space-y-3 pt-6 border-t border-[#EAE5DC]">
-            <div className="flex justify-between items-center text-xs text-[#141414]">
+          <div className="space-y-3 pt-6 border-t border-neutral-200">
+            <div className="flex justify-between items-center text-xs text-black">
               <span className="uppercase tracking-[0.2em] font-semibold">Max Price</span>
-              <span className="font-mono text-[#B8860B] font-bold">{formatPrice(maxPrice)}</span>
+              <span className="font-mono text-black font-bold">{formatPrice(maxPrice)}</span>
             </div>
             <input
               type="range"
@@ -248,9 +248,9 @@ export const ShopPage: React.FC = () => {
               step="100"
               value={maxPrice}
               onChange={(e) => setMaxPrice(Number(e.target.value))}
-              className="w-full accent-[#B8860B] cursor-pointer"
+              className="w-full accent-black cursor-pointer"
             />
-            <div className="flex justify-between text-[11px] text-[#4A4A4A] font-mono">
+            <div className="flex justify-between text-[11px] text-neutral-500 font-mono">
               <span>₹1,000</span>
               <span>₹5,000</span>
             </div>
@@ -262,19 +262,19 @@ export const ShopPage: React.FC = () => {
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6 animate-pulse">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="aspect-[4/5] bg-gray-200 rounded-xl" />
+                <div key={i} className="aspect-[4/5] bg-neutral-200 rounded-xl" />
               ))}
             </div>
           ) : filteredProducts.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl border border-[#EAE5DC] p-8 space-y-4 shadow-sm">
-              <Sparkles className="w-10 h-10 text-[#B8860B] mx-auto opacity-70" />
-              <h3 className="font-serif text-2xl text-[#141414]">No fragrances match your selection</h3>
-              <p className="text-xs text-[#666666] max-w-md mx-auto font-light">
+            <div className="text-center py-20 bg-white rounded-2xl border border-neutral-200 p-8 space-y-4 shadow-sm">
+              <Sparkles className="w-10 h-10 text-black mx-auto opacity-70" />
+              <h3 className="font-serif text-2xl text-black">No fragrances match your selection</h3>
+              <p className="text-xs text-neutral-600 max-w-md mx-auto font-light">
                 Try loosening your filters, adjusting the price threshold, or clearing the search query.
               </p>
               <button
                 onClick={clearAllFilters}
-                className="mt-2 px-6 py-2.5 bg-[#B8860B] text-white text-xs uppercase tracking-widest font-semibold rounded-lg hover:bg-[#9E7307] transition-colors shadow-sm"
+                className="mt-2 px-6 py-2.5 bg-black text-white text-xs uppercase tracking-widest font-semibold rounded-lg hover:bg-neutral-800 transition-colors shadow-sm"
               >
                 Reset All Filters
               </button>
@@ -297,24 +297,24 @@ export const ShopPage: React.FC = () => {
       {mobileFiltersOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden lg:hidden animate-fade-in">
           <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-xs"
+            className="absolute inset-0 bg-black/50 backdrop-blur-xs"
             onClick={() => setMobileFiltersOpen(false)}
           />
           <div className="fixed inset-y-0 left-0 max-w-full flex pr-10">
-            <div className="w-screen max-w-xs bg-[#FAF9F6] border-r border-[#EAE5DC] p-6 flex flex-col justify-between overflow-y-auto text-[#141414]">
+            <div className="w-screen max-w-xs bg-white border-r border-neutral-200 p-6 flex flex-col justify-between overflow-y-auto text-black">
               <div className="space-y-6">
-                <div className="flex justify-between items-center border-b border-[#EAE5DC] pb-4">
-                  <h3 className="font-serif text-lg text-[#141414] font-medium">Filter Fragrances</h3>
+                <div className="flex justify-between items-center border-b border-neutral-200 pb-4">
+                  <h3 className="font-serif text-lg text-black font-medium">Filter Fragrances</h3>
                   <button
                     onClick={() => setMobileFiltersOpen(false)}
-                    className="p-1 text-[#666666] hover:text-[#141414]"
+                    className="p-1 text-neutral-500 hover:text-black"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-xs uppercase tracking-wider text-[#4A4A4A] font-semibold">Collections</span>
+                  <span className="text-xs uppercase tracking-wider text-neutral-600 font-semibold">Collections</span>
                   <div className="space-y-1">
                     {[
                       { label: 'All Fragrances', value: 'all' },
@@ -327,8 +327,8 @@ export const ShopPage: React.FC = () => {
                         onClick={() => updateParam('filter', item.value)}
                         className={`w-full text-left px-3 py-2 rounded-lg text-xs ${
                           currentFilter === item.value
-                            ? 'bg-[#B8860B]/10 text-[#7A5B10] font-semibold'
-                            : 'text-[#444444]'
+                            ? 'bg-black text-white font-semibold'
+                            : 'text-neutral-700 hover:bg-neutral-100'
                         }`}
                       >
                         {item.label}
@@ -337,15 +337,15 @@ export const ShopPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2 pt-4 border-t border-[#EAE5DC]">
-                  <span className="text-xs uppercase tracking-wider text-[#4A4A4A] font-semibold">Categories</span>
+                <div className="space-y-2 pt-4 border-t border-neutral-200">
+                  <span className="text-xs uppercase tracking-wider text-neutral-600 font-semibold">Categories</span>
                   <div className="space-y-1">
                     <button
                       onClick={() => updateParam('category', 'all')}
                       className={`w-full text-left px-3 py-2 rounded-lg text-xs ${
                         currentCategory === 'all'
-                          ? 'bg-[#B8860B]/10 text-[#7A5B10] font-semibold'
-                          : 'text-[#444444]'
+                          ? 'bg-black text-white font-semibold'
+                          : 'text-neutral-700 hover:bg-neutral-100'
                       }`}
                     >
                       All Categories
@@ -356,8 +356,8 @@ export const ShopPage: React.FC = () => {
                         onClick={() => updateParam('category', cat.slug)}
                         className={`w-full text-left px-3 py-2 rounded-lg text-xs ${
                           currentCategory === cat.slug
-                            ? 'bg-[#B8860B]/10 text-[#7A5B10] font-semibold'
-                            : 'text-[#444444]'
+                            ? 'bg-black text-white font-semibold'
+                            : 'text-neutral-700 hover:bg-neutral-100'
                         }`}
                       >
                         {cat.name}
@@ -366,10 +366,10 @@ export const ShopPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2 pt-4 border-t border-[#EAE5DC]">
-                  <div className="flex justify-between text-xs text-[#141414]">
+                <div className="space-y-2 pt-4 border-t border-neutral-200">
+                  <div className="flex justify-between text-xs text-black">
                     <span className="font-semibold">Max Price</span>
-                    <span className="font-mono text-[#B8860B] font-bold">{formatPrice(maxPrice)}</span>
+                    <span className="font-mono text-black font-bold">{formatPrice(maxPrice)}</span>
                   </div>
                   <input
                     type="range"
@@ -378,21 +378,21 @@ export const ShopPage: React.FC = () => {
                     step="100"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(Number(e.target.value))}
-                    className="w-full accent-[#B8860B]"
+                    className="w-full accent-black"
                   />
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-[#EAE5DC] space-y-3">
+              <div className="pt-6 border-t border-neutral-200 space-y-3">
                 <button
                   onClick={() => setMobileFiltersOpen(false)}
-                  className="w-full py-3 bg-[#B8860B] text-white text-xs uppercase tracking-widest font-bold rounded-lg shadow-sm"
+                  className="w-full py-3 bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-widest font-bold rounded-lg shadow-sm transition-colors"
                 >
                   Show {filteredProducts.length} Fragrances
                 </button>
                 <button
                   onClick={clearAllFilters}
-                  className="w-full py-2 text-xs text-[#4A4A4A] hover:text-[#141414] font-medium"
+                  className="w-full py-2 text-xs text-neutral-600 hover:text-black font-medium transition-colors"
                 >
                   Reset Filters
                 </button>

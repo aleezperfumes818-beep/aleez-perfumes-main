@@ -47,6 +47,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
     setMobileCollectionsOpen(false);
   }, [location.pathname]);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const collectionItems = [
     { name: 'All Fragrances', path: '/shop' },
     { name: 'Pour Homme (Men)', path: '/shop?category=oriental-woody' },
@@ -262,139 +274,164 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
             </div>
           </div>
         </div>
+      </header>
 
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 top-[header-height] z-50 bg-white/98 backdrop-blur-xl border-t border-neutral-200 animate-fade-in flex flex-col justify-between p-6 overflow-y-auto">
-            <div className="space-y-6 pt-4">
-              <div className="flex justify-between items-center border-b border-neutral-200 pb-4">
-                <Link
-                  to="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center"
-                  aria-label="AZ Home"
-                >
-                  <Logo variant="dark" size="sm" showText={true} />
-                </Link>
+      {/* Mobile Navigation Drawer - OUTSIDE <header> to ensure full viewport on iOS Safari without backdrop-blur containment */}
+      {mobileMenuOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="lg:hidden fixed inset-0 z-50 bg-white w-screen h-[100dvh] flex flex-col justify-between p-6 overflow-y-auto animate-fade-in"
+        >
+          <div className="space-y-6 pt-2">
+            <div className="flex justify-between items-center border-b border-neutral-200 pb-4">
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center"
+                aria-label="AZ Home"
+              >
+                <Logo variant="dark" size="sm" showText={true} />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-2 -mr-2 text-neutral-600 hover:text-black focus:outline-none transition-colors"
+                aria-label="Close navigation menu"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <nav className="flex flex-col space-y-4">
+              {/* 1. Home */}
+              <Link
+                to="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-lg font-serif tracking-widest flex items-center justify-between py-2 border-b border-neutral-200 text-black hover:text-neutral-600 transition-colors"
+              >
+                <span>Home</span>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
+              </Link>
+
+              {/* 2. Collections Collapsible */}
+              <div className="border-b border-neutral-200 py-2">
                 <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 text-neutral-600 hover:text-black"
-                  aria-label="Close navigation menu"
+                  type="button"
+                  onClick={() => setMobileCollectionsOpen(!mobileCollectionsOpen)}
+                  className="w-full text-lg font-serif tracking-widest flex items-center justify-between text-black focus:outline-none"
                 >
-                  <X className="w-5 h-5" />
+                  <span>Collections</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-neutral-400 transition-transform duration-200 ${
+                      mobileCollectionsOpen ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
-              </div>
-
-              <div className="flex flex-col space-y-4">
-                {/* 1. Home */}
-                <Link
-                  to="/"
-                  className="text-lg font-serif tracking-widest flex items-center justify-between py-2 border-b border-neutral-200 text-black"
-                >
-                  <span>Home</span>
-                  <ChevronRight className="w-4 h-4 text-neutral-400" />
-                </Link>
-
-                {/* 2. Collections Collapsible */}
-                <div className="border-b border-neutral-200 py-2">
-                  <button
-                    onClick={() => setMobileCollectionsOpen(!mobileCollectionsOpen)}
-                    className="w-full text-lg font-serif tracking-widest flex items-center justify-between text-black"
-                  >
-                    <span>Collections</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-neutral-400 transition-transform ${
-                        mobileCollectionsOpen ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </button>
-                  {mobileCollectionsOpen && (
-                    <div className="pl-4 pt-3 space-y-2.5">
-                      {collectionItems.map((col) => (
-                        <Link
-                          key={col.name}
-                          to={col.path}
-                          className="block text-sm text-neutral-600 hover:text-black py-1"
-                        >
-                          {col.name}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* 3. Brand Inspirations */}
-                <Link
-                  to="/shop?filter=bestseller"
-                  className="text-lg font-serif tracking-widest flex items-center justify-between py-2 border-b border-neutral-200 text-black"
-                >
-                  <span>Brand Inspirations</span>
-                  <ChevronRight className="w-4 h-4 text-neutral-400" />
-                </Link>
-
-                {/* 4. CREATE YOUR FRAGRANCE (Prominent Button) */}
-                <Link
-                  to="/create-your-fragrance"
-                  className="p-3.5 rounded-sm border border-black bg-black text-white flex items-center justify-between font-serif text-base tracking-wider shadow-sm font-semibold"
-                >
-                  <div className="flex items-center space-x-2">
-                    <Sparkles className="w-4 h-4 text-white" />
-                    <span>Create Your Fragrance</span>
+                {mobileCollectionsOpen && (
+                  <div className="pl-4 pt-3 space-y-2.5">
+                    {collectionItems.map((col) => (
+                      <Link
+                        key={col.name}
+                        to={col.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block text-sm text-neutral-600 hover:text-black py-1 transition-colors"
+                      >
+                        {col.name}
+                      </Link>
+                    ))}
                   </div>
-                  <span className="text-xs uppercase tracking-widest text-neutral-300">Studio →</span>
-                </Link>
-
-                {/* 5. Our Story */}
-                <Link
-                  to="/about"
-                  className="text-lg font-serif tracking-widest flex items-center justify-between py-2 border-b border-neutral-200 text-black"
-                >
-                  <span>Our Story</span>
-                  <ChevronRight className="w-4 h-4 text-neutral-400" />
-                </Link>
-
-                {/* 6. Contact */}
-                <Link
-                  to="/contact"
-                  className="text-lg font-serif tracking-widest flex items-center justify-between py-2 border-b border-neutral-200 text-black"
-                >
-                  <span>Contact</span>
-                  <ChevronRight className="w-4 h-4 text-neutral-400" />
-                </Link>
-
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    className="text-base font-serif tracking-wider text-black flex items-center justify-between py-2"
-                  >
-                    <span>Admin Dashboard</span>
-                    <ShieldCheck className="w-5 h-5 text-black" />
-                  </Link>
                 )}
               </div>
-            </div>
 
-            {/* Mobile Bottom Info */}
-            <div className="pt-8 border-t border-neutral-200 space-y-4">
-              <div className="flex justify-around text-xs tracking-wider text-neutral-600">
-                <Link to={user ? '/account' : '/login'} className="hover:text-black">
-                  {user ? 'My Account' : 'Sign In'}
-                </Link>
-                <Link to="/wishlist" className="hover:text-black">
-                  Wishlist ({wishlistCount})
-                </Link>
-                <Link to="/contact" className="hover:text-black">
-                  Support
-                </Link>
-              </div>
+              {/* 3. Brand Inspirations */}
+              <Link
+                to="/shop?filter=bestseller"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-lg font-serif tracking-widest flex items-center justify-between py-2 border-b border-neutral-200 text-black hover:text-neutral-600 transition-colors"
+              >
+                <span>Brand Inspirations</span>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
+              </Link>
 
-              <p className="text-center text-[11px] text-neutral-400 tracking-wider">
-                Aleez Perfumes • Luxury Fragrance Destination
-              </p>
-            </div>
+              {/* 4. CREATE YOUR FRAGRANCE (Prominent Button) */}
+              <Link
+                to="/create-your-fragrance"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-3.5 rounded-sm border border-black bg-black text-white flex items-center justify-between font-serif text-base tracking-wider shadow-sm font-semibold hover:bg-neutral-800 transition-colors"
+              >
+                <div className="flex items-center space-x-2">
+                  <Sparkles className="w-4 h-4 text-white" />
+                  <span>Create Your Fragrance</span>
+                </div>
+                <span className="text-xs uppercase tracking-widest text-neutral-300">Studio →</span>
+              </Link>
+
+              {/* 5. Our Story */}
+              <Link
+                to="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-lg font-serif tracking-widest flex items-center justify-between py-2 border-b border-neutral-200 text-black hover:text-neutral-600 transition-colors"
+              >
+                <span>Our Story</span>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
+              </Link>
+
+              {/* 6. Contact */}
+              <Link
+                to="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-lg font-serif tracking-widest flex items-center justify-between py-2 border-b border-neutral-200 text-black hover:text-neutral-600 transition-colors"
+              >
+                <span>Contact</span>
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
+              </Link>
+
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-base font-serif tracking-wider text-black flex items-center justify-between py-2 border-b border-neutral-200"
+                >
+                  <span>Admin Dashboard</span>
+                  <ShieldCheck className="w-5 h-5 text-black" />
+                </Link>
+              )}
+            </nav>
           </div>
-        )}
-      </header>
+
+          {/* Mobile Bottom Info */}
+          <div className="pt-8 border-t border-neutral-200 space-y-4">
+            <div className="flex justify-around text-xs tracking-wider text-neutral-600 font-medium">
+              <Link
+                to={user ? '/account' : '/login'}
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-black py-1"
+              >
+                {user ? 'My Account' : 'Sign In'}
+              </Link>
+              <Link
+                to="/wishlist"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-black py-1"
+              >
+                Wishlist ({wishlistCount})
+              </Link>
+              <Link
+                to="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className="hover:text-black py-1"
+              >
+                Support
+              </Link>
+            </div>
+
+            <p className="text-center text-[11px] text-neutral-400 tracking-wider uppercase font-light">
+              Aleez Perfumes • Luxury Fragrance Destination
+            </p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

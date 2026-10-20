@@ -548,6 +548,13 @@ export const dbService = {
 
   // --- HOMEPAGE CONTENT ---
   async getHomepageContent(): Promise<HomepageContent> {
+    const sanitizeBespoke = (content: HomepageContent): HomepageContent => {
+      if (content.hero?.secondary_btn_text && /bespoke/i.test(content.hero.secondary_btn_text)) {
+        content.hero.secondary_btn_text = 'Custom Fragrance';
+      }
+      return content;
+    };
+
     if (supabase) {
       try {
         const { data, error } = await withTimeout(
@@ -559,13 +566,13 @@ export const dbService = {
         );
 
         if (!error && data && data.value) {
-          return { ...initialHomepageContent, ...data.value };
+          return sanitizeBespoke({ ...initialHomepageContent, ...data.value });
         }
       } catch (err) {
         console.warn('Supabase fetch homepage content failed, using local/default:', err);
       }
     }
-    return getFromStorage<HomepageContent>(STORAGE_KEYS.HOMEPAGE, initialHomepageContent);
+    return sanitizeBespoke(getFromStorage<HomepageContent>(STORAGE_KEYS.HOMEPAGE, initialHomepageContent));
   },
 
   async saveHomepageContent(content: Partial<HomepageContent>): Promise<HomepageContent> {
