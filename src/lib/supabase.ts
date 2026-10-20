@@ -619,23 +619,22 @@ export const dbService = {
 
   // --- IMAGE UPLOAD HELPER ---
   async uploadImage(file: File): Promise<string> {
-    // 1. Read file as Base64 Data URL
-    const base64Data: string = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+    // 1. Client-side image optimization (downscales large 12-48MP mobile photos to crisp web resolution ~120-250KB)
+    const { base64Data, contentType } = await this.optimizeImageForUpload(file);
+    if (!base64Data) {
+      throw new Error('Could not process selected image.');
+    }
 
     // 2. Upload to Supabase Storage CDN via backend API (service role bypasses RLS)
     try {
+      const cleanFileName = file.name ? file.name.replace(/\.[^/.]+$/, "") + ".jpg" : `photo_${Date.now()}.jpg`;
       const res = await fetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fileData: base64Data,
-          fileName: file.name,
-          contentType: file.type || 'image/jpeg',
+          fileName: cleanFileName,
+          contentType: contentType || 'image/jpeg',
         }),
       });
 
@@ -644,12 +643,69 @@ export const dbService = {
         if (json.url) {
           return json.url;
         }
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        console.warn('Backend image upload endpoint responded with status:', res.status, errJson);
       }
     } catch (err) {
       console.warn('Backend image upload endpoint unreachable, falling back to local data URI:', err);
     }
 
-    // 3. Fallback: return Base64 Data URL for preview and local storage
+    // 3. Fallback: return optimized Base64 Data URL for preview and local storage
     return base64Data;
+  },
+
+  async optimizeImageForUpload(file: File, maxDim = 1400, quality = 0.85): Promise<{ base64Data: string; contentType: string }> {
+    // If it's SVG, just read as data URL directly
+    if (file.type === 'image/svg+xml') {
+      const base64Data: string = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      return { base64Data, contentType: file.type };
+    }
+
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            resolve({ base64Data: dataUrl, contentType: 'image/jpeg' });
+            return;
+          }
+          resolve({ base64Data: e.target?.result as string, contentType: file.type || 'image/jpeg' });
+        };
+        img.onerror = () => {
+          resolve({ base64Data: e.target?.result as string, contentType: file.type || 'image/jpeg' });
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => {
+        resolve({ base64Data: '', contentType: 'image/jpeg' });
+      };
+      reader.readAsDataURL(file);
+    });
   },
 };

@@ -103,11 +103,12 @@ export const AdminHomepage: React.FC = () => {
           spotlight: { ...prev.spotlight, custom_image_url: uploadedUrl },
         }));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to upload image:', err);
-      alert('Image upload failed. Please try again or use a direct URL.');
+      alert('Photo upload or optimization failed: ' + (err?.message || 'Please try another photo.'));
     } finally {
       setUploadingImage(null);
+      e.target.value = '';
     }
   };
 
@@ -444,22 +445,38 @@ export const AdminHomepage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium flex items-center justify-between">
-                    <span className="flex items-center space-x-1.5">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="flex items-center space-x-1.5 text-xs uppercase tracking-wider text-neutral-700 font-medium">
                       <ImageIcon className="w-3.5 h-3.5 text-black" />
-                      <span>Fallback Image Poster URL</span>
+                      <span>Fallback Image Poster</span>
                     </span>
-                    <label className="cursor-pointer text-[10px] text-black hover:underline flex items-center space-x-1 font-semibold">
-                      <Upload className="w-3 h-3" />
-                      <span>Upload Image</span>
+                    <div className="relative inline-flex items-center">
+                      <button
+                        type="button"
+                        disabled={uploadingImage === 'hero_fallback'}
+                        className="px-2.5 py-1 text-[11px] bg-white border border-neutral-300 hover:border-black text-black rounded-sm flex items-center space-x-1 font-medium transition-colors shadow-xs"
+                      >
+                        {uploadingImage === 'hero_fallback' ? (
+                          <>
+                            <RefreshCw className="w-3 h-3 animate-spin text-black" />
+                            <span>Optimizing & Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-3 h-3 text-black" />
+                            <span>Upload Photo</span>
+                          </>
+                        )}
+                      </button>
                       <input
                         type="file"
                         accept="image/*"
-                        className="hidden"
+                        disabled={uploadingImage === 'hero_fallback'}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         onChange={(e) => handleImageUpload(e, 'hero_fallback')}
                       />
-                    </label>
-                  </label>
+                    </div>
+                  </div>
                   <input
                     type="text"
                     value={content.hero.fallback_image_url}
@@ -703,37 +720,68 @@ export const AdminHomepage: React.FC = () => {
 
               {/* Spotlight Image */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-[11px] text-neutral-600 font-medium">Image URL</label>
-                  <label className="cursor-pointer text-[10px] text-black hover:underline flex items-center space-x-1 font-semibold">
-                    <Upload className="w-3 h-3" />
-                    <span>Upload Image</span>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] text-neutral-600 font-medium">Spotlight Bottle Photo</span>
+                  <div className="relative inline-flex items-center">
+                    <button
+                      type="button"
+                      disabled={uploadingImage === 'spotlight'}
+                      className="px-2.5 py-1 text-[11px] bg-white border border-neutral-300 hover:border-black text-black rounded-sm flex items-center space-x-1 font-medium transition-colors shadow-xs"
+                    >
+                      {uploadingImage === 'spotlight' ? (
+                        <>
+                          <RefreshCw className="w-3 h-3 animate-spin text-black" />
+                          <span>Optimizing & Uploading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-3 h-3 text-black" />
+                          <span>Upload Photo</span>
+                        </>
+                      )}
+                    </button>
                     <input
                       type="file"
                       accept="image/*"
-                      className="hidden"
+                      disabled={uploadingImage === 'spotlight'}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                       onChange={(e) => handleImageUpload(e, 'spotlight')}
                     />
-                  </label>
+                  </div>
                 </div>
-                <input
-                  type="text"
-                  value={content.spotlight.custom_image_url || ''}
-                  onChange={(e) =>
-                    setContent((prev) => ({
-                      ...prev,
-                      spotlight: { ...prev.spotlight, custom_image_url: e.target.value },
-                    }))
-                  }
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full bg-neutral-50 border border-neutral-200 rounded-sm px-3.5 py-2 text-xs text-black focus:outline-none focus:border-black"
-                />
-                {uploadingImage === 'spotlight' && (
-                  <p className="text-[11px] text-black mt-1 flex items-center space-x-1 font-medium">
-                    <RefreshCw className="w-3 h-3 animate-spin" />
-                    <span>Uploading image to Supabase...</span>
-                  </p>
-                )}
+
+                <div className="flex items-center space-x-3 p-2 bg-white border border-neutral-200 rounded-sm">
+                  {content.spotlight.custom_image_url ? (
+                    <div className="relative w-14 h-16 rounded overflow-hidden bg-neutral-100 border border-neutral-300 flex-shrink-0">
+                      <img
+                        src={content.spotlight.custom_image_url}
+                        alt="Spotlight"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-14 h-16 rounded bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-400 text-[10px] flex-shrink-0">
+                      No Photo
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <label className="block text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5 font-mono">
+                      Image URL
+                    </label>
+                    <input
+                      type="text"
+                      value={content.spotlight.custom_image_url || ''}
+                      onChange={(e) =>
+                        setContent((prev) => ({
+                          ...prev,
+                          spotlight: { ...prev.spotlight, custom_image_url: e.target.value },
+                        }))
+                      }
+                      placeholder="Paste image URL or tap Upload Photo above"
+                      className="w-full bg-neutral-50 border border-neutral-200 rounded-sm px-2.5 py-1 text-xs text-black focus:outline-none focus:border-black font-mono truncate"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Scent Notes Breakdown */}
@@ -906,16 +954,68 @@ export const AdminHomepage: React.FC = () => {
                       <span className="font-mono text-xs uppercase font-bold text-black">
                         Card #{idx + 1}
                       </span>
-                      <label className="cursor-pointer text-[10px] text-black hover:underline flex items-center space-x-1 font-semibold">
-                        <Upload className="w-3 h-3" />
-                        <span>Upload Card Image</span>
+                      <div className="relative inline-flex items-center">
+                        <button
+                          type="button"
+                          disabled={uploadingImage === `card_${idx}`}
+                          className="px-2.5 py-1 text-[11px] bg-white border border-neutral-300 hover:border-black text-black rounded-sm flex items-center space-x-1 font-medium transition-colors shadow-xs"
+                        >
+                          {uploadingImage === `card_${idx}` ? (
+                            <>
+                              <RefreshCw className="w-3 h-3 animate-spin text-black" />
+                              <span>Optimizing & Uploading...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-3 h-3 text-black" />
+                              <span>Upload Photo</span>
+                            </>
+                          )}
+                        </button>
                         <input
                           type="file"
                           accept="image/*"
-                          className="hidden"
+                          disabled={uploadingImage === `card_${idx}`}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                           onChange={(e) => handleImageUpload(e, `card_${idx}`, idx)}
                         />
-                      </label>
+                      </div>
+                    </div>
+
+                    {/* Image Preview & URL Field */}
+                    <div className="flex items-center space-x-3 p-2 bg-white border border-neutral-200 rounded-sm">
+                      {card.image_url ? (
+                        <div className="relative w-14 h-16 rounded overflow-hidden bg-neutral-100 border border-neutral-300 flex-shrink-0">
+                          <img
+                            src={card.image_url}
+                            alt={card.title || `Card ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-14 h-16 rounded bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-400 text-[10px] flex-shrink-0">
+                          No Photo
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <label className="block text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5 font-mono">
+                          Image URL
+                        </label>
+                        <input
+                          type="text"
+                          value={card.image_url}
+                          onChange={(e) => {
+                            const newCards = [...content.specialties.cards];
+                            newCards[idx] = { ...newCards[idx], image_url: e.target.value };
+                            setContent((prev) => ({
+                              ...prev,
+                              specialties: { ...prev.specialties, cards: newCards },
+                            }));
+                          }}
+                          placeholder="Paste image URL or tap Upload Photo above"
+                          className="w-full bg-neutral-50 border border-neutral-200 rounded-sm px-2.5 py-1 text-xs text-black focus:outline-none focus:border-black font-mono truncate"
+                        />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -952,23 +1052,6 @@ export const AdminHomepage: React.FC = () => {
                           className="w-full bg-white border border-neutral-200 rounded-sm px-2.5 py-1.5 text-xs text-black focus:outline-none focus:border-black"
                         />
                       </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] text-neutral-500 mb-1">Image URL</label>
-                      <input
-                        type="text"
-                        value={card.image_url}
-                        onChange={(e) => {
-                          const newCards = [...content.specialties.cards];
-                          newCards[idx] = { ...newCards[idx], image_url: e.target.value };
-                          setContent((prev) => ({
-                            ...prev,
-                            specialties: { ...prev.specialties, cards: newCards },
-                          }));
-                        }}
-                        className="w-full bg-white border border-neutral-200 rounded-sm px-2.5 py-1.5 text-xs text-black focus:outline-none focus:border-black"
-                      />
                     </div>
 
                     <div>

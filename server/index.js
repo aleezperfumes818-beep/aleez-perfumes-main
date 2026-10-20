@@ -391,7 +391,7 @@ app.post('/api/upload', async (req, res) => {
       return res.status(503).json({ error: 'Supabase storage is not configured' });
     }
 
-    const base64Content = fileData.replace(/^data:image\/\w+;base64,/, '');
+    const base64Content = fileData.replace(/^data:[^;]+;base64,/, '');
     const buffer = Buffer.from(base64Content, 'base64');
     const ext = fileName.split('.').pop() || 'jpg';
     const filePath = `uploads/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
