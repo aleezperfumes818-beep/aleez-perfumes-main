@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Razorpay from 'razorpay';
 import { createClient } from '@supabase/supabase-js';
+import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } from './emailService.js';
 
 dotenv.config();
 
@@ -409,6 +410,38 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
       serverOrders.set(order_number, cachedOrder);
     }
 
+    // DISPATCH TRANSACTIONAL EMAILS ASYNCHRONOUSLY VIA RESEND
+    const resolvedOrder = updatedOrder || cachedOrder;
+    if (resolvedOrder) {
+      const emailItems = resolvedOrder.order_items || resolvedOrder.items || [];
+      const customerInfo = {
+        name: resolvedOrder.customer_name || 'Customer',
+        email: resolvedOrder.customer_email,
+        phone: resolvedOrder.customer_phone || '',
+      };
+      const shippingInfo = {
+        address: resolvedOrder.shipping_address || '',
+        city: resolvedOrder.shipping_city || '',
+        state: resolvedOrder.shipping_state || '',
+        pincode: resolvedOrder.shipping_pincode || '',
+      };
+
+      if (customerInfo.email) {
+        sendOrderConfirmationEmail({
+          order: resolvedOrder,
+          items: emailItems,
+          customer: customerInfo,
+          shippingAddress: shippingInfo,
+        }).catch((err) => console.warn('[EmailService] Order confirmation email error:', err));
+      }
+
+      sendAdminOrderNotificationEmail({
+        order: resolvedOrder,
+        items: emailItems,
+        customer: customerInfo,
+      }).catch((err) => console.warn('[EmailService] Admin order notification error:', err));
+    }
+
     return res.json({
       success: true,
       verified: true,
@@ -420,6 +453,22 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
   } catch (error) {
     console.error('Error verifying payment:', error);
     return res.status(500).json({ success: false, message: error.message || 'Payment verification failed' });
+  }
+});
+
+// --- 3B. SEND LUXURY WELCOME EMAIL VIA RESEND ---
+app.post('/api/emails/welcome', async (req, res) => {
+  try {
+    const { email, name } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email address is required.' });
+    }
+
+    const result = await sendWelcomeEmail({ email, name });
+    return res.json(result);
+  } catch (err) {
+    console.error('Welcome email endpoint error:', err);
+    return res.status(500).json({ success: false, error: err.message });
   }
 });
 

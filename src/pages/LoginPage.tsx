@@ -89,6 +89,14 @@ export const LoginPage: React.FC = () => {
         }
 
         // Direct session established
+        try {
+          fetch('/api/emails/welcome', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: cleanEmail, name: fullName.trim() }),
+          }).catch(() => {});
+        } catch (_) {}
+
         navigate(targetRedirect, { replace: true });
       } catch (err: any) {
         setError(err.message || 'Registration error occurred.');

@@ -44,6 +44,21 @@ export const AuthCallbackPage: React.FC = () => {
         if (session) {
           if (isMounted) {
             setStatus('success');
+
+            // Dispatch branded luxury welcome email via Resend
+            try {
+              fetch('/api/emails/welcome', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: session.user.email,
+                  name: session.user.user_metadata?.full_name || '',
+                }),
+              }).catch((e) => console.warn('Welcome email trigger:', e));
+            } catch (e) {
+              // Ignore network error on welcome trigger
+            }
+
             // Brief pause to allow user to see confirmation before redirecting
             setTimeout(() => {
               const rawRedirect = searchParams.get('redirect');
