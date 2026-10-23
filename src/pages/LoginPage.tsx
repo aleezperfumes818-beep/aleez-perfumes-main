@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { Lock, Mail, User, Phone, ArrowRight, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Lock, Mail, User, Phone, ArrowRight, Eye, EyeOff, AlertCircle, CheckCircle2, Shield, KeyRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { sanitizeRedirectPath } from '../lib/authRedirect';
 
@@ -186,6 +186,40 @@ export const LoginPage: React.FC = () => {
           </p>
         </div>
 
+        {/* Tab Switcher: Sign In vs Create Account */}
+        {!verificationPending && (
+          <div className="grid grid-cols-2 p-1 bg-neutral-100 rounded-lg text-xs font-medium border border-neutral-200">
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegister(false);
+                setError(null);
+              }}
+              className={`py-2 rounded-md transition-all text-center uppercase tracking-wider font-semibold ${
+                !isRegister
+                  ? 'bg-white text-black shadow-sm font-bold border border-neutral-200'
+                  : 'text-neutral-500 hover:text-black'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setIsRegister(true);
+                setError(null);
+              }}
+              className={`py-2 rounded-md transition-all text-center uppercase tracking-wider font-semibold ${
+                isRegister
+                  ? 'bg-white text-black shadow-sm font-bold border border-neutral-200'
+                  : 'text-neutral-500 hover:text-black'
+              }`}
+            >
+              Create Account
+            </button>
+          </div>
+        )}
+
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded text-xs text-red-800 font-medium flex items-start space-x-2">
             <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
@@ -311,7 +345,7 @@ export const LoginPage: React.FC = () => {
                 {!isRegister && (
                   <Link
                     to="/forgot-password"
-                    className="text-[11px] text-neutral-500 hover:text-black transition-colors"
+                    className="text-xs font-semibold text-neutral-900 underline hover:text-black transition-colors"
                   >
                     Forgot Password?
                   </Link>
@@ -425,25 +459,58 @@ export const LoginPage: React.FC = () => {
         )}
 
         <div className="pt-4 border-t border-neutral-200 text-center space-y-3">
-          <button
-            type="button"
-            onClick={() => {
-              setIsRegister(!isRegister);
-              setError(null);
-              setVerificationPending(false);
-            }}
-            className="text-xs text-neutral-700 hover:text-black underline font-medium block w-full"
-          >
-            {isRegister
-              ? 'Already have an account? Sign in'
-              : "Don't have an account yet? Create one"}
-          </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-xs">
+            {isRegister ? (
+              <span className="text-neutral-600">
+                Already registered?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRegister(false);
+                    setError(null);
+                    setVerificationPending(false);
+                  }}
+                  className="text-black font-semibold underline hover:text-neutral-700"
+                >
+                  Sign In
+                </button>
+              </span>
+            ) : (
+              <span className="text-neutral-600">
+                New to Aleez Perfumes?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRegister(true);
+                    setError(null);
+                    setVerificationPending(false);
+                  }}
+                  className="text-black font-semibold underline hover:text-neutral-700"
+                >
+                  Create an account
+                </button>
+              </span>
+            )}
+          </div>
+
+          {!isRegister && (
+            <div className="pt-1">
+              <Link
+                to="/forgot-password"
+                className="text-xs text-neutral-600 hover:text-black inline-flex items-center gap-1 font-medium underline"
+              >
+                <KeyRound className="w-3.5 h-3.5 text-neutral-500" />
+                <span>Forgot your password? Reset it here</span>
+              </Link>
+            </div>
+          )}
 
           <div className="pt-2">
             <Link
               to="/admin/login"
-              className="text-[11px] text-neutral-400 hover:text-black transition-colors tracking-wider uppercase font-medium inline-flex items-center gap-1"
+              className="text-[11px] text-neutral-500 hover:text-black transition-colors tracking-wider uppercase font-semibold inline-flex items-center gap-1.5 border border-neutral-200 px-3 py-1.5 rounded bg-neutral-50 hover:bg-neutral-100"
             >
+              <Shield className="w-3.5 h-3.5 text-black" />
               <span>Store Administrator Portal</span>
               <span>→</span>
             </Link>

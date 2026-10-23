@@ -114,7 +114,7 @@ export const AdminLoginPage: React.FC = () => {
               </label>
               <Link
                 to="/forgot-password"
-                className="text-[11px] text-neutral-500 hover:text-black transition-colors"
+                className="text-xs font-semibold text-neutral-900 underline hover:text-black transition-colors"
               >
                 Forgot Password?
               </Link>
@@ -164,7 +164,9 @@ export const AdminLoginPage: React.FC = () => {
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Boutique</span>
           </Link>
-          <span>AZ Luxury Parfums</span>
+          <Link to="/login" className="hover:text-black font-medium underline">
+            Customer Sign In
+          </Link>
         </div>
       </div>
     </div>
