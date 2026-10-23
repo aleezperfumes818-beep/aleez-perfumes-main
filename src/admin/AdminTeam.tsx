@@ -16,8 +16,11 @@ import {
 } from 'lucide-react';
 import { AdminTeamMember } from '../types';
 import { adminTeamService } from '../lib/adminTeamService';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 
 export const AdminTeam: React.FC = () => {
+  const { user } = useAuth();
   const [team, setTeam] = useState<AdminTeamMember[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [deleteCandidate, setDeleteCandidate] = useState<AdminTeamMember | null>(null);
@@ -29,8 +32,35 @@ export const AdminTeam: React.FC = () => {
   const [phoneNumber, setPhoneNumber] = useState('+91 ');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const loadTeam = () => {
+  const loadTeam = async () => {
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('role', 'admin')
+          .order('created_at', { ascending: true });
+
+        if (!error && data && data.length > 0) {
+          setTeam(
+            data.map((p) => ({
+              id: p.id,
+              email: p.email,
+              full_name: p.full_name || 'Store Administrator',
+              title: 'Super Admin',
+              phone: p.phone || '',
+              is_primary: p.id === user?.id,
+              created_at: p.created_at || new Date().toISOString(),
+            }))
+          );
+          return;
+        }
+      } catch (err) {
+        console.warn('Could not query admin team from Supabase:', err);
+      }
+    }
     setTeam(adminTeamService.getAdminTeam());
   };
 
@@ -38,64 +68,108 @@ export const AdminTeam: React.FC = () => {
     loadTeam();
   }, []);
 
-  const handleAddAdmin = (e: React.FormEvent) => {
+  const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setLoading(true);
 
-    const res = adminTeamService.addAdminMember({
-      email,
-      full_name: fullName,
-      title: role,
-      phone: phoneNumber,
-    });
+    const cleanEmail = email.trim().toLowerCase();
 
-    if (!res.success) {
-      setErrorMsg(res.error || 'Failed to add administrator.');
+    if (!cleanEmail || !fullName.trim()) {
+      setErrorMsg('Full name and email address are required.');
+      setLoading(false);
       return;
     }
 
-    setSuccessMsg(`Administrator ${fullName} (${email}) has been successfully authorized!`);
-    setTimeout(() => setSuccessMsg(null), 4000);
-    setIsAddModalOpen(false);
-    setFullName('');
-    setEmail('');
-    setRole('Store Manager');
-    setPhoneNumber('+91 ');
-    loadTeam();
+    try {
+      if (supabase) {
+        // Find if profile already exists
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, email, role')
+          .eq('email', cleanEmail)
+          .single();
+
+        if (profile) {
+          // Promote profile in Supabase to admin
+          const { error: updateErr } = await supabase
+            .from('profiles')
+            .update({ role: 'admin', full_name: fullName.trim(), phone: phoneNumber })
+            .eq('id', profile.id);
+
+          if (updateErr) {
+            setErrorMsg(updateErr.message || 'Failed to update database role.');
+            setLoading(false);
+            return;
+          }
+        } else {
+          // Note that user must register first
+          setErrorMsg(
+            `No account found for "${cleanEmail}". The user must first sign up at /login, after which an administrator can grant them admin privileges.`
+          );
+          setLoading(false);
+          return;
+        }
+      }
+
+      setSuccessMsg(`Administrator ${fullName} (${cleanEmail}) has been authorized.`);
+      setTimeout(() => setSuccessMsg(null), 4000);
+      setIsAddModalOpen(false);
+      setFullName('');
+      setEmail('');
+      setPhoneNumber('+91 ');
+      loadTeam();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to add administrator.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteCandidate) return;
 
-    const res = adminTeamService.removeAdminMember(deleteCandidate.id);
-    if (!res.success) {
-      alert(res.error || 'Failed to remove administrator.');
+    if (deleteCandidate.id === user?.id) {
+      alert('You cannot revoke administrative privileges from your own active account.');
       return;
     }
 
-    setSuccessMsg(`Administrator access revoked for ${deleteCandidate.email}.`);
-    setTimeout(() => setSuccessMsg(null), 4000);
-    setDeleteCandidate(null);
-    loadTeam();
-  };
+    try {
+      if (supabase) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ role: 'customer' })
+          .eq('id', deleteCandidate.id);
 
-  const superAdminsCount = team.filter((m) => m.title === 'Super Admin').length;
-  const storeManagersCount = team.filter((m) => m.title === 'Store Manager').length;
+        if (error) {
+          alert(error.message || 'Failed to demote user role in database.');
+          return;
+        }
+      }
+
+      setSuccessMsg(`Administrator access revoked for ${deleteCandidate.email}.`);
+      setTimeout(() => setSuccessMsg(null), 4000);
+      setDeleteCandidate(null);
+      loadTeam();
+    } catch (err: any) {
+      alert(err.message || 'Error updating administrator status.');
+    }
+  };
 
   return (
     <div className="max-w-5xl space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-luxury-border gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-neutral-200 gap-4">
         <div>
-          <span className="text-xs uppercase tracking-[0.25em] text-luxury-gold font-medium">
-            Access Control
+          <span className="text-xs uppercase tracking-[0.25em] text-neutral-500 font-medium">
+            Role-Based Access Control
           </span>
-          <h1 className="font-serif text-2xl sm:text-3xl text-luxury-dark mt-1 flex items-center gap-2">
-            <span>Admins & Store Staff</span>
-            <ShieldCheck className="w-6 h-6 text-luxury-gold" />
+          <h1 className="font-serif text-3xl sm:text-4xl text-black flex items-center space-x-2.5 font-normal mt-1">
+            <span>Store Administrators</span>
+            <ShieldCheck className="w-6 h-6 text-black" />
           </h1>
-          <p className="text-xs text-stone-500 font-light mt-0.5">
-            Manage authorized staff members permitted to access products, inventory, customer orders, and store settings.
+          <p className="text-xs text-neutral-500 font-light mt-0.5">
+            Manage authenticated users authorized to access products, inventory, customer orders, and store operations.
           </p>
         </div>
 
@@ -104,115 +178,80 @@ export const AdminTeam: React.FC = () => {
             setErrorMsg(null);
             setIsAddModalOpen(true);
           }}
-          className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-luxury-gold hover:bg-luxury-goldHover text-white text-xs uppercase tracking-[0.15em] font-semibold rounded-lg shadow-sm transition-all"
+          className="inline-flex items-center justify-center space-x-2 px-5 py-2.5 bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-[0.15em] font-semibold rounded shadow-sm transition-all"
         >
           <UserPlus className="w-4 h-4" />
-          <span>Add New Admin</span>
+          <span>Authorize Admin</span>
         </button>
       </div>
 
       {/* Success Notification */}
       {successMsg && (
-        <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center space-x-2 animate-slide-up shadow-sm">
-          <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+        <div className="p-4 rounded bg-neutral-100 border border-neutral-300 text-black text-xs flex items-center space-x-2 shadow-sm">
+          <CheckCircle className="w-4 h-4 text-black flex-shrink-0" />
           <span>{successMsg}</span>
         </div>
       )}
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-luxury-border rounded-xl p-5 shadow-sm">
-          <span className="text-[11px] uppercase tracking-wider text-stone-400 font-medium">Total Administrators</span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="font-serif text-3xl text-luxury-dark">{team.length}</span>
-            <span className="text-xs text-emerald-600 font-medium">Active</span>
-          </div>
-        </div>
-
-        <div className="bg-white border border-luxury-border rounded-xl p-5 shadow-sm">
-          <span className="text-[11px] uppercase tracking-wider text-stone-400 font-medium">Super Admins</span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="font-serif text-3xl text-luxury-gold">{superAdminsCount}</span>
-            <span className="text-xs text-stone-500">Full Access</span>
-          </div>
-        </div>
-
-        <div className="bg-white border border-luxury-border rounded-xl p-5 shadow-sm">
-          <span className="text-[11px] uppercase tracking-wider text-stone-400 font-medium">Store Managers</span>
-          <div className="mt-2 flex items-baseline justify-between">
-            <span className="font-serif text-3xl text-stone-700">{storeManagersCount}</span>
-            <span className="text-xs text-stone-500">Catalog & Orders</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Info Notice */}
-      <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200/80 text-amber-900 text-xs flex items-start space-x-3">
-        <Info className="w-5 h-5 text-luxury-gold flex-shrink-0 mt-0.5" />
+      {/* Security Architecture Info Notice */}
+      <div className="p-4 rounded bg-neutral-50 border border-neutral-200 text-neutral-800 text-xs flex items-start space-x-3">
+        <Info className="w-5 h-5 text-black flex-shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-semibold text-stone-900">How Administrator Authorization Operates:</p>
-          <p className="text-stone-600 leading-relaxed">
-            Staff members added here can sign in directly at <span className="font-mono text-stone-800">/admin</span> using their email and default security passcode <span className="font-mono font-semibold text-luxury-gold">AleezAdmin2026!</span> (or custom assigned credentials). The primary store owner (<span className="font-mono text-stone-800">aleez.perfumes818@gmail.com</span>) is permanently safeguarded against deletion.
+          <p className="font-semibold text-black">Unified Supabase Auth &amp; Database RBAC</p>
+          <p className="text-neutral-600 leading-relaxed font-light">
+            All team members authenticate securely via Supabase Auth. Privileges are validated against the database <code className="font-mono text-black">public.profiles.role</code> column and protected by Row Level Security (RLS) triggers. Client-side role tampering is completely prevented.
           </p>
         </div>
       </div>
 
       {/* Admins Table / List */}
-      <div className="bg-white border border-luxury-border rounded-xl shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-luxury-border flex items-center justify-between">
-          <h2 className="font-serif text-lg text-luxury-dark">Authorized Staff Directory</h2>
-          <span className="text-xs text-stone-400">{team.length} Team Members</span>
+      <div className="bg-white border border-neutral-200 rounded shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-neutral-200 flex items-center justify-between">
+          <h2 className="font-serif text-lg text-black">Authorized Staff Directory</h2>
+          <span className="text-xs text-neutral-500 font-mono">{team.length} Active Administrators</span>
         </div>
 
-        <div className="divide-y divide-luxury-border">
+        <div className="divide-y divide-neutral-200">
           {team.map((member) => {
-            const isOwner = member.is_primary || member.email.toLowerCase() === 'aleez.perfumes818@gmail.com';
+            const isSelf = member.id === user?.id || member.email.toLowerCase() === user?.email.toLowerCase();
 
             return (
               <div
                 key={member.id}
-                className="p-5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-stone-50/70 transition-colors"
+                className="p-5 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-neutral-50 transition-colors"
               >
                 <div className="flex items-start space-x-4">
-                  <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    isOwner ? 'bg-amber-100 text-luxury-gold border border-amber-300' : 'bg-stone-100 text-stone-600 border border-stone-200'
-                  }`}>
-                    {isOwner ? <Shield className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                  <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-neutral-100 text-black border border-neutral-300">
+                    <Shield className="w-5 h-5" />
                   </div>
 
                   <div className="space-y-1">
                     <div className="flex items-center space-x-2">
-                      <span className="font-medium text-sm text-luxury-dark">{member.full_name}</span>
-                      {isOwner && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider bg-amber-100 text-amber-800 font-semibold border border-amber-200">
-                          Primary Owner
-                        </span>
-                      )}
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-medium ${
-                        member.title === 'Super Admin'
-                          ? 'bg-stone-900 text-amber-300'
-                          : member.title === 'Store Manager'
-                          ? 'bg-stone-100 text-stone-700 border border-stone-300'
-                          : 'bg-blue-50 text-blue-700 border border-blue-200'
-                      }`}>
+                      <span className="font-serif text-base text-black font-medium">{member.full_name}</span>
+                      <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded font-mono font-medium bg-black text-white">
                         {member.title}
                       </span>
+                      {isSelf && (
+                        <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded font-mono bg-neutral-200 text-neutral-800">
+                          Current User
+                        </span>
+                      )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-stone-500">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500">
                       <span className="flex items-center space-x-1">
-                        <Mail className="w-3.5 h-3.5 text-stone-400" />
-                        <span className="font-mono text-stone-700">{member.email}</span>
+                        <Mail className="w-3.5 h-3.5 text-neutral-400" />
+                        <span className="font-mono text-neutral-800">{member.email}</span>
                       </span>
 
                       {member.phone && (
                         <span className="flex items-center space-x-1">
-                          <Phone className="w-3.5 h-3.5 text-stone-400" />
+                          <Phone className="w-3.5 h-3.5 text-neutral-400" />
                           <span>{member.phone}</span>
                         </span>
                       )}
 
-                      <span className="flex items-center space-x-1 text-stone-400">
+                      <span className="flex items-center space-x-1 text-neutral-400">
                         <Calendar className="w-3.5 h-3.5" />
                         <span>Added {new Date(member.created_at).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       </span>
@@ -221,19 +260,19 @@ export const AdminTeam: React.FC = () => {
                 </div>
 
                 <div className="flex items-center space-x-3 self-end sm:self-center">
-                  {isOwner ? (
-                    <span className="text-[11px] text-stone-400 italic flex items-center space-x-1">
-                      <Lock className="w-3 h-3 text-stone-400" />
-                      <span>Protected Account</span>
+                  {isSelf ? (
+                    <span className="text-[11px] text-neutral-400 italic flex items-center space-x-1">
+                      <Lock className="w-3 h-3 text-neutral-400" />
+                      <span>Active Session</span>
                     </span>
                   ) : (
                     <button
                       onClick={() => setDeleteCandidate(member)}
-                      className="px-3.5 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 text-xs font-medium transition-all flex items-center space-x-1.5"
+                      className="px-3.5 py-1.5 rounded border border-neutral-300 text-neutral-700 hover:text-black hover:border-black text-xs font-medium transition-all flex items-center space-x-1.5"
                       title="Revoke Admin Access"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                      <span>Revoke Access</span>
+                      <span>Revoke Role</span>
                     </button>
                   )}
                 </div>
@@ -243,111 +282,88 @@ export const AdminTeam: React.FC = () => {
         </div>
       </div>
 
-      {/* Add Admin Modal */}
+      {/* Authorize Admin Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white border border-luxury-border rounded-2xl max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl relative">
-            <div className="flex items-center justify-between pb-3 border-b border-luxury-border">
-              <div className="flex items-center space-x-2">
-                <div className="w-9 h-9 rounded-full bg-luxury-gold/10 text-luxury-gold flex items-center justify-center">
-                  <UserPlus className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-serif text-xl text-luxury-dark">Add New Administrator</h3>
-                  <p className="text-[11px] text-stone-500">Grant portal access to a manager or partner</p>
-                </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white border border-neutral-300 rounded max-w-lg w-full p-6 sm:p-8 space-y-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-neutral-200 pb-4">
+              <div className="flex items-center space-x-2.5">
+                <ShieldCheck className="w-5 h-5 text-black" />
+                <h3 className="font-serif text-xl text-black">Authorize Administrator</h3>
               </div>
               <button
                 onClick={() => setIsAddModalOpen(false)}
-                className="p-1.5 rounded-full text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+                className="p-1 text-neutral-400 hover:text-black rounded"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {errorMsg && (
-              <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg flex items-center space-x-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded flex items-start space-x-2">
+                <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             <form onSubmit={handleAddAdmin} className="space-y-4">
               <div>
-                <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+                <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                  Team Member Email Address *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="staff@aleezperfumes.com"
+                  className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-3 py-2 text-xs text-black focus:outline-none"
+                />
+                <span className="text-[11px] text-neutral-500 font-light mt-1 block">
+                  Must correspond to an existing registered user account.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
                   Full Name *
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Tariq Ahmed"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded-lg px-3.5 py-2.5 text-xs text-luxury-dark focus:outline-none"
+                  placeholder="Full Name"
+                  className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-3 py-2 text-xs text-black focus:outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                  Email Address *
+                <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                  Phone Number
                 </label>
                 <input
-                  type="email"
-                  required
-                  placeholder="e.g. tariq@aleezperfumes.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded-lg px-3.5 py-2.5 text-xs text-luxury-dark focus:outline-none font-mono"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-3 py-2 text-xs text-black focus:outline-none font-mono"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                    Assigned Role
-                  </label>
-                  <select
-                    value={role}
-                    onChange={(e) => setRole(e.target.value as AdminTeamMember['title'])}
-                    className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded-lg px-3 py-2.5 text-xs text-luxury-dark focus:outline-none"
-                  >
-                    <option value="Super Admin">Super Admin (Full Access)</option>
-                    <option value="Store Manager">Store Manager (Catalog & Orders)</option>
-                    <option value="Order Dispatcher">Order Dispatcher (Orders & Shipping)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                    Phone / WhatsApp
-                  </label>
-                  <input
-                    type="text"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded-lg px-3 py-2.5 text-xs text-luxury-dark focus:outline-none font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="p-3 bg-stone-50 border border-stone-200 rounded-lg text-[11px] text-stone-600 space-y-1">
-                <span className="font-semibold text-stone-800">Initial Access Passcode:</span>
-                <p>New administrators can authenticate at <span className="font-mono text-stone-800">/admin</span> using their email and passcode <span className="font-mono font-bold text-luxury-gold">AleezAdmin2026!</span>.</p>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end space-x-3">
+              <div className="pt-4 border-t border-neutral-200 flex items-center justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-luxury-border rounded-lg text-xs font-medium text-stone-600 hover:bg-stone-100 transition-colors"
+                  className="px-4 py-2 border border-neutral-300 rounded text-xs font-medium text-neutral-700 hover:text-black transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-luxury-gold hover:bg-luxury-goldHover text-white text-xs uppercase tracking-wider font-semibold rounded-lg shadow-sm transition-all"
+                  disabled={loading}
+                  className="px-5 py-2 bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-wider font-semibold rounded shadow-sm transition-colors disabled:opacity-60"
                 >
-                  Authorize Administrator
+                  {loading ? 'Authorizing...' : 'Grant Admin Privileges'}
                 </button>
               </div>
             </form>
@@ -357,34 +373,34 @@ export const AdminTeam: React.FC = () => {
 
       {/* Remove Confirmation Dialog */}
       {deleteCandidate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white border border-luxury-border rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white border border-neutral-300 rounded max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-neutral-100 text-black flex items-center justify-center mx-auto border border-neutral-300">
               <Trash2 className="w-6 h-6" />
             </div>
 
             <div className="text-center space-y-1">
-              <h3 className="font-serif text-lg text-luxury-dark">Revoke Administrator Access?</h3>
-              <p className="text-xs text-stone-600">
-                Are you sure you want to remove <span className="font-semibold text-stone-800">{deleteCandidate.full_name}</span> ({deleteCandidate.email})?
+              <h3 className="font-serif text-lg text-black">Revoke Administrator Privileges?</h3>
+              <p className="text-xs text-neutral-600">
+                Are you sure you want to demote <span className="font-semibold text-black">{deleteCandidate.full_name}</span> ({deleteCandidate.email}) to standard customer status?
               </p>
-              <p className="text-[11px] text-red-500 pt-1">
-                They will immediately be locked out of the administration portal.
+              <p className="text-[11px] text-neutral-500 pt-1">
+                They will immediately lose access to the administrative portal.
               </p>
             </div>
 
             <div className="flex items-center justify-center space-x-3 pt-2">
               <button
                 onClick={() => setDeleteCandidate(null)}
-                className="px-4 py-2 border border-luxury-border rounded-lg text-xs font-medium text-stone-600 hover:bg-stone-100 transition-colors"
+                className="px-4 py-2 border border-neutral-300 rounded text-xs font-medium text-neutral-700 hover:text-black transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs uppercase tracking-wider font-semibold rounded-lg shadow-sm transition-colors"
+                className="px-5 py-2 bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-wider font-semibold rounded shadow-sm transition-colors"
               >
-                Yes, Revoke Access
+                Confirm Revocation
               </button>
             </div>
           </div>

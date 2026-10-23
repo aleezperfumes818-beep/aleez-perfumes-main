@@ -28,6 +28,9 @@ import { OrderSuccessPage } from './pages/OrderSuccessPage';
 import { WishlistPage } from './pages/WishlistPage';
 import { AccountPage } from './pages/AccountPage';
 import { LoginPage } from './pages/LoginPage';
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { AuthCallbackPage } from './pages/AuthCallbackPage';
 import { ShippingPolicyPage } from './pages/ShippingPolicyPage';
 import { RefundPolicyPage } from './pages/RefundPolicyPage';
 import { PrivacyPolicyPage, TermsPage } from './pages/PolicyPages';
@@ -118,6 +121,9 @@ const MainContent: React.FC = () => {
               <Route path="/wishlist" element={<WishlistPage />} />
               <Route path="/account" element={<AccountPage />} />
               <Route path="/login" element={<LoginPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/shipping" element={<ShippingPolicyPage />} />
               <Route path="/refund" element={<RefundPolicyPage />} />
               <Route path="/refund-policy" element={<RefundPolicyPage />} />

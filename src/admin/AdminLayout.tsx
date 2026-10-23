@@ -49,15 +49,60 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   if (isLoading && !safetyTimeout) {
     return (
-      <div className="min-h-screen bg-luxury-cream flex items-center justify-center text-luxury-dark">
-        <div className="w-8 h-8 border-2 border-luxury-gold border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-black">
+        <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  // If not authenticated as Admin, redirect directly to dedicated Admin Login page
+  // Case 1: Unauthenticated visitor attempting to access /admin -> Redirect to login
+  if (!user) {
+    return <Navigate to={`/admin/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  // Case 2: Authenticated customer attempting to access /admin -> 403 Forbidden Access Denied
   if (!isAdmin) {
-    return <Navigate to="/admin/login" replace />;
+    return (
+      <div className="min-h-screen bg-neutral-100 flex items-center justify-center p-4 text-black select-none">
+        <div className="max-w-md w-full bg-white border border-neutral-300 rounded-sm p-8 space-y-6 shadow-xl text-center">
+          <div className="w-14 h-14 bg-neutral-100 text-black rounded-full flex items-center justify-center mx-auto border border-neutral-300">
+            <Lock className="w-7 h-7 text-black" />
+          </div>
+          <div className="space-y-2">
+            <span className="text-[11px] uppercase tracking-widest text-neutral-500 font-mono font-semibold">
+              403 Forbidden
+            </span>
+            <h1 className="font-serif text-2xl font-normal text-black">
+              Administrator Access Denied
+            </h1>
+            <p className="text-xs text-neutral-600 font-light leading-relaxed">
+              You are signed in as <strong className="text-black">{user.email}</strong>, but this account is classified as a <strong className="text-black">{user.role}</strong> and lacks administrative authorization.
+            </p>
+          </div>
+
+          <div className="pt-2 space-y-2.5">
+            <Link
+              to="/account"
+              className="w-full py-3 bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-wider font-semibold rounded-sm block transition-colors"
+            >
+              Go to Client Account Portal
+            </Link>
+            <Link
+              to="/"
+              className="w-full py-2.5 bg-neutral-100 hover:bg-neutral-200 text-black border border-neutral-300 text-xs uppercase tracking-wider font-semibold rounded-sm block transition-colors"
+            >
+              Return to Boutique
+            </Link>
+            <button
+              onClick={() => logout().then(() => navigate('/admin/login'))}
+              className="text-xs text-neutral-500 hover:text-black pt-2 underline block mx-auto"
+            >
+              Sign out and switch account
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Authenticated Admin Dashboard Layout

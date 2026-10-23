@@ -15,7 +15,13 @@ const isLiveSupabase = Boolean(
 );
 
 export const supabase = isLiveSupabase
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+      },
+    })
   : null;
 
 // Local storage keys for persistent offline/development data
@@ -56,6 +62,22 @@ const withTimeout = <T>(promise: PromiseLike<T>, timeoutMs = 3500): Promise<T> =
       setTimeout(() => reject(new Error('Supabase request timed out')), timeoutMs)
     ),
   ]);
+};
+
+// Helper to retrieve current session Authorization headers for admin API calls
+export const getAuthHeaders = async (): Promise<Record<string, string>> => {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (supabase) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+  return headers;
 };
 
 // Helper functions for dual 50ml and 100ml pricing persistence
@@ -238,9 +260,10 @@ export const dbService = {
 
     // 1. Sync via Backend API (uses Supabase service role, guarantees RLS bypass)
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/admin/products', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({ product: updatedProduct }),
       });
       if (res.ok) {
@@ -285,7 +308,8 @@ export const dbService = {
 
   async deleteProduct(id: string): Promise<boolean> {
     try {
-      await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+      const authHeaders = await getAuthHeaders();
+      await fetch(`/api/admin/products/${id}`, { method: 'DELETE', headers: authHeaders });
     } catch (err) {
       console.warn('Backend delete product unreachable:', err);
     }
@@ -374,9 +398,10 @@ export const dbService = {
     };
 
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/admin/categories', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({ category: updatedCategory }),
       });
       if (res.ok) {
@@ -404,7 +429,8 @@ export const dbService = {
 
   async deleteCategory(id: string): Promise<boolean> {
     try {
-      await fetch(`/api/admin/categories/${id}`, { method: 'DELETE' });
+      const authHeaders = await getAuthHeaders();
+      await fetch(`/api/admin/categories/${id}`, { method: 'DELETE', headers: authHeaders });
     } catch (err) {
       console.warn('Backend delete category unreachable:', err);
     }
@@ -453,6 +479,32 @@ export const dbService = {
   },
 
   async getOrdersByUser(emailOrUserId: string): Promise<Order[]> {
+    if (supabase) {
+      try {
+        // Query filtered directly at DB level respecting RLS
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(emailOrUserId);
+        let query = supabase
+          .from('orders')
+          .select('*, order_items(*)')
+          .order('created_at', { ascending: false });
+
+        if (isUUID) {
+          query = query.or(`user_id.eq.${emailOrUserId},customer_email.eq.${emailOrUserId}`);
+        } else {
+          query = query.eq('customer_email', emailOrUserId);
+        }
+
+        const { data, error } = await withTimeout(query);
+        if (!error && data) {
+          return data.map((o) => ({
+            ...o,
+            items: o.order_items || [],
+          }));
+        }
+      } catch (err) {
+        console.warn('Supabase fetch user orders failed:', err);
+      }
+    }
     const orders = await this.getOrders();
     return orders.filter(
       (o) => o.customer_email.toLowerCase() === emailOrUserId.toLowerCase() || o.user_id === emailOrUserId
@@ -596,9 +648,10 @@ export const dbService = {
 
     // Call backend API if running
     try {
+      const authHeaders = await getAuthHeaders();
       await fetch('/api/admin/homepage', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({ content: updated }),
       });
     } catch (err) {
@@ -628,9 +681,10 @@ export const dbService = {
     // 2. Upload to Supabase Storage CDN via backend API (service role bypasses RLS)
     try {
       const cleanFileName = file.name ? file.name.replace(/\.[^/.]+$/, "") + ".jpg" : `photo_${Date.now()}.jpg`;
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders,
         body: JSON.stringify({
           fileData: base64Data,
           fileName: cleanFileName,

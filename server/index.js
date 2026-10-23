@@ -54,6 +54,45 @@ const fallbackProducts = [
 // In-memory orders store for development persistence
 const serverOrders = new Map();
 
+// --- ADMIN AUTHORIZATION MIDDLEWARE ---
+// Validates Supabase JWT and ensures caller possesses the verified 'admin' role in public.profiles
+const requireAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Unauthorized: Missing or invalid authentication token.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!supabase) {
+      return res.status(503).json({ error: 'Database service is currently unconfigured.' });
+    }
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return res.status(401).json({ error: 'Unauthorized: Session token is expired or invalid.' });
+    }
+
+    // Check database role in public.profiles table
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile || profile.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden: Administrator privileges required.' });
+    }
+
+    req.authUser = user;
+    req.adminProfile = profile;
+    next();
+  } catch (err) {
+    console.error('Admin middleware authorization error:', err);
+    return res.status(500).json({ error: 'Internal server authorization error.' });
+  }
+};
+
 // --- 1. HEALTH CHECK ---
 app.get('/api/health', (req, res) => {
   res.json({
@@ -385,7 +424,7 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
 });
 
 // --- 4. IMAGE UPLOAD TO SUPABASE STORAGE ---
-app.post('/api/upload', async (req, res) => {
+app.post('/api/upload', requireAdmin, async (req, res) => {
   try {
     const { fileData, fileName, contentType } = req.body;
     if (!fileData || !fileName) {
@@ -429,7 +468,7 @@ app.post('/api/upload', async (req, res) => {
 });
 
 // --- 5. ADMIN PRODUCT MANAGEMENT ---
-app.post('/api/admin/products', async (req, res) => {
+app.post('/api/admin/products', requireAdmin, async (req, res) => {
   try {
     const { product } = req.body;
     if (!product || !product.name) {
@@ -572,7 +611,7 @@ app.post('/api/admin/products', async (req, res) => {
   }
 });
 
-app.delete('/api/admin/products/:id', async (req, res) => {
+app.delete('/api/admin/products/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: 'Missing product ID' });
@@ -590,7 +629,7 @@ app.delete('/api/admin/products/:id', async (req, res) => {
 });
 
 // --- 6. ADMIN CATEGORY MANAGEMENT ---
-app.post('/api/admin/categories', async (req, res) => {
+app.post('/api/admin/categories', requireAdmin, async (req, res) => {
   try {
     const { category } = req.body;
     if (!category || !category.name) {
@@ -636,7 +675,7 @@ app.post('/api/admin/categories', async (req, res) => {
   }
 });
 
-app.delete('/api/admin/categories/:id', async (req, res) => {
+app.delete('/api/admin/categories/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     if (supabase) {
@@ -668,7 +707,7 @@ app.get('/api/admin/homepage', async (req, res) => {
   }
 });
 
-app.post('/api/admin/homepage', async (req, res) => {
+app.post('/api/admin/homepage', requireAdmin, async (req, res) => {
   try {
     const { content } = req.body;
     if (!content) {
