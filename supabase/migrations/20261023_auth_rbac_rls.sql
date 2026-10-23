@@ -81,8 +81,13 @@ CREATE OR REPLACE FUNCTION public.enforce_profile_role_security()
 RETURNS TRIGGER AS $$
 BEGIN
     IF (NEW.role IS DISTINCT FROM OLD.role) THEN
-        -- Only existing admins or service_role can modify the role column
-        IF NOT (public.is_admin() OR (COALESCE(current_setting('request.jwt.claim.role', true), '') = 'service_role')) THEN
+        -- Allow database owner (postgres / supabase_admin in SQL Editor), existing admins, or service_role
+        IF NOT (
+            current_user IN ('postgres', 'supabase_admin')
+            OR public.is_admin()
+            OR (COALESCE(current_setting('request.jwt.claim.role', true), '') = 'service_role')
+            OR (COALESCE(auth.role(), '') = 'service_role')
+        ) THEN
             RAISE EXCEPTION 'Access Denied: Only administrators can modify user roles.';
         END IF;
     END IF;
