@@ -311,6 +311,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
+        // If Supabase encounters an SMTP delivery error (e.g. unverified domain in Custom SMTP),
+        // smoothly fall back to our secure server-side registration handler
+        const isSmtpFailure =
+          (error as any).status === 500 ||
+          error.message?.toLowerCase().includes("confirmation email") ||
+          error.message?.toLowerCase().includes("unexpected_failure") ||
+          error.message?.toLowerCase().includes("error sending");
+
+        if (isSmtpFailure) {
+          try {
+            const fbRes = await fetch("/api/auth/register-fallback", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: cleanEmail,
+                password,
+                fullName: cleanName,
+                phone: cleanPhone,
+              }),
+            });
+            const fbData = await fbRes.json();
+
+            if (fbData.success) {
+              // Instantly sign the customer into their account
+              return await login(cleanEmail, password);
+            } else if (fbData.error) {
+              return { success: false, error: fbData.error };
+            }
+          } catch (fbErr) {
+            console.warn("Fallback registration error:", fbErr);
+          }
+        }
+
         return { success: false, error: mapAuthError(error) };
       }
 
@@ -365,8 +398,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        // Log for monitoring but show user-safe message
         console.warn('Password recovery error:', error.message);
+        // Resilient fallback to backend password recovery handler
+        try {
+          fetch("/api/auth/recover-fallback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: cleanEmail, redirectTo: redirectUrl }),
+          }).catch(() => {});
+        } catch (_) {}
+
         if (error.message.toLowerCase().includes('rate limit')) {
           return { success: false, error: mapAuthError(error) };
         }

@@ -6,7 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Razorpay from 'razorpay';
 import { createClient } from '@supabase/supabase-js';
-import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } from './emailService.js';
+import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail } from './emailService.js';
 
 dotenv.config();
 
@@ -469,6 +469,88 @@ app.post('/api/emails/welcome', async (req, res) => {
   } catch (err) {
     console.error('Welcome email endpoint error:', err);
     return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- 3C. RESILIENT REGISTRATION FALLBACK (Auto-Confirms When Custom SMTP is Unverified) ---
+app.post('/api/auth/register-fallback', async (req, res) => {
+  try {
+    const { email, password, fullName, phone } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: 'Email and password are required.' });
+    }
+
+    if (!supabase) {
+      return res.status(503).json({ success: false, error: 'Database service is currently unconfigured.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+
+    // Check if user already exists
+    const { data: existingUser } = await supabase.from('profiles').select('id').eq('email', cleanEmail).single();
+    if (existingUser) {
+      return res.status(400).json({ success: false, error: 'An account with this email address already exists. Please sign in.' });
+    }
+
+    // Create user pre-confirmed using service role key
+    const { data, error } = await supabase.auth.admin.createUser({
+      email: cleanEmail,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        full_name: (fullName || '').trim(),
+        phone: (phone || '').trim(),
+      },
+    });
+
+    if (error) {
+      console.warn('Admin createUser error:', error);
+      return res.status(400).json({ success: false, error: error.message });
+    }
+
+    // Trigger welcome email asynchronously
+    sendWelcomeEmail({ email: cleanEmail, name: fullName }).catch((e) =>
+      console.warn('[EmailService] Welcome email async warning:', e)
+    );
+
+    return res.json({ success: true, user: data.user, autoConfirmed: true });
+  } catch (err) {
+    console.error('Register fallback error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// --- 3D. RESILIENT PASSWORD RECOVERY FALLBACK ---
+app.post('/api/auth/recover-fallback', async (req, res) => {
+  try {
+    const { email, redirectTo } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Email is required.' });
+    }
+
+    if (supabase) {
+      const cleanEmail = email.trim().toLowerCase();
+      const redirectUrl = redirectTo || 'https://aleez-perfumes-main-61o4.vercel.app/reset-password';
+
+      const { data, error } = await supabase.auth.admin.generateLink({
+        type: 'recovery',
+        email: cleanEmail,
+        options: { redirectTo: redirectUrl },
+      });
+
+      if (!error && data?.properties?.action_link) {
+        // Dispatch branded password recovery email via Resend
+        sendRecoveryEmail({ email: cleanEmail, recoveryUrl: data.properties.action_link }).catch((e) =>
+          console.warn('[EmailService] Recovery email async warning:', e)
+        );
+      }
+    }
+
+    // Always return success to prevent account enumeration
+    return res.json({ success: true, message: 'Recovery instructions dispatched if account exists.' });
+  } catch (err) {
+    console.error('Recovery fallback error:', err);
+    return res.json({ success: true }); // Always return neutral response
   }
 });
 

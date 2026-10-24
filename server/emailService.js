@@ -367,3 +367,58 @@ export const sendAdminOrderNotificationEmail = async ({ order, items = [], custo
     return { success: false, error: err.message };
   }
 };
+
+/**
+ * 4. Send Password Recovery Email via Resend
+ */
+export const sendRecoveryEmail = async ({ email, recoveryUrl }) => {
+  if (!resend) {
+    console.warn('[EmailService] RESEND_API_KEY is not configured.');
+    return { success: false, error: 'Resend API key not configured' };
+  }
+
+  const html = renderEmailShell(
+    'Reset Your Password — Aleez Perfumes',
+    `
+      <h2 style="font-family: Georgia, serif; font-size: 20px; font-weight: normal; margin-top: 0; color: #000;">
+        Reset Your Password
+      </h2>
+      <p>
+        We received a request to reset the password associated with your <strong>ALEEZ PERFUMES</strong> account.
+      </p>
+      <p style="font-size: 13px; color: #444;">
+        Click the secure button below to choose a new password. This recovery link is valid for 24 hours.
+      </p>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${recoveryUrl}" class="btn">Reset Password</a>
+      </div>
+
+      <p style="font-size: 11px; color: #888; margin-top: 25px; line-height: 1.5;">
+        If you did not make this request, you can safely ignore this email. Your password will remain unchanged.<br>
+        Button not working? Copy and paste this URL into your browser:<br>
+        <span style="color: #555; word-break: break-all;">${recoveryUrl}</span>
+      </p>
+    `
+  );
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: DEFAULT_SENDER,
+      to: email,
+      subject: 'Reset your password — ALEEZ PERFUMES',
+      html,
+    });
+
+    if (error) {
+      console.warn('[EmailService] Resend recovery error:', error);
+      return { success: false, error };
+    }
+
+    console.log(`[EmailService] Recovery email sent to ${email} (ID: ${data?.id})`);
+    return { success: true, id: data?.id };
+  } catch (err) {
+    console.error('[EmailService] Unexpected error sending recovery email:', err);
+    return { success: false, error: err.message };
+  }
+};
