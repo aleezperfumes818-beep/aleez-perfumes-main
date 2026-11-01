@@ -27,41 +27,54 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- GLOBAL API RATE LIMITER ---
-app.use('/api', (req, res, next) => {
-  // Allow health checks without rate limiting
-  if (req.path === '/health') return next();
-  return globalApiLimiter(req, res, next);
-});
-
 // --- STRICT ORIGIN-RESTRICTED CORS ---
-const allowedOrigins = [
+const normalizeOrigin = (url) => (url ? url.trim().replace(/\/+$/, '') : '');
+
+const envAdditionalOrigins = (process.env.ADDITIONAL_ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(normalizeOrigin)
+  .filter(Boolean);
+
+const staticAllowedOrigins = [
   'https://aleez-perfumes-main-61o4.vercel.app',
   'http://localhost:5173',
   'http://localhost:5000',
   'http://localhost:3000',
-  process.env.FRONTEND_URL,
+  normalizeOrigin(process.env.FRONTEND_URL),
+  ...envAdditionalOrigins,
 ].filter(Boolean);
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // Permit server-to-server or non-browser agents
+    // Permit server-to-server, mobile or non-browser agents without an Origin header
     if (!origin) return callback(null, true);
+
+    const cleanOrigin = normalizeOrigin(origin);
     const isAllowed =
-      allowedOrigins.includes(origin) ||
-      /^https:\/\/aleez-perfumes[a-z0-9-]*\.vercel\.app$/.test(origin);
+      staticAllowedOrigins.includes(cleanOrigin) ||
+      /^https:\/\/aleez-perfumes[a-z0-9-]*\.vercel\.app$/.test(cleanOrigin);
+
     if (isAllowed) {
       return callback(null, true);
     }
     return callback(new Error('Blocked by CORS policy: Origin unauthorized.'));
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   credentials: true,
   maxAge: 86400,
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// --- GLOBAL API RATE LIMITER (After CORS so preflights are never throttled) ---
+app.use('/api', (req, res, next) => {
+  // Allow health checks and browser preflight OPTIONS without rate limiting
+  if (req.path === '/health' || req.method === 'OPTIONS') return next();
+  return globalApiLimiter(req, res, next);
+});
+
 // Sane payload size limit to prevent memory exhaustion DoS
 app.use(express.json({ limit: '6mb' }));
 app.use(express.urlencoded({ extended: true, limit: '6mb' }));

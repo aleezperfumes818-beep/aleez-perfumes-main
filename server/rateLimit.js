@@ -64,6 +64,11 @@ export const createRateLimiter = ({
   hitStores.add(hits);
 
   return (req, res, next) => {
+    // Never throttle browser CORS preflight requests
+    if (req.method === 'OPTIONS') {
+      return next();
+    }
+
     if (skip && typeof skip === 'function' && skip(req)) {
       return next();
     }
