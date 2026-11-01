@@ -34,9 +34,37 @@ app.use('/api', (req, res, next) => {
   return globalApiLimiter(req, res, next);
 });
 
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// --- STRICT ORIGIN-RESTRICTED CORS ---
+const allowedOrigins = [
+  'https://aleez-perfumes-main-61o4.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:5000',
+  'http://localhost:3000',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Permit server-to-server or non-browser agents
+    if (!origin) return callback(null, true);
+    const isAllowed =
+      allowedOrigins.includes(origin) ||
+      /^https:\/\/aleez-perfumes[a-z0-9-]*\.vercel\.app$/.test(origin);
+    if (isAllowed) {
+      return callback(null, true);
+    }
+    return callback(new Error('Blocked by CORS policy: Origin unauthorized.'));
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  maxAge: 86400,
+};
+
+app.use(cors(corsOptions));
+// Sane payload size limit to prevent memory exhaustion DoS
+app.use(express.json({ limit: '6mb' }));
+app.use(express.urlencoded({ extended: true, limit: '6mb' }));
 
 // Initialize Supabase Admin Client (if configured)
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
@@ -112,14 +140,11 @@ const requireAdmin = async (req, res, next) => {
   }
 };
 
-// --- 1. HEALTH CHECK ---
+// --- 1. SECURE HEALTH CHECK (Minimal telemetry without secret exposure) ---
 app.get('/api/health', (req, res) => {
   res.json({
-    status: 'online',
+    status: 'healthy',
     brand: 'Aleez Perfumes',
-    environment: process.env.NODE_ENV || 'development',
-    razorpayConfigured: !isMockRazorpay,
-    supabaseConfigured: !!supabase,
     timestamp: new Date().toISOString(),
   });
 });
@@ -136,6 +161,20 @@ app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
     if (!customer || !customer.name || !customer.email || !customer.phone) {
       return res.status(400).json({ error: 'Customer information is incomplete.' });
     }
+
+    // Sanitize customer and shipping details immediately
+    const cleanCustomer = {
+      name: sanitizeText(customer.name, 100),
+      email: sanitizeEmail(customer.email),
+      phone: sanitizePhone(customer.phone),
+    };
+
+    const cleanShipping = {
+      address: sanitizeMultiline(shippingAddress?.address || '', 255),
+      city: sanitizeText(shippingAddress?.city || '', 50),
+      state: sanitizeText(shippingAddress?.state || '', 50),
+      pincode: sanitizePincode(shippingAddress?.pincode || ''),
+    };
 
     // SERVER-SIDE PRICE & STOCK VALIDATION (Never trust prices sent from frontend)
     let validatedSubtotal = 0;
@@ -355,13 +394,24 @@ app.post('/api/razorpay/verify-payment', orderLimiter, async (req, res) => {
       // In development demo mode without live keys, verify receipt
       isValidSignature = true;
     } else {
+      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return res.status(400).json({ success: false, message: 'Missing payment signature details.' });
+      }
+
       const body = razorpay_order_id + '|' + razorpay_payment_id;
       const expectedSignature = crypto
         .createHmac('sha256', razorpaySecret)
         .update(body.toString())
         .digest('hex');
 
-      isValidSignature = expectedSignature === razorpay_signature;
+      // Cryptographic timing-safe comparison prevents microsecond timing attacks
+      if (typeof razorpay_signature === 'string' && typeof expectedSignature === 'string') {
+        const expectedBuf = Buffer.from(expectedSignature, 'utf8');
+        const receivedBuf = Buffer.from(razorpay_signature, 'utf8');
+        isValidSignature =
+          expectedBuf.length === receivedBuf.length &&
+          crypto.timingSafeEqual(expectedBuf, receivedBuf);
+      }
     }
 
     if (!isValidSignature) {
@@ -377,6 +427,23 @@ app.post('/api/razorpay/verify-payment', orderLimiter, async (req, res) => {
         success: false,
         message: 'Payment verification failed: invalid signature. Security check denied.',
       });
+    }
+
+    // IDEMPOTENCY GUARD: Prevent duplicate inventory deduction and duplicate emails on replayed requests
+    if (supabase) {
+      const { data: existingOrder } = await supabase
+        .from('orders')
+        .select('payment_status, order_status')
+        .eq('order_number', order_number)
+        .single();
+
+      if (existingOrder && existingOrder.payment_status === 'paid') {
+        return res.json({
+          success: true,
+          message: 'Order is already verified and processed.',
+          orderNumber: order_number,
+        });
+      }
     }
 
     // UPDATE ORDER & DEDUCT STOCK ONLY ON SUCCESS
@@ -586,10 +653,25 @@ app.post('/api/upload', adminLimiter, requireAdmin, async (req, res) => {
       return res.status(503).json({ error: 'Supabase storage is not configured' });
     }
 
+    // Whitelist image MIME types to block executable and script uploads
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const mime = contentType || 'image/jpeg';
+    if (!allowedMimeTypes.includes(mime)) {
+      return res.status(400).json({ error: 'Forbidden file type. Only JPEG, PNG, WEBP, and GIF images are permitted.' });
+    }
+
     const base64Content = fileData.replace(/^data:[^;]+;base64,/, '');
     const buffer = Buffer.from(base64Content, 'base64');
-    const ext = fileName.split('.').pop() || 'jpg';
-    const filePath = `uploads/${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${ext}`;
+
+    // Max 5MB file upload limit
+    if (buffer.length > 5 * 1024 * 1024) {
+      return res.status(400).json({ error: 'File size exceeds maximum allowable limit (5MB).' });
+    }
+
+    // Secure randomized filename prevents path traversal
+    const rawExt = (fileName.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(rawExt) ? rawExt : 'jpg';
+    const filePath = `uploads/${Date.now()}-${crypto.randomBytes(8).toString('hex')}.${safeExt}`;
 
     const { data, error } = await supabase.storage
       .from('product-images')
@@ -765,7 +847,7 @@ app.post('/api/admin/products', adminLimiter, requireAdmin, async (req, res) => 
 app.delete('/api/admin/products/:id', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    if (!id) return res.status(400).json({ error: 'Missing product ID' });
+    if (!id || !isValidUUID(id)) return res.status(400).json({ error: 'Valid UUID product identifier is required.' });
 
     if (supabase) {
       await supabase.from('product_images').delete().eq('product_id', id);
@@ -829,6 +911,7 @@ app.post('/api/admin/categories', adminLimiter, requireAdmin, async (req, res) =
 app.delete('/api/admin/categories/:id', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
+    if (!id || !isValidUUID(id)) return res.status(400).json({ error: 'Valid UUID category identifier is required.' });
     if (supabase) {
       const { error } = await supabase.from('categories').delete().eq('id', id);
       if (error) return res.status(500).json({ error: error.message });
@@ -882,6 +965,24 @@ app.post('/api/admin/homepage', adminLimiter, requireAdmin, async (req, res) => 
 // Serve frontend build in production
 const distPath = path.resolve(__dirname, '../dist');
 app.use(express.static(distPath));
+
+// --- CENTRALIZED SECURE ERROR HANDLER ---
+app.use((err, req, res, next) => {
+  if (err.message && err.message.includes('CORS')) {
+    return res.status(403).json({ error: 'CORS Access Denied: Origin unauthorized.' });
+  }
+
+  // Handle JSON parsing errors
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ error: 'Malformed JSON payload.' });
+  }
+
+  console.error('[API Error]', err);
+  const isProd = process.env.NODE_ENV === 'production';
+  return res.status(err.status || 500).json({
+    error: isProd ? 'Internal server error occurred.' : (err.message || 'Internal error'),
+  });
+});
 
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
