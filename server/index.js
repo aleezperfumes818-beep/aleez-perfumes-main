@@ -8,6 +8,7 @@ import Razorpay from 'razorpay';
 import { createClient } from '@supabase/supabase-js';
 import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail } from './emailService.js';
 import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizePincode, sanitizeMultiline } from './sanitize.js';
+import { globalApiLimiter, authLimiter, orderLimiter, emailLimiter, adminLimiter } from './rateLimit.js';
 
 dotenv.config();
 
@@ -16,6 +17,22 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// --- HTTP SECURITY HEADERS (XSS, MIME-SNIFFING & CLICKJACKING PROTECTION) ---
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
+// --- GLOBAL API RATE LIMITER ---
+app.use('/api', (req, res, next) => {
+  // Allow health checks without rate limiting
+  if (req.path === '/health') return next();
+  return globalApiLimiter(req, res, next);
+});
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -108,7 +125,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // --- 2. CREATE RAZORPAY ORDER (SECURE SERVER-SIDE PRICING & STOCK CHECK) ---
-app.post('/api/razorpay/create-order', async (req, res) => {
+app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
   try {
     const { items, customer, shippingAddress } = req.body;
 
@@ -320,7 +337,7 @@ app.post('/api/razorpay/create-order', async (req, res) => {
 });
 
 // --- 3. VERIFY RAZORPAY PAYMENT (SERVER-SIDE SIGNATURE CHECK & STOCK REDUCTION) ---
-app.post('/api/razorpay/verify-payment', async (req, res) => {
+app.post('/api/razorpay/verify-payment', orderLimiter, async (req, res) => {
   try {
     const order_number = req.body.order_number || req.body.orderNumber;
     const razorpay_order_id = req.body.razorpay_order_id || req.body.razorpayOrderId || req.body.orderCreationId;
@@ -458,7 +475,7 @@ app.post('/api/razorpay/verify-payment', async (req, res) => {
 });
 
 // --- 3B. SEND LUXURY WELCOME EMAIL VIA RESEND ---
-app.post('/api/emails/welcome', async (req, res) => {
+app.post('/api/emails/welcome', emailLimiter, async (req, res) => {
   try {
     const { email, name } = req.body;
     if (!email) {
@@ -474,7 +491,7 @@ app.post('/api/emails/welcome', async (req, res) => {
 });
 
 // --- 3C. RESILIENT REGISTRATION FALLBACK (Auto-Confirms When Custom SMTP is Unverified) ---
-app.post('/api/auth/register-fallback', async (req, res) => {
+app.post('/api/auth/register-fallback', authLimiter, async (req, res) => {
   try {
     const { email, password, fullName, phone } = req.body;
     if (!email || !password) {
@@ -524,7 +541,7 @@ app.post('/api/auth/register-fallback', async (req, res) => {
 });
 
 // --- 3D. RESILIENT PASSWORD RECOVERY FALLBACK ---
-app.post('/api/auth/recover-fallback', async (req, res) => {
+app.post('/api/auth/recover-fallback', authLimiter, async (req, res) => {
   try {
     const { email, redirectTo } = req.body;
     if (!email) {
@@ -558,7 +575,7 @@ app.post('/api/auth/recover-fallback', async (req, res) => {
 });
 
 // --- 4. IMAGE UPLOAD TO SUPABASE STORAGE ---
-app.post('/api/upload', requireAdmin, async (req, res) => {
+app.post('/api/upload', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const { fileData, fileName, contentType } = req.body;
     if (!fileData || !fileName) {
@@ -602,7 +619,7 @@ app.post('/api/upload', requireAdmin, async (req, res) => {
 });
 
 // --- 5. ADMIN PRODUCT MANAGEMENT ---
-app.post('/api/admin/products', requireAdmin, async (req, res) => {
+app.post('/api/admin/products', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const { product } = req.body;
     if (!product || !product.name) {
@@ -745,7 +762,7 @@ app.post('/api/admin/products', requireAdmin, async (req, res) => {
   }
 });
 
-app.delete('/api/admin/products/:id', requireAdmin, async (req, res) => {
+app.delete('/api/admin/products/:id', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: 'Missing product ID' });
@@ -763,7 +780,7 @@ app.delete('/api/admin/products/:id', requireAdmin, async (req, res) => {
 });
 
 // --- 6. ADMIN CATEGORY MANAGEMENT ---
-app.post('/api/admin/categories', requireAdmin, async (req, res) => {
+app.post('/api/admin/categories', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const { category } = req.body;
     if (!category || !category.name) {
@@ -809,7 +826,7 @@ app.post('/api/admin/categories', requireAdmin, async (req, res) => {
   }
 });
 
-app.delete('/api/admin/categories/:id', requireAdmin, async (req, res) => {
+app.delete('/api/admin/categories/:id', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     if (supabase) {
@@ -841,7 +858,7 @@ app.get('/api/admin/homepage', async (req, res) => {
   }
 });
 
-app.post('/api/admin/homepage', requireAdmin, async (req, res) => {
+app.post('/api/admin/homepage', adminLimiter, requireAdmin, async (req, res) => {
   try {
     const { content } = req.body;
     if (!content) {

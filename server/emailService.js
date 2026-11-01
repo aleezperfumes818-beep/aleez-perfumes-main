@@ -155,7 +155,7 @@ export const sendWelcomeEmail = async ({ email, name }) => {
     return { success: false, error: 'Resend API key not configured' };
   }
 
-  const recipientName = name ? name.split(' ')[0] : 'Connoisseur';
+  const recipientName = escapeHtml(name ? name.split(' ')[0] : 'Connoisseur');
   const html = renderEmailShell(
     'Welcome to Aleez Perfumes',
     `
@@ -223,7 +223,7 @@ export const sendOrderConfirmationEmail = async ({ order, items = [], customer, 
   const itemsRows = items.map((it) => `
     <tr>
       <td style="padding: 10px 0;">
-        <strong>${it.product_name}</strong><br>
+        <strong>${escapeHtml(it.product_name)}</strong><br>
         <span style="font-size: 11px; color: #666;">Qty: ${it.quantity} &bull; &#8377;${it.unit_price.toLocaleString('en-IN')} each</span>
       </td>
       <td style="text-align: right; padding: 10px 0; font-weight: 500;">
@@ -248,7 +248,7 @@ export const sendOrderConfirmationEmail = async ({ order, items = [], customer, 
       </div>
 
       <p>
-        Dear ${customer.name || 'Valued Customer'},
+        Dear ${escapeHtml(customer.name) || 'Valued Customer'},
       </p>
       <p>
         We have received your order and our artisan perfumers are preparing your fragrances for expedited dispatch.
@@ -323,7 +323,7 @@ export const sendOrderConfirmationEmail = async ({ order, items = [], customer, 
 export const sendAdminOrderNotificationEmail = async ({ order, items = [], customer }) => {
   if (!resend) return { success: false, error: 'Resend API key not configured' };
 
-  const itemsList = items.map((i) => `<li>${i.quantity}x ${i.product_name} (&#8377;${i.total_price})</li>`).join('');
+  const itemsList = items.map((i) => `<li>${i.quantity}x ${escapeHtml(i.product_name)} (&#8377;${i.total_price})</li>`).join('');
 
   const html = renderEmailShell(
     `New Order Received #${order.order_number}`,
@@ -337,10 +337,10 @@ export const sendAdminOrderNotificationEmail = async ({ order, items = [], custo
 
       <div style="background-color: #fafafa; border: 1px solid #e0e0e0; padding: 16px; margin: 18px 0; border-radius: 4px; font-size: 13px;">
         <p style="margin: 0 0 6px;"><strong>Order Number:</strong> #${order.order_number}</p>
-        <p style="margin: 0 0 6px;"><strong>Customer:</strong> ${customer.name} (${customer.email}, ${customer.phone})</p>
+        <p style="margin: 0 0 6px;"><strong>Customer:</strong> ${escapeHtml(customer.name)} (${escapeHtml(customer.email)}, ${escapeHtml(customer.phone)})</p>
         <p style="margin: 0 0 6px;"><strong>Total Amount:</strong> &#8377;${(order.total_amount || 0).toLocaleString('en-IN')}</p>
         <p style="margin: 0 0 6px;"><strong>Payment Gateway:</strong> Razorpay (ID: ${order.razorpay_payment_id || 'N/A'})</p>
-        <p style="margin: 0;"><strong>Destination:</strong> ${order.shipping_city}, ${order.shipping_state}</p>
+        <p style="margin: 0;"><strong>Destination:</strong> ${escapeHtml(order.shipping_city)}, ${escapeHtml(order.shipping_state)}</p>
       </div>
 
       <h3 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;">Items Ordered:</h3>
