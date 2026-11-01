@@ -14,6 +14,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { dbService } from '../lib/supabase';
 import { Order, OrderItem } from '../types';
+import { sanitizeName, sanitizeEmail, sanitizePhone, sanitizeMultiline, sanitizeText, sanitizePincode } from '../lib/sanitize';
 
 const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
@@ -124,6 +125,14 @@ export const CheckoutPage: React.FC = () => {
 
     setIsProcessing(true);
 
+    const cleanName = sanitizeName(formData.fullName);
+    const cleanEmail = sanitizeEmail(formData.email);
+    const cleanPhone = sanitizePhone(formData.phone);
+    const cleanAddress = sanitizeMultiline(formData.address);
+    const cleanCity = sanitizeText(formData.city);
+    const cleanState = sanitizeText(formData.state);
+    const cleanPincode = sanitizePincode(formData.pincode);
+
     try {
       const itemsPayload = cart.map((item) => {
         const itemSize = item.selected_size || '50ml';
@@ -147,15 +156,15 @@ export const CheckoutPage: React.FC = () => {
           body: JSON.stringify({
             items: itemsPayload,
             customer: {
-              name: formData.fullName,
-              email: formData.email,
-              phone: formData.phone,
+              name: cleanName,
+              email: cleanEmail,
+              phone: cleanPhone,
             },
             shippingAddress: {
-              address: formData.address,
-              city: formData.city,
-              state: formData.state,
-              pincode: formData.pincode,
+              address: cleanAddress,
+              city: cleanCity,
+              state: cleanState,
+              pincode: cleanPincode,
             },
           }),
         });
@@ -261,13 +270,13 @@ export const CheckoutPage: React.FC = () => {
               id: `ord-${Date.now()}`,
               order_number: orderNumber,
               user_id: user?.id,
-              customer_name: formData.fullName,
-              customer_email: formData.email,
-              customer_phone: formData.phone,
-              shipping_address: formData.address,
-              shipping_city: formData.city,
-              shipping_state: formData.state,
-              shipping_pincode: formData.pincode,
+              customer_name: cleanName,
+              customer_email: cleanEmail,
+              customer_phone: cleanPhone,
+              shipping_address: cleanAddress,
+              shipping_city: cleanCity,
+              shipping_state: cleanState,
+              shipping_pincode: cleanPincode,
               subtotal,
               shipping_charge: shippingCharge,
               total_amount: total,

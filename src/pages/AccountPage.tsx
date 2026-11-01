@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { dbService } from '../lib/supabase';
 import { Order } from '../types';
+import { sanitizeName, sanitizePhone, sanitizeMultiline, sanitizeText, sanitizePincode } from '../lib/sanitize';
 
 export const AccountPage: React.FC = () => {
   const { user, logout, updateProfile, changePassword } = useAuth();

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Mail, Instagram, Send, CheckCircle2, ShieldCheck, Building2, Clock } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { sanitizeName, sanitizeEmail, sanitizePhone, sanitizeText, sanitizeMultiline } from '../lib/sanitize';
 
 export const ContactPage: React.FC = () => {
   const { settings, getWhatsAppUrl } = useSettings();

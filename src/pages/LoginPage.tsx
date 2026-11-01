@@ -3,6 +3,7 @@ import { useNavigate, useLocation, useSearchParams, Link } from 'react-router-do
 import { Lock, Mail, User, Phone, ArrowRight, Eye, EyeOff, AlertCircle, CheckCircle2, Shield, KeyRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { sanitizeRedirectPath } from '../lib/authRedirect';
+import { sanitizeName, sanitizeEmail, sanitizePhone } from '../lib/sanitize';
 
 export const LoginPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -51,7 +52,9 @@ export const LoginPage: React.FC = () => {
     setError(null);
     setResendMessage(null);
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = sanitizeEmail(email);
+    const cleanName = sanitizeName(fullName);
+    const cleanPhone = sanitizePhone(phone);
 
     if (isRegister) {
       if (!fullName.trim() || !phone.trim() || !cleanEmail || !password) {
@@ -74,7 +77,7 @@ export const LoginPage: React.FC = () => {
       setLoading(true);
 
       try {
-        const res = await signup(cleanEmail, password, fullName.trim(), phone.trim());
+        const res = await signup(cleanEmail, password, cleanName, cleanPhone);
 
         if (!res.success) {
           setError(res.error || 'Registration failed. Please check your details.');
@@ -94,7 +97,7 @@ export const LoginPage: React.FC = () => {
           fetch('/api/emails/welcome', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: cleanEmail, name: fullName.trim() }),
+            body: JSON.stringify({ email: cleanEmail, name: cleanName }),
           }).catch(() => {});
         } catch (_) {}
 

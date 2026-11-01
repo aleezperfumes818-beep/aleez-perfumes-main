@@ -3,6 +3,7 @@ import { Sparkles, Check, ShoppingBag, Droplets, Clock, ShieldCheck, Award, Mess
 import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
 import { useNavigate } from 'react-router-dom';
+import { sanitizeText } from '../lib/sanitize';
 
 // Note definitions
 const TOP_NOTES = [

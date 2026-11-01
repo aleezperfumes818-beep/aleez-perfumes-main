@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import Razorpay from 'razorpay';
 import { createClient } from '@supabase/supabase-js';
 import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail } from './emailService.js';
+import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizePincode, sanitizeMultiline } from './sanitize.js';
 
 dotenv.config();
 
@@ -231,9 +232,9 @@ app.post('/api/razorpay/create-order', async (req, res) => {
         currency: 'INR',
         receipt: orderNumber,
         notes: {
-          customer_name: customer.name,
-          customer_email: customer.email,
-          customer_phone: customer.phone,
+          customer_name: cleanCustomer.name,
+          customer_email: cleanCustomer.email,
+          customer_phone: cleanCustomer.phone,
         },
       });
       razorpayOrderId = razorpayOrder.id;
@@ -242,13 +243,13 @@ app.post('/api/razorpay/create-order', async (req, res) => {
     // Persist pending order to database or memory
     const orderRecord = {
       order_number: orderNumber,
-      customer_name: customer.name,
-      customer_email: customer.email,
-      customer_phone: customer.phone,
-      shipping_address: shippingAddress.address,
-      shipping_city: shippingAddress.city,
-      shipping_state: shippingAddress.state,
-      shipping_pincode: shippingAddress.pincode,
+      customer_name: cleanCustomer.name,
+      customer_email: cleanCustomer.email,
+      customer_phone: cleanCustomer.phone,
+      shipping_address: cleanShipping.address,
+      shipping_city: cleanShipping.city,
+      shipping_state: cleanShipping.state,
+      shipping_pincode: cleanShipping.pincode,
       subtotal: validatedSubtotal,
       shipping_charge: shippingCharge,
       total_amount: finalTotal,
@@ -484,7 +485,9 @@ app.post('/api/auth/register-fallback', async (req, res) => {
       return res.status(503).json({ success: false, error: 'Database service is currently unconfigured.' });
     }
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = sanitizeEmail(email);
+    const cleanName = sanitizeText(fullName, 100);
+    const cleanPhone = sanitizePhone(phone);
 
     // Check if user already exists
     const { data: existingUser } = await supabase.from('profiles').select('id').eq('email', cleanEmail).single();
@@ -498,8 +501,8 @@ app.post('/api/auth/register-fallback', async (req, res) => {
       password,
       email_confirm: true,
       user_metadata: {
-        full_name: (fullName || '').trim(),
-        phone: (phone || '').trim(),
+        full_name: cleanName,
+        phone: cleanPhone,
       },
     });
 
