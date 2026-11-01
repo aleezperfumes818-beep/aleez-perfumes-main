@@ -19,6 +19,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<AuthResponse>;
   adminLogin: (email: string, password: string) => Promise<AuthResponse>;
   signup: (email: string, password: string, fullName: string, phone: string) => Promise<AuthResponse>;
+  signInWithGoogle: (customRedirect?: string) => Promise<AuthResponse>;
   logout: () => Promise<void>;
   forgotPassword: (email: string) => Promise<AuthResponse>;
   resetPassword: (newPassword: string) => Promise<AuthResponse>;
@@ -79,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return {
         id: authUser.id,
         email: authUser.email || '',
-        full_name: authUser.user_metadata?.full_name || '',
+        full_name: authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
         phone: authUser.user_metadata?.phone || '',
         role: 'customer',
       };
@@ -96,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return {
           id: profile.id,
           email: profile.email || authUser.email || '',
-          full_name: profile.full_name || authUser.user_metadata?.full_name || '',
+          full_name: profile.full_name || authUser.user_metadata?.full_name || authUser.user_metadata?.name || '',
           phone: profile.phone || authUser.user_metadata?.phone || '',
           role: profile.role === 'admin' ? 'admin' : 'customer', // Strict: only DB 'admin' is recognized
           address_line1: profile.address_line1,
@@ -262,6 +263,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     return res;
+  };
+
+  // One-click Google Sign-In (OAuth)
+  const signInWithGoogle = async (customRedirect?: string): Promise<AuthResponse> => {
+    setIsLoading(true);
+    if (!supabase) {
+      setIsLoading(false);
+      return { success: false, error: 'Authentication service is not configured.' };
+    }
+
+    try {
+      const redirectPath = customRedirect || '/account';
+      const redirectUrl = `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`;
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'select_account',
+          },
+        },
+      });
+
+      if (error) {
+        setIsLoading(false);
+        return { success: false, error: mapAuthError(error) };
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      setIsLoading(false);
+      return { success: false, error: mapAuthError(err) };
+    }
   };
 
   // Registration flow with email verification support
@@ -561,6 +597,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         adminLogin,
         signup,
+        signInWithGoogle,
         logout,
         forgotPassword,
         resetPassword,

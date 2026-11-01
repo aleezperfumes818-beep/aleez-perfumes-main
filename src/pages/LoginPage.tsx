@@ -26,7 +26,8 @@ export const LoginPage: React.FC = () => {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
 
-  const { login, signup, resendVerificationEmail, user, isAdmin } = useAuth();
+  const { login, signup, signInWithGoogle, resendVerificationEmail, user, isAdmin } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -136,6 +137,20 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setGoogleLoading(true);
+    try {
+      const res = await signInWithGoogle(targetRedirect);
+      if (!res.success && res.error) {
+        setError(res.error);
+        setGoogleLoading(false);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Google Sign-In failed.');
+      setGoogleLoading(false);
+    }
+  };
   const handleResendVerification = async () => {
     if (!email.trim() || resendCooldown > 0) return;
     setLoading(true);
