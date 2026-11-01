@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { SettingsProvider } from './context/SettingsContext';
 import { CartProvider } from './context/CartContext';
@@ -85,6 +85,7 @@ const MainContent: React.FC = () => {
             <Route path="/admin/homepage" element={<AdminHomepage />} />
             <Route path="/admin/team" element={<AdminTeam />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </AdminLayout>
       ) : (

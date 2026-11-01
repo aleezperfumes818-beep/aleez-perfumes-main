@@ -210,11 +210,10 @@ export const ProductDetailPage: React.FC = () => {
                 <button
                   key={img.id || index}
                   onClick={() => setSelectedImageIndex(index)}
-                  className={`relative w-20 sm:w-24 aspect-square rounded-sm overflow-hidden border transition-all flex-shrink-0 bg-white ${
-                    selectedImageIndex === index
+                  className={`relative w-20 sm:w-24 aspect-square rounded-sm overflow-hidden border transition-all flex-shrink-0 bg-white ${selectedImageIndex === index
                       ? 'border-black ring-1 ring-black shadow-sm opacity-100'
                       : 'border-neutral-200 opacity-70 hover:opacity-100'
-                  }`}
+                    }`}
                 >
                   <img src={img.image_url} alt={`${product.name} view ${index + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -293,26 +292,23 @@ export const ProductDetailPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedSize('50ml')}
-                className={`p-3.5 rounded-sm border text-left transition-all duration-200 flex flex-col justify-between ${
-                  selectedSize === '50ml'
+                className={`p-3.5 rounded-sm border text-left transition-all duration-200 flex flex-col justify-between ${selectedSize === '50ml'
                     ? 'border-black bg-black text-white shadow-sm'
                     : 'border-neutral-200 bg-white text-black hover:border-black'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between w-full mb-1">
                   <span className="font-serif text-sm font-semibold tracking-wider">50 ML</span>
-                  <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.2 rounded ${
-                    selectedSize === '50ml' ? 'bg-neutral-800 text-white' : 'bg-neutral-100 text-neutral-700'
-                  }`}>
+                  <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.2 rounded ${selectedSize === '50ml' ? 'bg-neutral-800 text-white' : 'bg-neutral-100 text-neutral-700'
+                    }`}>
                     Standard
                   </span>
                 </div>
                 <div className="font-mono text-xs font-semibold">
                   {formatPrice(salePrice50 !== null && salePrice50 !== undefined ? salePrice50 : price50)}
                   {salePrice50 && (
-                    <span className={`ml-1.5 line-through font-normal text-[10px] ${
-                      selectedSize === '50ml' ? 'text-neutral-400' : 'text-neutral-400'
-                    }`}>
+                    <span className={`ml-1.5 line-through font-normal text-[10px] ${selectedSize === '50ml' ? 'text-neutral-400' : 'text-neutral-400'
+                      }`}>
                       {formatPrice(price50)}
                     </span>
                   )}
@@ -323,26 +319,23 @@ export const ProductDetailPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedSize('100ml')}
-                className={`p-3.5 rounded-sm border text-left transition-all duration-200 flex flex-col justify-between ${
-                  selectedSize === '100ml'
+                className={`p-3.5 rounded-sm border text-left transition-all duration-200 flex flex-col justify-between ${selectedSize === '100ml'
                     ? 'border-black bg-black text-white shadow-sm'
                     : 'border-neutral-200 bg-white text-black hover:border-black'
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between w-full mb-1">
                   <span className="font-serif text-sm font-semibold tracking-wider">100 ML</span>
-                  <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.2 rounded ${
-                    selectedSize === '100ml' ? 'bg-neutral-800 text-white' : 'bg-neutral-100 text-neutral-700'
-                  }`}>
+                  <span className={`text-[10px] uppercase tracking-wider px-1.5 py-0.2 rounded ${selectedSize === '100ml' ? 'bg-neutral-800 text-white' : 'bg-neutral-100 text-neutral-700'
+                    }`}>
                     Best Value
                   </span>
                 </div>
                 <div className="font-mono text-xs font-semibold">
                   {formatPrice(salePrice100 !== null && salePrice100 !== undefined ? salePrice100 : price100)}
                   {salePrice100 && (
-                    <span className={`ml-1.5 line-through font-normal text-[10px] ${
-                      selectedSize === '100ml' ? 'text-neutral-400' : 'text-neutral-400'
-                    }`}>
+                    <span className={`ml-1.5 line-through font-normal text-[10px] ${selectedSize === '100ml' ? 'text-neutral-400' : 'text-neutral-400'
+                      }`}>
                       {formatPrice(price100)}
                     </span>
                   )}
@@ -400,13 +393,12 @@ export const ProductDetailPage: React.FC = () => {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
-                className={`flex-1 py-3.5 rounded-sm text-xs uppercase tracking-[0.2em] font-bold transition-all duration-300 flex items-center justify-center space-x-2 ${
-                  isOutOfStock
+                className={`flex-1 py-3.5 rounded-sm text-xs uppercase tracking-[0.2em] font-bold transition-all duration-300 flex items-center justify-center space-x-2 ${isOutOfStock
                     ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
                     : justAdded
-                    ? 'bg-neutral-900 text-white shadow-sm'
-                    : 'bg-black hover:bg-neutral-800 text-white shadow-sm'
-                }`}
+                      ? 'bg-neutral-900 text-white shadow-sm'
+                      : 'bg-black hover:bg-neutral-800 text-white shadow-sm'
+                  }`}
               >
                 {justAdded ? (
                   <>
@@ -425,11 +417,10 @@ export const ProductDetailPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleWishlist(product)}
-                className={`p-3.5 rounded-sm border transition-colors ${
-                  isWished
+                className={`p-3.5 rounded-sm border transition-colors ${isWished
                     ? 'border-black bg-black text-white shadow-sm'
                     : 'border-neutral-300 bg-white text-neutral-600 hover:text-black hover:border-black'
-                }`}
+                  }`}
                 aria-label="Save to Wishlist"
               >
                 <Heart className={`w-5 h-5 ${isWished ? 'fill-white' : ''}`} />

@@ -31,9 +31,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const [safetyTimeout, setSafetyTimeout] = useState(false);
 
   React.useEffect(() => {
+    // 6-second safety timeout in case network hangs indefinitely
     const timer = setTimeout(() => {
       setSafetyTimeout(true);
-    }, 1000);
+    }, 6000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -49,8 +50,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   if (isLoading && !safetyTimeout) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-black">
+      <div className="min-h-screen bg-neutral-100 flex flex-col items-center justify-center text-black space-y-3 select-none">
         <div className="w-8 h-8 border-2 border-black border-t-transparent rounded-full animate-spin" />
+        <span className="text-xs uppercase tracking-widest text-neutral-500 font-mono font-medium">
+          Verifying Administrator Privileges...
+        </span>
       </div>
     );
   }
