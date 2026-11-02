@@ -20,6 +20,7 @@ import {
 import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
 import { FilamentField } from '../components/ui/FilamentField';
+import { SkewedCarousel } from '../components/ui/SkewedCarousel';
 import { Product, Category, HomepageContent } from '../types';
 import { dbService } from '../lib/supabase';
 import { initialHomepageContent } from '../lib/initialData';
@@ -467,56 +468,10 @@ export const HomePage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 3. ATELIER SPECIALTIES (4 Clean High-Fashion Cards)                        */}
+      {/* 3. BRAND INSPIRATIONS & BESTSELLERS (React Bits Pro Skewed Carousel)      */}
       {/* ========================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-          <h2 className="font-serif text-3xl sm:text-4xl text-black">
-            {content.specialties.title}
-          </h2>
-          <p className="text-sm text-neutral-600 font-light">
-            {content.specialties.subtitle}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {content.specialties.cards.map((card) => (
-            <Link
-              key={card.id}
-              to={card.link || '/shop'}
-              className="group relative aspect-[3/4] rounded-sm overflow-hidden border border-neutral-200 shadow-sm hover:shadow-md transition-all duration-500 flex flex-col justify-end p-6"
-            >
-              <img
-                src={card.image_url}
-                alt={card.title}
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-              <div className="relative z-10 text-white space-y-2">
-                <span className="text-[10px] uppercase tracking-[0.3em] text-neutral-300 font-mono">
-                  {card.subtitle}
-                </span>
-                <h3 className="font-serif text-2xl font-normal group-hover:text-neutral-200 transition-colors">
-                  {card.title}
-                </h3>
-                <p className="text-xs text-neutral-300 font-light line-clamp-2">
-                  {card.description}
-                </p>
-                <div className="pt-2 text-xs uppercase tracking-widest text-white flex items-center space-x-1 font-medium">
-                  <span>Explore Scent</span>
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 4. BRAND INSPIRATIONS & BESTSELLERS                                       */}
-      {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-neutral-200">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-4 pb-4 border-b border-neutral-200">
           <div>
             <h2 className="font-serif text-3xl sm:text-4xl text-black">
               {content.bestsellers_section.title}
@@ -534,15 +489,12 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {bestsellers.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onQuickView={(p) => setQuickViewProduct(p)}
-            />
-          ))}
-        </div>
+        {/* 3D Skewed Tilting Carousel */}
+        <SkewedCarousel
+          products={bestsellers}
+          onQuickView={(p) => setQuickViewProduct(p)}
+          skewAngle={-3}
+        />
       </section>
 
       {/* ========================================================================= */}
