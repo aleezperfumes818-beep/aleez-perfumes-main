@@ -181,7 +181,7 @@ export const HomePage: React.FC = () => {
       {/* 1. HERO SECTION (Hero 24: Left-Aligned Over Glowing Filaments & Video)    */}
       {/* ========================================================================= */}
       <section className="relative min-h-[88vh] sm:min-h-[94vh] flex items-center overflow-hidden border-b border-neutral-200 bg-black">
-        {/* Layer 1: High-Definition Video Background with Native Cross-Browser Autoplay */}
+        {/* Layer 1: High-Definition Video Background with Native Cross-Browser Autoplay & Corner Watermark Cropped */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <video
             ref={videoRef}
@@ -198,7 +198,7 @@ export const HomePage: React.FC = () => {
                 videoRef.current.play().catch(() => {});
               }
             }}
-            className="w-full h-full object-cover object-center scale-[1.01] origin-center transition-opacity duration-1000"
+            className="w-full h-full object-cover object-center scale-[1.12] origin-center transition-transform duration-700 ease-out"
           >
             <source src={content.hero.video_url || '/videos/aleez-signature.mp4'} type="video/mp4" />
           </video>
@@ -207,6 +207,7 @@ export const HomePage: React.FC = () => {
         {/* Soft Left Vignette Overlay - Keeps Title Legible While Perfume Bottle & Red Roses Remain Vivid & Crystal Clear */}
         <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/85 via-black/35 to-transparent pointer-events-none" />
         <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/65 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-64 h-32 bg-gradient-to-tl from-black/80 to-transparent pointer-events-none z-[1]" />
 
         {/* Hero Foreground: Left-Aligned Content Container */}
         <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-20 sm:py-28 flex flex-col items-start text-left space-y-6 sm:space-y-8">
@@ -254,7 +255,7 @@ export const HomePage: React.FC = () => {
           {/* Hero 24 Feature / Trust Row */}
           <div className="pt-8 sm:pt-10 border-t border-white/15 w-full max-w-2xl grid grid-cols-2 sm:grid-cols-3 gap-4 text-neutral-300 text-xs font-light tracking-wider animate-fade-in">
             <div className="flex items-center space-x-2">
-              <Sparkles className="w-3.5 h-3.5 text-white flex-shrink-0" />
+              <Droplets className="w-3.5 h-3.5 text-white flex-shrink-0" />
               <span className="text-[11px] uppercase tracking-wider text-neutral-200">100% Pure Oils</span>
             </div>
             <div className="flex items-center space-x-2">
@@ -266,31 +267,6 @@ export const HomePage: React.FC = () => {
               <span className="text-[11px] uppercase tracking-wider text-neutral-200">Express Delivery</span>
             </div>
           </div>
-        </div>
-
-        {/* Ambient Video Control Badge */}
-        <div className="absolute bottom-6 right-6 z-20 flex items-center space-x-2.5 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-sm border border-neutral-700 shadow-xl text-white">
-          <button
-            onClick={togglePlay}
-            aria-label={isPlaying ? 'Pause video' : 'Play video'}
-            title={isPlaying ? 'Pause video' : 'Play video'}
-            className="p-1 hover:text-neutral-300 transition-colors focus:outline-none"
-          >
-            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-          </button>
-          <span className="h-3 w-px bg-neutral-700" />
-          <button
-            onClick={toggleMute}
-            aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
-            title={isMuted ? 'Unmute audio' : 'Mute audio'}
-            className="p-1 hover:text-neutral-300 transition-colors focus:outline-none"
-          >
-            {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-          </button>
-          <span className="text-[10px] uppercase tracking-widest text-neutral-300 font-medium pl-1 hidden sm:inline">
-            Aleez Studio
-          </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-white" />
         </div>
       </section>
 
