@@ -52,14 +52,15 @@ export const HomePage: React.FC = () => {
   const { addToCart, setIsCartOpen } = useCart();
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.defaultMuted = true;
-      videoRef.current.muted = true;
-      videoRef.current.play().catch(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.defaultMuted = true;
+      video.muted = true;
+      video.play().catch(() => {
         // Autoplay policy handled gracefully
       });
     }
-  }, []);
+  }, [content.hero.video_url]);
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -180,30 +181,37 @@ export const HomePage: React.FC = () => {
       {/* 1. HERO SECTION (Hero 24: Left-Aligned Over Glowing Filaments & Video)    */}
       {/* ========================================================================= */}
       <section className="relative min-h-[88vh] sm:min-h-[94vh] flex items-center overflow-hidden border-b border-neutral-200 bg-black">
-        {/* Layer 1: High-Definition Royalty-Free Video Background (Preserved) */}
+        {/* Layer 1: High-Definition Video Background with Native Cross-Browser Autoplay */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <video
             ref={videoRef}
             key={content.hero.video_url || 'aleez-signature-video'}
+            src={content.hero.video_url || '/videos/aleez-signature.mp4'}
             autoPlay
             loop
             muted={isMuted}
             playsInline
+            preload="auto"
             poster={content.hero.fallback_image_url}
-            className="w-full h-full object-cover object-center scale-[1.08] origin-center transition-transform duration-1000 ease-out"
+            onLoadedData={() => {
+              if (videoRef.current) {
+                videoRef.current.play().catch(() => {});
+              }
+            }}
+            className="w-full h-full object-cover object-center scale-[1.01] origin-center transition-opacity duration-1000"
           >
             <source src={content.hero.video_url || '/videos/aleez-signature.mp4'} type="video/mp4" />
           </video>
         </div>
 
-        {/* Cinematic Vignette Overlays for Maximum Legibility */}
-        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/95 via-black/80 to-black/45 pointer-events-none" />
-        <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none" />
+        {/* Soft Left Vignette Overlay - Keeps Title Legible While Perfume Bottle & Red Roses Remain Vivid & Crystal Clear */}
+        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/85 via-black/35 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/65 via-transparent to-transparent pointer-events-none" />
 
         {/* Hero Foreground: Left-Aligned Content Container */}
         <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-20 sm:py-28 flex flex-col items-start text-left space-y-6 sm:space-y-8">
           {/* Status Chip */}
-          <div className="inline-flex items-center space-x-2.5 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[11px] uppercase tracking-[0.2em] font-medium shadow-sm animate-fade-in">
+          <div className="inline-flex items-center space-x-2.5 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] uppercase tracking-[0.2em] font-medium shadow-sm animate-fade-in">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
@@ -213,13 +221,15 @@ export const HomePage: React.FC = () => {
 
           {/* Left-Aligned Headline - Shopify Template Normal Sans Text */}
           <h1 className="font-sans text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white leading-[1.05] max-w-4xl animate-slide-up drop-shadow-lg">
-            {content.hero.title_line1} <br />
-            <span className="font-light text-neutral-200 block pt-1">{content.hero.title_line2}</span>
+            {content.hero.title_line1 || 'Aleez Perfumes'}
+            {content.hero.title_line2 ? (
+              <span className="font-light text-neutral-200 block pt-1">{content.hero.title_line2}</span>
+            ) : null}
           </h1>
 
           {/* Left-Aligned Subtitle */}
           <p className="max-w-xl text-sm sm:text-base md:text-lg text-neutral-300 font-normal leading-relaxed tracking-normal animate-fade-in drop-shadow">
-            {content.hero.subtitle}
+            {content.hero.subtitle || 'Luxury Fragrances. Unforgettable Impressions.'}
           </p>
 
           {/* Left-Aligned CTAs */}
@@ -228,7 +238,7 @@ export const HomePage: React.FC = () => {
               to={content.hero.primary_btn_link || '/shop'}
               className="px-8 py-3.5 bg-white hover:bg-neutral-200 text-black text-xs uppercase tracking-[0.22em] font-semibold rounded-sm transition-all duration-300 flex items-center justify-center space-x-2 group shadow-lg"
             >
-              <span>{content.hero.primary_btn_text}</span>
+              <span>{content.hero.primary_btn_text || 'Explore Collection'}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
@@ -236,7 +246,7 @@ export const HomePage: React.FC = () => {
               to={content.hero.secondary_btn_link || '/create-your-fragrance'}
               className="px-8 py-3.5 bg-black/40 hover:bg-white text-white hover:text-black border border-white/40 hover:border-white backdrop-blur-sm text-xs uppercase tracking-[0.22em] font-semibold rounded-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg"
             >
-              <span>{content.hero.secondary_btn_text}</span>
+              <span>{content.hero.secondary_btn_text || 'Custom Fragrance'}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

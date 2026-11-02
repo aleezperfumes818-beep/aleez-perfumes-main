@@ -24,6 +24,8 @@ app.use((req, res, next) => {
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('X-XSS-Protection', '1; mode=block');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   next();
 });
 
@@ -551,6 +553,71 @@ app.post('/api/razorpay/verify-payment', orderLimiter, async (req, res) => {
   } catch (error) {
     console.error('Error verifying payment:', error);
     return res.status(500).json({ success: false, message: error.message || 'Payment verification failed' });
+  }
+});
+
+// --- 3A. RAZORPAY SERVER-TO-SERVER WEBHOOK (ASYNCHRONOUS RECONCILIATION) ---
+app.post('/api/razorpay/webhook', async (req, res) => {
+  try {
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET;
+    const webhookSignature = req.headers['x-razorpay-signature'];
+
+    if (!webhookSecret || !webhookSignature) {
+      return res.status(400).json({ error: 'Missing webhook signature or secret.' });
+    }
+
+    // Verify cryptographic webhook signature using timing-safe comparison
+    const bodyString = JSON.stringify(req.body);
+    const expectedSignature = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(bodyString)
+      .digest('hex');
+
+    const expectedBuf = Buffer.from(expectedSignature, 'utf8');
+    const receivedBuf = Buffer.from(webhookSignature, 'utf8');
+
+    if (
+      expectedBuf.length !== receivedBuf.length ||
+      !crypto.timingSafeEqual(expectedBuf, receivedBuf)
+    ) {
+      console.warn('[Webhook] Invalid Razorpay webhook signature denied.');
+      return res.status(400).json({ error: 'Invalid webhook signature.' });
+    }
+
+    const event = req.body.event;
+    const paymentPayload = req.body.payload?.payment?.entity;
+
+    if (event === 'payment.captured' || event === 'order.paid') {
+      const razorpayOrderId = paymentPayload?.order_id;
+      const razorpayPaymentId = paymentPayload?.id;
+
+      if (razorpayOrderId && supabase) {
+        const { data: matchedOrder } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('razorpay_order_id', razorpayOrderId)
+          .single();
+
+        if (matchedOrder && matchedOrder.payment_status !== 'paid') {
+          await supabase
+            .from('orders')
+            .update({
+              payment_status: 'paid',
+              order_status: 'confirmed',
+              razorpay_payment_id: razorpayPaymentId,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', matchedOrder.id);
+
+          console.log(`[Webhook] Order ${matchedOrder.order_number} marked paid via Razorpay webhook.`);
+        }
+      }
+    }
+
+    return res.status(200).json({ status: 'ok' });
+  } catch (err) {
+    console.error('[Webhook] Error handling Razorpay webhook:', err);
+    return res.status(500).json({ error: 'Webhook processing error.' });
   }
 });
 

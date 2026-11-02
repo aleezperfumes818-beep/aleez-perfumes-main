@@ -380,10 +380,10 @@ export const initialOrders: Order[] = [
 
 export const initialHomepageContent: HomepageContent = {
   hero: {
-    badge: "HAUTE PARFUMERIE • PURE OUD EXTRACTIONS & ATTARS",
-    title_line1: "Artisanal Fragrance &",
-    title_line2: "Rare Botanicals",
-    subtitle: "Master-formulated in limited batches using authentic botanical absolutes, aged Cambodian oud, and pure oils. Handcrafted at 35% Extrait de Parfum concentration for profound sillage.",
+    badge: "HAUTE PARFUMERIE • 35% PURE EXTRAIT",
+    title_line1: "Aleez Perfumes",
+    title_line2: "",
+    subtitle: "Luxury Fragrances. Unforgettable Impressions.",
     primary_btn_text: "Explore Collection",
     primary_btn_link: "/shop",
     secondary_btn_text: "Custom Fragrance",
