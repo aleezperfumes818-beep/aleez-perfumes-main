@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
-import { FilamentField } from '../components/ui/FilamentField';
 import { SkewedCarousel } from '../components/ui/SkewedCarousel';
 import { Product, Category, HomepageContent } from '../types';
 import { dbService } from '../lib/supabase';
@@ -197,18 +196,13 @@ export const HomePage: React.FC = () => {
           </video>
         </div>
 
-        {/* Layer 2: Glowing Filaments Field (NeuroNoise WebGL Shader Overlay) */}
-        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
-          <FilamentField className="w-full h-full" speed={0.9} opacity={0.65} />
-        </div>
+        {/* Cinematic Vignette Overlays for Maximum Legibility */}
+        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/95 via-black/80 to-black/45 pointer-events-none" />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none" />
 
-        {/* Layer 3: Left-Weighted Cinematic Vignette Overlays for Maximum Legibility */}
-        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/95 via-black/80 to-black/45 pointer-events-none" />
-        <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none" />
-
-        {/* Hero 24 Foreground: Left-Aligned Content Container */}
+        {/* Hero Foreground: Left-Aligned Content Container */}
         <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-20 sm:py-28 flex flex-col items-start text-left space-y-6 sm:space-y-8">
-          {/* Hero 24 Pinging Status Chip */}
+          {/* Status Chip */}
           <div className="inline-flex items-center space-x-2.5 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[11px] uppercase tracking-[0.2em] font-medium shadow-sm animate-fade-in">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
@@ -217,14 +211,14 @@ export const HomePage: React.FC = () => {
             <span>Haute Parfumerie &bull; 35% Pure Extrait</span>
           </div>
 
-          {/* Left-Aligned Headline */}
-          <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight text-white leading-[1.05] max-w-3xl animate-slide-up drop-shadow-2xl">
+          {/* Left-Aligned Headline - Shopify Template Normal Sans Text */}
+          <h1 className="font-sans text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white leading-[1.05] max-w-4xl animate-slide-up drop-shadow-lg">
             {content.hero.title_line1} <br />
-            <span className="italic font-light text-neutral-200 block pt-1">{content.hero.title_line2}</span>
+            <span className="font-light text-neutral-200 block pt-1">{content.hero.title_line2}</span>
           </h1>
 
           {/* Left-Aligned Subtitle */}
-          <p className="max-w-xl text-sm sm:text-base md:text-lg text-neutral-300 font-light leading-relaxed tracking-wide animate-fade-in drop-shadow">
+          <p className="max-w-xl text-sm sm:text-base md:text-lg text-neutral-300 font-normal leading-relaxed tracking-normal animate-fade-in drop-shadow">
             {content.hero.subtitle}
           </p>
 
@@ -304,20 +298,20 @@ export const HomePage: React.FC = () => {
             </p>
           </div>
 
-          <div className="bg-white rounded-lg border border-neutral-200 p-6 sm:p-10 lg:p-12 shadow-sm">
+          <div className="bg-white rounded-none border border-neutral-100 p-6 sm:p-10 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.08)]">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               {/* Product Visual */}
               <div className="lg:col-span-5 relative">
-                <div className="relative aspect-[4/5] rounded-sm overflow-hidden bg-neutral-100 border border-neutral-200 shadow-sm group">
+                <div className="relative aspect-[4/5] rounded-none overflow-hidden bg-neutral-100 shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-neutral-100/60 group">
                   <img
                     src={spotlightImage}
                     alt={spotlightName}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute top-4 left-4 bg-black text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-sm shadow-sm">
+                  <div className="absolute top-4 left-4 bg-black text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-none shadow-sm">
                     Spotlight
                   </div>
-                  <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-sm border border-neutral-200 flex items-center space-x-2 text-xs shadow-sm">
+                  <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-none border border-neutral-100 flex items-center space-x-2 text-xs shadow-sm">
                     <span className="font-mono text-[10px] uppercase tracking-wider text-black font-semibold">{concentrationText}</span>
                     <span className="text-neutral-400">•</span>
                     <span className="text-[10px] text-neutral-600 font-mono">{bottleSizeText}</span>
@@ -346,7 +340,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* Scent Notes Breakdown */}
-                <div className="bg-neutral-50 border border-neutral-200 rounded-sm p-4 sm:p-5 space-y-3">
+                <div className="bg-neutral-50/70 border border-neutral-100/80 rounded-none p-4 sm:p-5 space-y-3 shadow-sm">
                   <h4 className="text-xs uppercase tracking-[0.2em] text-black font-semibold">
                     Harmonic Note Profile
                   </h4>

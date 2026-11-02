@@ -135,12 +135,12 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
                     opacity,
                   }}
                 >
-                  {/* Straight Square Card Box */}
+                  {/* Straight Square Card Box with Luxury Shadow Elevation (No Black Outline) */}
                   <div
-                    className={`bg-white border transition-all duration-300 flex flex-col rounded-none ${
+                    className={`bg-white transition-all duration-300 flex flex-col rounded-none border border-neutral-100 ${
                       isCenter
-                        ? 'border-neutral-900 shadow-2xl'
-                        : 'border-neutral-200 shadow-md hover:border-neutral-400'
+                        ? 'shadow-[0_25px_60px_-12px_rgba(0,0,0,0.20)] ring-1 ring-black/5'
+                        : 'shadow-[0_10px_30px_-5px_rgba(0,0,0,0.06)] hover:shadow-[0_18px_40px_-5px_rgba(0,0,0,0.12)]'
                     }`}
                   >
                     {/* Perfectly Square Image Container (1:1 Ratio) */}
