@@ -412,6 +412,7 @@ export const initialHomepageContent: HomepageContent = {
     button_text: "Add To Cart",
   },
   specialties: {
+    enabled: false,
     badge: "",
     title: "Our True Masterclass Into Handpicked Formulations",
     subtitle: "Distinctive fragrance architectures crafted for lasting poise, presence, and magnetic remembrance.",

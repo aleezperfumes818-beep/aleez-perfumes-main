@@ -54,6 +54,11 @@ export const AdminProducts: React.FC = () => {
     top_notes: '',
     heart_notes: '',
     base_notes: '',
+    sillage_fit: 'signature',
+    longevity_hours: '12-16 Hours',
+    projection_level: 'Radiant (1-2m)',
+    gender: 'Unisex',
+    season: 'All-Season',
     is_bestseller: false,
     is_new_arrival: false,
     is_featured: false,
@@ -121,6 +126,11 @@ export const AdminProducts: React.FC = () => {
       top_notes: '',
       heart_notes: '',
       base_notes: '',
+      sillage_fit: 'signature',
+      longevity_hours: '12-16 Hours',
+      projection_level: 'Radiant (1-2m)',
+      gender: 'Unisex',
+      season: 'All-Season',
       is_bestseller: false,
       is_new_arrival: true,
       is_featured: false,
@@ -152,6 +162,11 @@ export const AdminProducts: React.FC = () => {
       top_notes: product.top_notes || '',
       heart_notes: product.heart_notes || '',
       base_notes: product.base_notes || '',
+      sillage_fit: (product.sillage_fit as string) || 'signature',
+      longevity_hours: product.longevity_hours || '12-16 Hours',
+      projection_level: product.projection_level || 'Radiant (1-2m)',
+      gender: (product.gender as string) || 'Unisex',
+      season: product.season || 'All-Season',
       is_bestseller: product.is_bestseller,
       is_new_arrival: product.is_new_arrival,
       is_featured: product.is_featured,
@@ -324,6 +339,11 @@ export const AdminProducts: React.FC = () => {
         top_notes: formData.top_notes.trim(),
         heart_notes: formData.heart_notes.trim(),
         base_notes: formData.base_notes.trim(),
+        sillage_fit: formData.sillage_fit,
+        longevity_hours: formData.longevity_hours.trim(),
+        projection_level: formData.projection_level.trim(),
+        gender: formData.gender,
+        season: formData.season.trim(),
         is_bestseller: formData.is_bestseller,
         is_new_arrival: formData.is_new_arrival,
         is_featured: formData.is_featured,
@@ -872,10 +892,10 @@ export const AdminProducts: React.FC = () => {
                 </div>
               </div>
 
-              {/* Olfactory Pyramid & Fragrance Family */}
+              {/* Fragrance Classification */}
               <div className="p-4 bg-stone-50 rounded-lg border border-luxury-border space-y-4">
                 <span className="text-xs uppercase tracking-wider text-luxury-gold font-medium block">
-                  Olfactory Notes & Accord Details
+                  Fragrance Classification
                 </span>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -894,43 +914,17 @@ export const AdminProducts: React.FC = () => {
 
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                      Top Notes
+                      Gender / Persona Classification
                     </label>
-                    <input
-                      type="text"
-                      value={formData.top_notes}
-                      onChange={(e) => setFormData({ ...formData, top_notes: e.target.value })}
-                      placeholder="e.g. Calabrian Bergamot, Cardamom"
+                    <select
+                      value={formData.gender}
+                      onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                       className="w-full bg-white border border-luxury-border rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                      Heart Notes
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.heart_notes}
-                      onChange={(e) => setFormData({ ...formData, heart_notes: e.target.value })}
-                      placeholder="e.g. Damask Rose, Golden Amber"
-                      className="w-full bg-white border border-luxury-border rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                      Base Notes
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.base_notes}
-                      onChange={(e) => setFormData({ ...formData, base_notes: e.target.value })}
-                      placeholder="e.g. Aged Agarwood, Mysore Sandalwood, Vanilla"
-                      className="w-full bg-white border border-luxury-border rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none"
-                    />
+                    >
+                      <option value="Unisex">Unisex (Universally Alluring)</option>
+                      <option value="Pour Homme">Pour Homme (Masculine Woods & Smoke)</option>
+                      <option value="Pour Femme">Pour Femme (Feminine Florals & Amber)</option>
+                    </select>
                   </div>
                 </div>
               </div>

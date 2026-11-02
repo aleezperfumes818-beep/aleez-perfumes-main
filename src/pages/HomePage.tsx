@@ -208,7 +208,7 @@ export const HomePage: React.FC = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
             </span>
-            <span>Haute Parfumerie &bull; 35% Pure Extrait</span>
+            <span>{content.hero.badge || 'Haute Parfumerie • 35% Pure Extrait'}</span>
           </div>
 
           {/* Left-Aligned Headline - Shopify Template Normal Sans Text */}
@@ -462,6 +462,54 @@ export const HomePage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
+      {/* 2.5 ATELIER SPECIALTIES (Optional 4 Cards Portal - Managed via Admin)     */}
+      {/* ========================================================================= */}
+      {content.specialties?.enabled && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
+            <h2 className="font-serif text-3xl sm:text-4xl text-black">
+              {content.specialties.title}
+            </h2>
+            <p className="text-sm text-neutral-600 font-light">
+              {content.specialties.subtitle}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {content.specialties.cards.map((card) => (
+              <Link
+                key={card.id}
+                to={card.link}
+                className="group relative aspect-[3/4] overflow-hidden rounded-none border border-neutral-100 shadow-[0_15px_35px_rgba(0,0,0,0.08)] bg-neutral-900 flex flex-col justify-end p-6 text-white hover:shadow-[0_20px_45px_rgba(0,0,0,0.15)] transition-all duration-500"
+              >
+                <img
+                  src={card.image_url}
+                  alt={card.title}
+                  className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out opacity-85 group-hover:opacity-95"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+                <div className="relative z-10 space-y-2">
+                  <span className="text-[10px] uppercase font-mono tracking-[0.2em] text-neutral-300 block">
+                    {card.subtitle}
+                  </span>
+                  <h3 className="font-serif text-xl sm:text-2xl text-white font-medium">
+                    {card.title}
+                  </h3>
+                  <p className="text-xs text-neutral-300 font-light line-clamp-2 leading-relaxed opacity-90">
+                    {card.description}
+                  </p>
+                  <div className="pt-2 flex items-center space-x-1.5 text-[11px] uppercase tracking-widest text-white group-hover:translate-x-1 transition-transform">
+                    <span>Explore Scent</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ========================================================================= */}
       {/* 3. BRAND INSPIRATIONS & BESTSELLERS (React Bits Pro Skewed Carousel)      */}
       {/* ========================================================================= */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -483,11 +531,10 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        {/* 3D Skewed Tilting Carousel */}
+        {/* 3D Straight Square Carousel */}
         <SkewedCarousel
           products={bestsellers}
           onQuickView={(p) => setQuickViewProduct(p)}
-          skewAngle={-3}
         />
       </section>
 

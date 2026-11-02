@@ -18,6 +18,10 @@ import {
   Plus,
   Trash2,
   Copy,
+  Star,
+  Search,
+  Check,
+  ArrowRight,
 } from 'lucide-react';
 import { dbService } from '../lib/supabase';
 import { initialHomepageContent } from '../lib/initialData';
@@ -32,6 +36,8 @@ export const AdminHomepage: React.FC = () => {
   const [saved, setSaved] = useState(false);
   const [uploadingImage, setUploadingImage] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState(false);
+  const [bestsellerSearch, setBestsellerSearch] = useState('');
+  const [togglingBestsellerId, setTogglingBestsellerId] = useState<string | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -132,6 +138,24 @@ export const AdminHomepage: React.FC = () => {
     }));
   };
 
+  const handleToggleBestseller = async (product: Product) => {
+    setTogglingBestsellerId(product.id);
+    try {
+      const updated = await dbService.saveProduct({
+        ...product,
+        is_bestseller: !product.is_bestseller,
+      });
+      setProducts((prev) =>
+        prev.map((p) => (p.id === updated.id ? updated : p))
+      );
+    } catch (err) {
+      console.error('Failed to toggle bestseller status:', err);
+      alert('Could not update product bestseller status.');
+    } finally {
+      setTogglingBestsellerId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
@@ -230,24 +254,51 @@ export const AdminHomepage: React.FC = () => {
 
       {/* Interactive Hero Live Preview Box (Toggled) */}
       {previewMode && (
-        <div className="border border-neutral-700 rounded-sm overflow-hidden bg-black text-white p-8 relative shadow-2xl animate-fade-in">
-          <div className="absolute top-3 right-3 z-20 bg-neutral-900 px-2.5 py-1 rounded-sm border border-neutral-700 text-[10px] uppercase font-mono tracking-wider text-neutral-300">
-            Live Hero Preview
+        <div className="border border-neutral-800 rounded-sm overflow-hidden bg-black text-white p-6 sm:p-10 relative shadow-2xl animate-fade-in">
+          <div className="absolute top-3 right-3 z-20 bg-neutral-900/90 backdrop-blur-md px-3 py-1 rounded-sm border border-neutral-700 text-[10px] uppercase font-mono tracking-wider text-neutral-300">
+            Live Left-Aligned Hero Preview
           </div>
-          <div className="max-w-3xl mx-auto text-center space-y-5 py-6">
-            <h2 className="font-serif text-3xl sm:text-5xl text-white leading-tight">
+          <div className="max-w-3xl space-y-6 text-left py-4">
+            {/* Status Chip */}
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-[10px] uppercase tracking-[0.2em] font-medium">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              <span>{content.hero.badge || 'Haute Parfumerie • 35% Pure Extrait'}</span>
+            </div>
+
+            {/* Left-Aligned Headline */}
+            <h2 className="font-sans text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">
               {content.hero.title_line1} <br />
-              <span className="italic font-light text-neutral-300">{content.hero.title_line2}</span>
+              <span className="font-light text-neutral-300 block pt-1">{content.hero.title_line2}</span>
             </h2>
-            <p className="text-xs sm:text-sm text-neutral-300 font-light max-w-xl mx-auto leading-relaxed">
+
+            {/* Subtitle */}
+            <p className="text-xs sm:text-sm text-neutral-300 font-normal max-w-xl leading-relaxed">
               {content.hero.subtitle}
             </p>
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <span className="px-6 py-2.5 bg-white text-black text-[11px] uppercase tracking-widest font-semibold rounded-sm">
+
+            {/* Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <span className="px-6 py-3 bg-white text-black text-[11px] uppercase tracking-widest font-semibold rounded-sm shadow-md">
                 {content.hero.primary_btn_text}
               </span>
-              <span className="px-6 py-2.5 bg-transparent border border-white text-white text-[11px] uppercase tracking-widest font-semibold rounded-sm">
+              <span className="px-6 py-3 bg-black/40 border border-white/40 text-white text-[11px] uppercase tracking-widest font-semibold rounded-sm">
                 {content.hero.secondary_btn_text}
+              </span>
+            </div>
+
+            {/* Proof Badges */}
+            <div className="pt-6 border-t border-white/15 grid grid-cols-3 gap-4 text-neutral-300 text-[10px] uppercase tracking-wider font-mono">
+              <span className="flex items-center space-x-1.5">
+                <span className="text-white">●</span>
+                <span>100% Pure Oils</span>
+              </span>
+              <span className="flex items-center space-x-1.5">
+                <span className="text-white">●</span>
+                <span>Extrait Strength</span>
+              </span>
+              <span className="flex items-center space-x-1.5">
+                <span className="text-white">●</span>
+                <span>Express Delivery</span>
               </span>
             </div>
           </div>
@@ -260,7 +311,7 @@ export const AdminHomepage: React.FC = () => {
           { id: 'hero', label: '1. Hero Banner', icon: Sparkles },
           { id: 'spotlight', label: '2. Weekly Spotlight', icon: Flame },
           { id: 'specialties', label: '3. Specialties (4 Cards)', icon: Layers },
-          { id: 'bestsellers', label: '4. Bestsellers Section', icon: Layers },
+          { id: 'bestsellers', label: '4. Bestsellers Carousel', icon: Layers },
           { id: 'bespoke', label: '5. Custom Fragrance Studio', icon: Compass },
           { id: 'pillars', label: '6. Trust Pillars & Newsletter', icon: ShieldCheck },
         ].map((tab) => {
@@ -292,15 +343,37 @@ export const AdminHomepage: React.FC = () => {
             <div>
               <h2 className="font-serif text-lg text-black font-medium">Hero Cinematic Banner</h2>
               <p className="text-xs text-neutral-500 font-light mt-0.5">
-                The grand focal point of your store. Uses luxury typography and full-bleed looping video.
+                Left-aligned luxury hero section with clean typography, status chip, and full-bleed looping video background.
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-5">
+              {/* Status Chip / Pill */}
+              <div>
+                <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                  Top Status Chip (Live Badge)
+                </label>
+                <input
+                  type="text"
+                  value={content.hero.badge || ''}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      hero: { ...prev.hero, badge: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-neutral-50 border border-neutral-200 focus:border-black rounded-sm px-3.5 py-2.5 text-xs text-black focus:outline-none"
+                  placeholder="e.g. Haute Parfumerie • 35% Pure Extrait"
+                />
+                <p className="text-[11px] text-neutral-500 mt-1">
+                  Displayed inside the floating glowing pill badge directly above the main hero headline.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                    Headline Line 1 (Standard Serif)
+                    Main Headline Line 1 (Bold Sans-Serif)
                   </label>
                   <input
                     type="text"
@@ -311,14 +384,14 @@ export const AdminHomepage: React.FC = () => {
                         hero: { ...prev.hero, title_line1: e.target.value },
                       }))
                     }
-                    className="w-full bg-neutral-50 border border-neutral-200 focus:border-black rounded-sm px-3.5 py-2.5 text-xs text-black focus:outline-none"
-                    placeholder="e.g. Artisanal Fragrance &"
+                    className="w-full bg-neutral-50 border border-neutral-200 focus:border-black rounded-sm px-3.5 py-2.5 text-xs text-black focus:outline-none font-bold"
+                    placeholder="e.g. Aleez Perfumes"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                    Headline Line 2 (Italic Accent)
+                    Headline Line 2 (Light Sans Accent)
                   </label>
                   <input
                     type="text"
@@ -329,8 +402,8 @@ export const AdminHomepage: React.FC = () => {
                         hero: { ...prev.hero, title_line2: e.target.value },
                       }))
                     }
-                    className="w-full bg-neutral-50 border border-neutral-200 focus:border-black rounded-sm px-3.5 py-2.5 text-xs text-black focus:outline-none font-serif italic"
-                    placeholder="e.g. Rare Botanicals"
+                    className="w-full bg-neutral-50 border border-neutral-200 focus:border-black rounded-sm px-3.5 py-2.5 text-xs text-black focus:outline-none"
+                    placeholder="e.g. Rare Botanicals & Pure Extrait"
                   />
                 </div>
               </div>
@@ -894,12 +967,48 @@ export const AdminHomepage: React.FC = () => {
         {/* ========================================================================= */}
         {activeTab === 'specialties' && (
           <div className="bg-white border border-neutral-200 rounded-sm p-6 sm:p-8 space-y-6 shadow-sm">
-            <div>
-              <h2 className="font-serif text-lg text-black font-medium">Atelier Specialties Section</h2>
-              <p className="text-xs text-neutral-500 font-light mt-0.5">
-                The 4 signature collection cards on the homepage (e.g. Pour Homme, Pour Femme, Noble Oud, Artisanal Attars).
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-neutral-200 gap-3">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h2 className="font-serif text-lg text-black font-medium">Atelier Specialties (4 Cards)</h2>
+                  <span className={`px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-sm border ${
+                    content.specialties?.enabled
+                      ? 'bg-black text-white border-black'
+                      : 'bg-neutral-100 text-neutral-600 border-neutral-300'
+                  }`}>
+                    {content.specialties?.enabled ? 'Visible on Site' : 'Hidden from Site'}
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 font-light mt-0.5">
+                  The 4 curated signature collection cards (Pour Homme, Pour Femme, Noble Oud, Artisanal Attars).
+                </p>
+              </div>
+
+              <label className="flex items-center space-x-2.5 cursor-pointer bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 px-3 py-1.5 rounded-sm transition-colors">
+                <input
+                  type="checkbox"
+                  checked={!!content.specialties?.enabled}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      specialties: { ...prev.specialties, enabled: e.target.checked },
+                    }))
+                  }
+                  className="rounded text-black focus:ring-black w-4 h-4 cursor-pointer"
+                />
+                <span className="text-xs uppercase tracking-wider font-semibold text-black select-none">
+                  Enable Section
+                </span>
+              </label>
             </div>
+
+            {!content.specialties?.enabled && (
+              <div className="p-3.5 bg-neutral-50 border border-neutral-200 text-neutral-600 text-xs rounded-sm flex items-center justify-between">
+                <span>
+                  This 4-card section is currently <strong>hidden</strong> on the homepage. Toggle "Enable Section" above and click "Publish Changes" to show it.
+                </span>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -1095,15 +1204,35 @@ export const AdminHomepage: React.FC = () => {
         )}
 
         {/* ========================================================================= */}
-        {/* TAB 4: BESTSELLERS SECTION                                                */}
+        {/* TAB 4: BESTSELLERS SECTION (3D STRAIGHT-SQUARE SLIDING CAROUSEL)          */}
         {/* ========================================================================= */}
         {activeTab === 'bestsellers' && (
           <div className="bg-white border border-neutral-200 rounded-sm p-6 sm:p-8 space-y-6 shadow-sm">
-            <div>
-              <h2 className="font-serif text-lg text-black font-medium">Bestsellers & Inspirations Section</h2>
-              <p className="text-xs text-neutral-500 font-light mt-0.5">
-                Customize the header and CTA button above the automated bestsellers grid.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-neutral-200 gap-3">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h2 className="font-serif text-lg text-black font-medium">Bestsellers Carousel Section</h2>
+                  <span className="px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded-sm bg-neutral-100 text-neutral-800 border border-neutral-300">
+                    3D Straight-Square Carousel
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 font-light mt-0.5">
+                  Controls the section headline and manages the products displayed in the interactive straight-square carousel.
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-mono bg-neutral-100 border border-neutral-300 px-3 py-1.5 rounded-sm text-black font-semibold">
+                  {products.filter((p) => p.is_bestseller).length} Fragrances Active
+                </span>
+                <Link
+                  to="/admin/products"
+                  className="text-xs bg-black text-white px-3 py-1.5 rounded-sm hover:bg-neutral-800 transition-colors uppercase tracking-wider font-semibold flex items-center space-x-1"
+                >
+                  <span>All Products</span>
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1120,7 +1249,7 @@ export const AdminHomepage: React.FC = () => {
                       bestsellers_section: { ...prev.bestsellers_section, title: e.target.value },
                     }))
                   }
-                  className="w-full bg-neutral-50 border border-neutral-200 rounded-sm px-3.5 py-2.5 text-xs text-black focus:outline-none focus:border-black"
+                  className="w-full bg-neutral-50 border border-neutral-200 rounded-sm px-3.5 py-2.5 text-xs text-black focus:outline-none focus:border-black font-serif text-base"
                   placeholder="Brand Inspirations & Bestsellers"
                 />
               </div>
@@ -1160,6 +1289,177 @@ export const AdminHomepage: React.FC = () => {
                 className="w-full bg-neutral-50 border border-neutral-200 rounded-sm px-3.5 py-2.5 text-xs text-black focus:outline-none focus:border-black"
                 placeholder="Handcrafted interpretations inspired by the world's most prestigious perfume houses."
               />
+            </div>
+
+            {/* Live Straight-Square Carousel Preview Cards */}
+            <div className="pt-4 border-t border-neutral-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs uppercase tracking-wider text-black font-semibold">
+                    Live Carousel Cards Preview
+                  </h3>
+                  <p className="text-[11px] text-neutral-500 font-light">
+                    These items are displayed in the straight-square sliding cards with soft elevation shadows.
+                  </p>
+                </div>
+                <span className="text-[11px] font-mono text-neutral-400">
+                  Showing {products.filter((p) => p.is_bestseller).length} active items
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pt-1">
+                {products
+                  .filter((p) => p.is_bestseller)
+                  .map((p) => (
+                    <div
+                      key={p.id}
+                      className="bg-white border border-neutral-100 rounded-none shadow-[0_10px_25px_rgba(0,0,0,0.08)] overflow-hidden flex flex-col group relative"
+                    >
+                      <div className="relative aspect-square w-full bg-neutral-100 overflow-hidden">
+                        <img
+                          src={p.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=400&q=80'}
+                          alt={p.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <span className="absolute top-1.5 left-1.5 bg-black text-white text-[9px] uppercase font-bold px-1.5 py-0.5 tracking-wider">
+                          Bestseller
+                        </span>
+                        <div className="absolute bottom-1.5 right-1.5 bg-white/95 px-1.5 py-0.5 text-[9px] font-semibold text-black border border-neutral-200 flex items-center space-x-0.5">
+                          <Star className="w-2.5 h-2.5 fill-black text-black" />
+                          <span>{p.rating || 4.9}</span>
+                        </div>
+                      </div>
+                      <div className="p-2.5 flex-1 flex flex-col justify-between space-y-1">
+                        <div>
+                          <h4 className="font-serif text-xs text-black font-medium truncate" title={p.name}>
+                            {p.name}
+                          </h4>
+                          {p.inspired_by && (
+                            <p className="text-[10px] text-neutral-500 italic truncate" title={p.inspired_by}>
+                              {p.inspired_by}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between pt-1">
+                          <span className="font-semibold text-xs text-black">
+                            ₹{p.sale_price || p.price}
+                          </span>
+                          <button
+                            type="button"
+                            disabled={togglingBestsellerId === p.id}
+                            onClick={() => handleToggleBestseller(p)}
+                            title="Remove from Carousel"
+                            className="text-[10px] text-neutral-500 hover:text-black hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Product Carousel Manager (1-Click Toggle for Catalog) */}
+            <div className="pt-6 border-t border-neutral-200 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-xs uppercase tracking-wider text-black font-semibold">
+                    Curate Products for Carousel
+                  </h3>
+                  <p className="text-[11px] text-neutral-500 font-light">
+                    Click the toggle to immediately add or remove fragrances from the homepage bestsellers carousel.
+                  </p>
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <input
+                    type="text"
+                    value={bestsellerSearch}
+                    onChange={(e) => setBestsellerSearch(e.target.value)}
+                    placeholder="Search fragrance name..."
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-sm pl-8 pr-3 py-1.5 text-xs text-black focus:outline-none focus:border-black"
+                  />
+                </div>
+              </div>
+
+              <div className="border border-neutral-200 rounded-sm overflow-hidden divide-y divide-neutral-100 max-h-96 overflow-y-auto">
+                {products
+                  .filter((p) => {
+                    if (!bestsellerSearch) return true;
+                    const query = bestsellerSearch.toLowerCase();
+                    return (
+                      p.name.toLowerCase().includes(query) ||
+                      (p.inspired_by && p.inspired_by.toLowerCase().includes(query)) ||
+                      (p.category_name && p.category_name.toLowerCase().includes(query))
+                    );
+                  })
+                  .map((p) => (
+                    <div
+                      key={p.id}
+                      className="p-3 bg-white hover:bg-neutral-50 transition-colors flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className="w-10 h-10 rounded-sm bg-neutral-100 overflow-hidden flex-shrink-0 border border-neutral-200">
+                          <img
+                            src={p.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=100&q=80'}
+                            alt={p.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <span className="font-serif text-xs font-semibold text-black truncate">
+                              {p.name}
+                            </span>
+                            {p.category_name && (
+                              <span className="text-[10px] text-neutral-400 font-mono hidden sm:inline">
+                                • {p.category_name}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center space-x-2 text-[11px] text-neutral-500 truncate">
+                            {p.inspired_by && <span>{p.inspired_by}</span>}
+                            <span>•</span>
+                            <span className="font-semibold text-black">₹{p.sale_price || p.price}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 flex-shrink-0">
+                        <button
+                          type="button"
+                          disabled={togglingBestsellerId === p.id}
+                          onClick={() => handleToggleBestseller(p)}
+                          className={`px-3 py-1.5 rounded-sm text-xs font-semibold uppercase tracking-wider transition-all flex items-center space-x-1.5 ${
+                            p.is_bestseller
+                              ? 'bg-black text-white hover:bg-neutral-800 shadow-xs'
+                              : 'bg-white text-neutral-700 border border-neutral-300 hover:border-black hover:text-black'
+                          }`}
+                        >
+                          {togglingBestsellerId === p.id ? (
+                            <>
+                              <RefreshCw className="w-3 h-3 animate-spin" />
+                              <span>Updating...</span>
+                            </>
+                          ) : p.is_bestseller ? (
+                            <>
+                              <Check className="w-3.5 h-3.5" />
+                              <span>In Carousel</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-3.5 h-3.5" />
+                              <span>Add to Carousel</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
         )}

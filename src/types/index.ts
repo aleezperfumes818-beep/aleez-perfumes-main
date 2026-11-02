@@ -25,6 +25,11 @@ export interface Product {
   top_notes?: string;
   heart_notes?: string;
   base_notes?: string;
+  sillage_fit?: 'intimate' | 'signature' | 'intense' | string;
+  longevity_hours?: string;
+  projection_level?: string;
+  season?: string;
+  gender?: 'Unisex' | 'Pour Homme' | 'Pour Femme' | string;
   volume_ml: number;
   stock_quantity: number;
   sku: string;
@@ -200,6 +205,7 @@ export interface HomepageContent {
     button_text?: string;
   };
   specialties: {
+    enabled?: boolean;
     badge: string;
     title: string;
     subtitle: string;
