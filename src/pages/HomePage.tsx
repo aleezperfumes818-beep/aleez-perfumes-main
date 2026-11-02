@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
+import { FilamentField } from '../components/ui/FilamentField';
 import { Product, Category, HomepageContent } from '../types';
 import { dbService } from '../lib/supabase';
 import { initialHomepageContent } from '../lib/initialData';
@@ -176,10 +177,10 @@ export const HomePage: React.FC = () => {
   return (
     <div className="space-y-16 sm:space-y-24 pb-20 overflow-hidden bg-white text-black">
       {/* ========================================================================= */}
-      {/* 1. HERO SECTION (Clean Cinematic Video Banner - Minimal High Fashion)     */}
+      {/* 1. HERO SECTION (Hero 24: Left-Aligned Over Glowing Filaments & Video)    */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[85vh] sm:min-h-[92vh] flex items-center justify-center overflow-hidden border-b border-neutral-200 bg-black">
-        {/* High-Definition Royalty-Free Video Background */}
+      <section className="relative min-h-[88vh] sm:min-h-[94vh] flex items-center overflow-hidden border-b border-neutral-200 bg-black">
+        {/* Layer 1: High-Definition Royalty-Free Video Background (Preserved) */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <video
             ref={videoRef}
@@ -193,26 +194,44 @@ export const HomePage: React.FC = () => {
           >
             <source src={content.hero.video_url || '/videos/aleez-signature.mp4'} type="video/mp4" />
           </video>
-
-          {/* Vignette Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/30 pointer-events-none" />
         </div>
 
-        {/* Hero Content - Clean Headline (No floating eyebrow badges) */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8 pt-10">
-          <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-wide text-white leading-[1.08] animate-slide-up drop-shadow-xl">
+        {/* Layer 2: Glowing Filaments Field (NeuroNoise WebGL Shader Overlay) */}
+        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none">
+          <FilamentField className="w-full h-full" speed={0.9} opacity={0.65} />
+        </div>
+
+        {/* Layer 3: Left-Weighted Cinematic Vignette Overlays for Maximum Legibility */}
+        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/95 via-black/80 to-black/45 pointer-events-none" />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/90 via-transparent to-black/40 pointer-events-none" />
+
+        {/* Hero 24 Foreground: Left-Aligned Content Container */}
+        <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-20 sm:py-28 flex flex-col items-start text-left space-y-6 sm:space-y-8">
+          {/* Hero 24 Pinging Status Chip */}
+          <div className="inline-flex items-center space-x-2.5 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-[11px] uppercase tracking-[0.2em] font-medium shadow-sm animate-fade-in">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+            </span>
+            <span>Haute Parfumerie &bull; 35% Pure Extrait</span>
+          </div>
+
+          {/* Left-Aligned Headline */}
+          <h1 className="font-serif text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight text-white leading-[1.05] max-w-3xl animate-slide-up drop-shadow-2xl">
             {content.hero.title_line1} <br />
-            <span className="italic font-light text-neutral-200">{content.hero.title_line2}</span>
+            <span className="italic font-light text-neutral-200 block pt-1">{content.hero.title_line2}</span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-neutral-300 font-light leading-relaxed tracking-wide animate-fade-in drop-shadow">
+          {/* Left-Aligned Subtitle */}
+          <p className="max-w-xl text-sm sm:text-base md:text-lg text-neutral-300 font-light leading-relaxed tracking-wide animate-fade-in drop-shadow">
             {content.hero.subtitle}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-fade-in">
+          {/* Left-Aligned CTAs */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2 w-full sm:w-auto animate-fade-in">
             <Link
               to={content.hero.primary_btn_link || '/shop'}
-              className="w-full sm:w-auto px-8 py-3.5 bg-white hover:bg-neutral-200 text-black text-xs uppercase tracking-[0.22em] font-semibold rounded-sm transition-all duration-300 flex items-center justify-center space-x-2 group"
+              className="px-8 py-3.5 bg-white hover:bg-neutral-200 text-black text-xs uppercase tracking-[0.22em] font-semibold rounded-sm transition-all duration-300 flex items-center justify-center space-x-2 group shadow-lg"
             >
               <span>{content.hero.primary_btn_text}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -220,11 +239,27 @@ export const HomePage: React.FC = () => {
 
             <Link
               to={content.hero.secondary_btn_link || '/create-your-fragrance'}
-              className="w-full sm:w-auto px-8 py-3.5 bg-transparent hover:bg-white text-white hover:text-black border border-white text-xs uppercase tracking-[0.22em] font-semibold rounded-sm transition-all duration-300 flex items-center justify-center space-x-2"
+              className="px-8 py-3.5 bg-black/40 hover:bg-white text-white hover:text-black border border-white/40 hover:border-white backdrop-blur-sm text-xs uppercase tracking-[0.22em] font-semibold rounded-sm transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg"
             >
               <span>{content.hero.secondary_btn_text}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
+          </div>
+
+          {/* Hero 24 Feature / Trust Row */}
+          <div className="pt-8 sm:pt-10 border-t border-white/15 w-full max-w-2xl grid grid-cols-2 sm:grid-cols-3 gap-4 text-neutral-300 text-xs font-light tracking-wider animate-fade-in">
+            <div className="flex items-center space-x-2">
+              <Sparkles className="w-3.5 h-3.5 text-white flex-shrink-0" />
+              <span className="text-[11px] uppercase tracking-wider text-neutral-200">100% Pure Oils</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Award className="w-3.5 h-3.5 text-white flex-shrink-0" />
+              <span className="text-[11px] uppercase tracking-wider text-neutral-200">Extrait Strength</span>
+            </div>
+            <div className="flex items-center space-x-2 col-span-2 sm:col-span-1">
+              <Truck className="w-3.5 h-3.5 text-white flex-shrink-0" />
+              <span className="text-[11px] uppercase tracking-wider text-neutral-200">Express Delivery</span>
+            </div>
           </div>
         </div>
 
@@ -251,14 +286,6 @@ export const HomePage: React.FC = () => {
             Aleez Studio
           </span>
           <span className="w-1.5 h-1.5 rounded-full bg-white" />
-        </div>
-
-        {/* Bottom subtle scroll indicator */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 hidden sm:flex flex-col items-center space-y-2 opacity-70 text-white">
-          <span className="text-[9px] uppercase tracking-[0.3em] text-neutral-300">Scroll to explore</span>
-          <div className="w-4 h-7 rounded-sm border border-neutral-400 flex items-start justify-center p-1">
-            <div className="w-1 h-1.5 bg-white rounded-sm animate-bounce" />
-          </div>
         </div>
       </section>
 
