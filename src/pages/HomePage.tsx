@@ -20,6 +20,7 @@ import {
 import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
 import { SkewedCarousel } from '../components/ui/SkewedCarousel';
+import { FilamentField } from '../components/ui/FilamentField';
 import { Product, Category, HomepageContent } from '../types';
 import { dbService } from '../lib/supabase';
 import { initialHomepageContent } from '../lib/initialData';
@@ -204,10 +205,15 @@ export const HomePage: React.FC = () => {
           </video>
         </div>
 
-        {/* Soft Left Vignette Overlay - Keeps Title Legible While Perfume Bottle & Red Roses Remain Vivid & Crystal Clear */}
-        <div className="absolute inset-0 z-[1] bg-gradient-to-r from-black/85 via-black/35 to-transparent pointer-events-none" />
-        <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/65 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-64 h-32 bg-gradient-to-tl from-black/80 to-transparent pointer-events-none z-[1]" />
+        {/* Layer 2: Glowing Filaments Field (React Bits Pro Hero 24 WebGL Shader Overlay) */}
+        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none opacity-45 mix-blend-screen">
+          <FilamentField className="w-full h-full" speed={0.85} opacity={0.6} />
+        </div>
+
+        {/* Layer 3: Soft Left Vignette Overlay - Keeps Title Legible While Perfume Bottle & Red Roses Remain Vivid & Crystal Clear */}
+        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/85 via-black/35 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/65 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-64 h-32 bg-gradient-to-tl from-black/80 to-transparent pointer-events-none z-[2]" />
 
         {/* Hero Foreground: Left-Aligned Content Container */}
         <div className="relative z-10 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-20 sm:py-28 flex flex-col items-start text-left space-y-6 sm:space-y-8">
@@ -220,11 +226,11 @@ export const HomePage: React.FC = () => {
             <span>{content.hero.badge || 'Haute Parfumerie • 35% Pure Extrait'}</span>
           </div>
 
-          {/* Left-Aligned Headline - Shopify Template Normal Sans Text */}
-          <h1 className="font-sans text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white leading-[1.05] max-w-4xl animate-slide-up drop-shadow-lg">
+          {/* Left-Aligned Headline - Haute Parfumerie Luxury Serif */}
+          <h1 className="font-serif text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-normal tracking-tight sm:tracking-normal text-white leading-[1.05] max-w-4xl animate-slide-up drop-shadow-2xl">
             {content.hero.title_line1 || 'Aleez Perfumes'}
             {content.hero.title_line2 ? (
-              <span className="font-light text-neutral-200 block pt-1">{content.hero.title_line2}</span>
+              <span className="italic font-light text-neutral-200 block pt-1 text-4xl sm:text-6xl md:text-7xl">{content.hero.title_line2}</span>
             ) : null}
           </h1>
 
