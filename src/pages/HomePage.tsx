@@ -23,7 +23,7 @@ import { SkewedCarousel } from '../components/ui/SkewedCarousel';
 import { FilamentField } from '../components/ui/FilamentField';
 import { Product, Category, HomepageContent } from '../types';
 import { dbService } from '../lib/supabase';
-import { initialHomepageContent } from '../lib/initialData';
+import { initialHomepageContent, initialProducts, initialCategories } from '../lib/initialData';
 import { useSettings } from '../context/SettingsContext';
 import { useCart } from '../context/CartContext';
 
@@ -38,10 +38,32 @@ const pillarIcons: Record<string, React.FC<{ className?: string }>> = {
 
 export const HomePage: React.FC = () => {
   const [content, setContent] = useState<HomepageContent>(initialHomepageContent);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>(() => {
+    try {
+      const cached = localStorage.getItem('aleez_products');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter((p: Product) => p.is_active);
+        }
+      }
+    } catch (e) {}
+    return initialProducts.filter((p: Product) => p.is_active);
+  });
+  const [categories, setCategories] = useState<Category[]>(() => {
+    try {
+      const cached = localStorage.getItem('aleez_categories');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter((c: Category) => c.is_active);
+        }
+      }
+    } catch (e) {}
+    return initialCategories.filter((c: Category) => c.is_active);
+  });
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [selectedSpotlightSize, setSelectedSpotlightSize] = useState<'50ml' | '100ml'>('50ml');
@@ -84,15 +106,19 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [prodData, catData, homeData] = await Promise.all([
+        const [prodData, catData, homeData] = await Promise.allSettled([
           dbService.getProducts(),
           dbService.getCategories(),
           dbService.getHomepageContent(),
         ]);
-        setProducts(prodData.filter((p) => p.is_active));
-        setCategories(catData.filter((c) => c.is_active));
-        if (homeData) {
-          setContent(homeData);
+        if (prodData.status === 'fulfilled') {
+          setProducts(prodData.value.filter((p) => p.is_active));
+        }
+        if (catData.status === 'fulfilled') {
+          setCategories(catData.value.filter((c) => c.is_active));
+        }
+        if (homeData.status === 'fulfilled' && homeData.value) {
+          setContent(homeData.value);
         }
       } catch (err) {
         console.warn('Error loading home data:', err);
@@ -103,16 +129,16 @@ export const HomePage: React.FC = () => {
     fetchData();
   }, []);
 
-  // Spotlight product: selected product by ID, or Velvet Oud Noir, or first bestseller
+  // Spotlight product: selected product by ID, or az-bleu, or first bestseller
   const spotlightProduct =
     (content.spotlight?.product_id ? products.find((p) => p.id === content.spotlight.product_id) : null) ||
-    products.find((p) => p.slug === 'velvet-oud-noir') ||
+    products.find((p) => p.slug === 'az-bleu') ||
     products.find((p) => p.is_bestseller) ||
     products[0];
 
   // Dynamic overrides for spotlight
-  const spotlightName = content.spotlight?.custom_name || spotlightProduct?.name || 'Velvet Oud Noir';
-  const spotlightCategory = content.spotlight?.custom_category || spotlightProduct?.category_name || 'Pure Extrait Collection';
+  const spotlightName = content.spotlight?.custom_name || spotlightProduct?.name || 'AZ BLEU';
+  const spotlightCategory = content.spotlight?.custom_category || spotlightProduct?.category_name || 'Eau de Parfum';
   const spotlightInspiredBy = content.spotlight?.custom_inspired_by !== undefined
     ? content.spotlight.custom_inspired_by
     : (spotlightProduct?.inspired_by || '');

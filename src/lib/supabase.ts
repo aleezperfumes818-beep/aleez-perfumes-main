@@ -54,8 +54,8 @@ const saveToStorage = <T>(key: string, data: T): void => {
   }
 };
 
-// Safe timeout wrapper for external database queries
-const withTimeout = <T>(promise: PromiseLike<T>, timeoutMs = 3500): Promise<T> => {
+// Safe timeout wrapper for external database queries (8s default to gracefully accommodate cold starts)
+const withTimeout = <T>(promise: PromiseLike<T>, timeoutMs = 8000): Promise<T> => {
   return Promise.race([
     Promise.resolve(promise),
     new Promise<T>((_, reject) =>
@@ -137,7 +137,7 @@ export const dbService = {
         );
 
         if (!error && data && data.length > 0) {
-          return data.map((p) => {
+          const mapped = data.map((p) => {
             const parsed = parseSizeMetadata(p.description);
             const p50 = parsed.price_50ml ?? (p.price_50ml !== undefined && p.price_50ml !== null ? Number(p.price_50ml) : Number(p.price));
             const sp50 = parsed.sale_price_50ml !== undefined ? parsed.sale_price_50ml : (p.sale_price_50ml !== undefined && p.sale_price_50ml !== null ? Number(p.sale_price_50ml) : (p.sale_price ? Number(p.sale_price) : null));
@@ -155,6 +155,8 @@ export const dbService = {
               images: p.product_images || [],
             };
           });
+          saveToStorage(STORAGE_KEYS.PRODUCTS, mapped);
+          return mapped;
         }
       } catch (err) {
         console.warn('Supabase fetch products failed, falling back to local store', err);
@@ -362,6 +364,7 @@ export const dbService = {
         );
 
         if (!error && data && data.length > 0) {
+          saveToStorage(STORAGE_KEYS.CATEGORIES, data);
           return data;
         }
       } catch (err) {

@@ -5,13 +5,36 @@ import { ProductCard, inspiredByMap } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
 import { Product, Category } from '../types';
 import { dbService } from '../lib/supabase';
+import { initialProducts, initialCategories } from '../lib/initialData';
 import { useSettings } from '../context/SettingsContext';
 
 export const ShopPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>(() => {
+    try {
+      const cached = localStorage.getItem('aleez_products');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter((p: Product) => p.is_active);
+        }
+      }
+    } catch (e) {}
+    return initialProducts.filter((p) => p.is_active);
+  });
+  const [categories, setCategories] = useState<Category[]>(() => {
+    try {
+      const cached = localStorage.getItem('aleez_categories');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.filter((c: Category) => c.is_active);
+        }
+      }
+    } catch (e) {}
+    return initialCategories.filter((c) => c.is_active);
+  });
+  const [loading, setLoading] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
@@ -25,14 +48,17 @@ export const ShopPage: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
       try {
-        const [prodList, catList] = await Promise.all([
+        const [prodList, catList] = await Promise.allSettled([
           dbService.getProducts(),
           dbService.getCategories(),
         ]);
-        setProducts(prodList.filter((p) => p.is_active));
-        setCategories(catList.filter((c) => c.is_active));
+        if (prodList.status === 'fulfilled') {
+          setProducts(prodList.value.filter((p) => p.is_active));
+        }
+        if (catList.status === 'fulfilled') {
+          setCategories(catList.value.filter((c) => c.is_active));
+        }
       } catch (err) {
         console.error('Error fetching shop data:', err);
       } finally {
