@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tag, Check, X, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
-import { AVAILABLE_COUPONS } from '../lib/couponService';
+import { getCoupons } from '../lib/couponService';
 
 interface CouponInputProps {
   className?: string;
@@ -142,7 +142,7 @@ export const CouponInput: React.FC<CouponInputProps> = ({
 
           {showOffers && (
             <div className="mt-2 space-y-2 border border-neutral-200 bg-neutral-50/70 p-3 rounded-sm animate-fade-in">
-              {AVAILABLE_COUPONS.map((coupon) => {
+              {getCoupons().filter((c) => c.is_active !== false).map((coupon) => {
                 const isEligible = !coupon.min_order_amount || subtotal >= coupon.min_order_amount;
                 return (
                   <div

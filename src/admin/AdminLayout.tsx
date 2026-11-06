@@ -14,6 +14,7 @@ import {
   X,
   Lock,
   Sparkles,
+  Tag,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Logo } from '../components/Logo';
@@ -43,6 +44,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     { name: 'Products', path: '/admin/products', icon: Package },
     { name: 'Categories', path: '/admin/categories', icon: FolderTree },
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
+    { name: 'Coupons & Promos', path: '/admin/coupons', icon: Tag },
     { name: 'Homepage Editor', path: '/admin/homepage', icon: Sparkles },
     { name: 'Admins & Staff', path: '/admin/team', icon: Users },
     { name: 'Store Settings', path: '/admin/settings', icon: Settings },

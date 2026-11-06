@@ -44,6 +44,7 @@ import { AdminDashboard } from './admin/AdminDashboard';
 import { AdminProducts } from './admin/AdminProducts';
 import { AdminCategories } from './admin/AdminCategories';
 import { AdminOrders } from './admin/AdminOrders';
+import { AdminCoupons } from './admin/AdminCoupons';
 import { AdminTeam } from './admin/AdminTeam';
 import { AdminSettings } from './admin/AdminSettings';
 import { AdminHomepage } from './admin/AdminHomepage';
@@ -82,6 +83,7 @@ const MainContent: React.FC = () => {
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/categories" element={<AdminCategories />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/coupons" element={<AdminCoupons />} />
             <Route path="/admin/homepage" element={<AdminHomepage />} />
             <Route path="/admin/team" element={<AdminTeam />} />
             <Route path="/admin/settings" element={<AdminSettings />} />

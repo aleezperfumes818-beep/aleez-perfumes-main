@@ -78,11 +78,15 @@ export interface OrderItem {
 }
 
 export interface Coupon {
+  id?: string;
   code: string;
   discount_type: 'percentage' | 'fixed' | 'free_shipping';
   discount_value: number; // e.g. 10 for 10%, 200 for ₹200
   min_order_amount?: number;
   description: string;
+  is_active?: boolean;
+  usage_count?: number;
+  created_at?: string;
 }
 
 export interface Order {
