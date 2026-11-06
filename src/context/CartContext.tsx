@@ -91,7 +91,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return (
         product.sale_price_100ml ??
         product.price_100ml ??
-        Math.round((product.sale_price ?? product.price) * 1.5)
+        Math.round((product.sale_price ?? product.price) * 1.6)
       );
     }
   };
@@ -212,12 +212,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return sum + itemPrice * item.quantity;
   }, 0);
 
-  // Auto-remove coupon if subtotal falls below minimum requirement
+  // Auto-remove coupon if subtotal falls below minimum requirement or cart is emptied
   useEffect(() => {
-    if (appliedCoupon && appliedCoupon.min_order_amount && subtotal > 0 && subtotal < appliedCoupon.min_order_amount) {
-      setAppliedCoupon(null);
+    if (appliedCoupon) {
+      if (cart.length === 0 || subtotal === 0) {
+        setAppliedCoupon(null);
+      } else if (appliedCoupon.min_order_amount && subtotal < appliedCoupon.min_order_amount) {
+        setAppliedCoupon(null);
+      }
     }
-  }, [subtotal, appliedCoupon]);
+  }, [subtotal, cart.length, appliedCoupon]);
 
   const discountAmount = appliedCoupon
     ? appliedCoupon.discount_type === 'percentage'

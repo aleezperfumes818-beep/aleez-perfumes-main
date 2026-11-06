@@ -78,7 +78,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
       role="dialog"
       aria-modal="true"
       aria-label={`Quick view of ${product.name}`}
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black"
+      className="fixed inset-0 z-[70] overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black"
       onClick={onClose}
     >
       <div

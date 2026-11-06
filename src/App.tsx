@@ -137,6 +137,7 @@ const MainContent: React.FC = () => {
               <Route path="/data-deletion" element={<DataDeletionPage />} />
               <Route path="/unsubscribe" element={<UnsubscribePage />} />
               <Route path="/licenses" element={<LicensesPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
 

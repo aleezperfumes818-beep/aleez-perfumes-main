@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Sparkles, Check, ShoppingBag, Droplets, Clock, ShieldCheck, Award, MessageCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
-import { useNavigate } from 'react-router-dom';
 import { sanitizeText } from '../lib/sanitize';
 
 // Note definitions
@@ -60,7 +59,6 @@ const BOTTLE_STYLES = [
 export const CreateFragrancePage: React.FC = () => {
   const { addToCart, setIsCartOpen } = useCart();
   const { formatPrice } = useSettings();
-  const navigate = useNavigate();
 
   // Builder States
   const [selectedBottle, setSelectedBottle] = useState(BOTTLE_STYLES[0]);

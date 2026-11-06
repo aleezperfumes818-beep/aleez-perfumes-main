@@ -443,6 +443,14 @@ export const AdminOrders: React.FC = () => {
                     {selectedOrder.shipping_charge === 0 ? 'Free' : formatPrice(selectedOrder.shipping_charge)}
                   </span>
                 </div>
+                {Boolean(selectedOrder.discount_amount && selectedOrder.discount_amount > 0) && (
+                  <div className="flex justify-between text-emerald-600 font-medium">
+                    <span>
+                      Coupon Discount {selectedOrder.coupon_code ? `(${selectedOrder.coupon_code})` : ''}
+                    </span>
+                    <span className="font-mono">-{formatPrice(selectedOrder.discount_amount || 0)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm font-semibold text-luxury-dark pt-2 border-t border-luxury-border">
                   <span>Total Amount Paid</span>
                   <span className="font-mono text-luxury-gold font-bold text-base">

@@ -91,7 +91,7 @@ export const SearchOverlay: React.FC<SearchOverlayProps> = ({ isOpen, onClose })
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-white/98 backdrop-blur-xl flex flex-col animate-fade-in text-black">
+    <div className="fixed inset-0 z-[70] bg-white/98 backdrop-blur-xl flex flex-col animate-fade-in text-black">
       {/* Top Search Header */}
       <div className="max-w-4xl w-full mx-auto px-4 pt-6 pb-4 flex items-center justify-between border-b border-neutral-200">
         <div className="flex-1 flex items-center space-x-3">

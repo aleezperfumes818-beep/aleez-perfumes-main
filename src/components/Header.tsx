@@ -281,7 +281,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
         <div
           role="dialog"
           aria-modal="true"
-          className="lg:hidden fixed inset-0 z-50 bg-white w-screen h-[100dvh] flex flex-col justify-between p-6 overflow-y-auto animate-fade-in"
+          className="lg:hidden fixed inset-0 z-[70] bg-white w-full h-[100dvh] flex flex-col justify-between p-6 overflow-y-auto animate-fade-in"
         >
           <div className="space-y-6 pt-2">
             <div className="flex justify-between items-center border-b border-neutral-200 pb-4">

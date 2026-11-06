@@ -167,7 +167,7 @@ app.get('/api/health', (req, res) => {
 // --- 2. CREATE RAZORPAY ORDER (SECURE SERVER-SIDE PRICING & STOCK CHECK) ---
 app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
   try {
-    const { items, customer, shippingAddress } = req.body;
+    const { items, customer, shippingAddress, couponCode, discountAmount } = req.body;
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'Cart is empty or invalid.' });
@@ -196,6 +196,28 @@ app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
     const validatedItems = [];
 
     for (const item of items) {
+      // Support for Bespoke Custom Fragrances created on demand
+      const isCustomFragrance =
+        typeof item.productId === 'string' &&
+        (item.productId.startsWith('custom-scent-') || item.productId.startsWith('custom-'));
+
+      if (isCustomFragrance) {
+        const is100ml = item.selected_size === '100ml' || item.size === '100ml' || item.volume_ml === 100;
+        const customPrice = is100ml ? 3499 : 2499;
+        const requestedQty = Math.max(1, parseInt(item.quantity, 10) || 1);
+        const itemTotal = customPrice * requestedQty;
+        validatedSubtotal += itemTotal;
+        validatedItems.push({
+          product_id: item.productId,
+          product_name: item.name || `Bespoke Custom Eau de Parfum (${is100ml ? '100ML' : '50ML'})`,
+          unit_price: customPrice,
+          quantity: requestedQty,
+          total_price: itemTotal,
+          product_image: item.image || '',
+        });
+        continue;
+      }
+
       let product = null;
 
       if (supabase) {
@@ -290,9 +312,32 @@ app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
       });
     }
 
+    // Coupon and Discount Validation
+    let validatedDiscount = 0;
+    const cleanCouponCode =
+      typeof couponCode === 'string' && couponCode.trim()
+        ? sanitizeText(couponCode.trim().toUpperCase(), 30)
+        : null;
+
+    if (cleanCouponCode) {
+      const claimedDiscount = Math.max(0, parseInt(discountAmount, 10) || 0);
+      if (cleanCouponCode === 'ALEEZ10') {
+        validatedDiscount = Math.round((validatedSubtotal * 10) / 100);
+      } else if (cleanCouponCode === 'ROYAL20') {
+        validatedDiscount = Math.round((validatedSubtotal * 20) / 100);
+      } else if (cleanCouponCode === 'WELCOME500') {
+        validatedDiscount = validatedSubtotal >= 2000 ? 500 : 0;
+      } else if (cleanCouponCode === 'FIRSTORDER') {
+        validatedDiscount = Math.round((validatedSubtotal * 15) / 100);
+      } else if (claimedDiscount > 0 && claimedDiscount < validatedSubtotal) {
+        validatedDiscount = Math.min(claimedDiscount, Math.round(validatedSubtotal * 0.5));
+      }
+    }
+
     // Free shipping threshold is ₹999, otherwise ₹99 standard shipping
-    const shippingCharge = validatedSubtotal >= 999 ? 0 : 99;
-    const finalTotal = validatedSubtotal + shippingCharge;
+    const isFreeShipping = cleanCouponCode === 'FREESHIP' || validatedSubtotal >= 999;
+    const shippingCharge = isFreeShipping ? 0 : 99;
+    const finalTotal = Math.max(0, validatedSubtotal - validatedDiscount) + shippingCharge;
     const orderNumber = `ALZ-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
     let razorpayOrderId = `order_mock_${Date.now()}`;
@@ -306,6 +351,8 @@ app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
           customer_name: cleanCustomer.name,
           customer_email: cleanCustomer.email,
           customer_phone: cleanCustomer.phone,
+          coupon_code: cleanCouponCode || '',
+          discount_amount: validatedDiscount.toString(),
         },
       });
       razorpayOrderId = razorpayOrder.id;
@@ -323,6 +370,8 @@ app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
       shipping_pincode: cleanShipping.pincode,
       subtotal: validatedSubtotal,
       shipping_charge: shippingCharge,
+      discount_amount: validatedDiscount,
+      coupon_code: cleanCouponCode || null,
       total_amount: finalTotal,
       payment_method: 'razorpay',
       payment_status: 'pending',

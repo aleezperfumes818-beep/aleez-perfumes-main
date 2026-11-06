@@ -167,6 +167,8 @@ export const CheckoutPage: React.FC = () => {
               state: cleanState,
               pincode: cleanPincode,
             },
+            couponCode: appliedCoupon?.code || '',
+            discountAmount: discountAmount || 0,
           }),
         });
 

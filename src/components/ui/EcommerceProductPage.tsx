@@ -128,7 +128,7 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
           <>
             <ChevronRight className="w-3.5 h-3.5 text-neutral-400" />
             <Link
-              to={`/shop?category=${product.category_id}`}
+              to={`/shop?category=${encodeURIComponent(product.category_name || product.category_id || '')}`}
               className="hover:text-black transition-colors"
             >
               {product.category_name}

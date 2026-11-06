@@ -85,10 +85,35 @@ export const ShopPage: React.FC = () => {
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
-      if (currentCategory !== 'all') {
-        const cat = categories.find((c) => c.slug === currentCategory);
-        if (cat && p.category_id !== cat.id && p.category_name?.toLowerCase() !== cat.name.toLowerCase()) {
-          return false;
+      if (currentCategory && currentCategory !== 'all') {
+        const cat = categories.find(
+          (c) =>
+            c.slug.toLowerCase() === currentCategory.toLowerCase() ||
+            c.id.toLowerCase() === currentCategory.toLowerCase() ||
+            c.name.toLowerCase() === currentCategory.toLowerCase()
+        );
+
+        if (cat) {
+          const matchCatId = p.category_id === cat.id;
+          const matchCatName = p.category_name && p.category_name.toLowerCase() === cat.name.toLowerCase();
+          const matchFamily =
+            p.fragrance_family &&
+            (p.fragrance_family.toLowerCase().includes(cat.slug.toLowerCase().replace(/-/g, ' ')) ||
+              p.fragrance_family.toLowerCase().includes(cat.name.toLowerCase()) ||
+              cat.name.toLowerCase().includes(p.fragrance_family.toLowerCase()));
+
+          if (!matchCatId && !matchCatName && !matchFamily) {
+            return false;
+          }
+        } else {
+          const matches =
+            p.category_id === currentCategory ||
+            (p.category_name && p.category_name.toLowerCase() === currentCategory.toLowerCase()) ||
+            (p.fragrance_family &&
+              p.fragrance_family.toLowerCase().includes(currentCategory.toLowerCase().replace(/-/g, ' ')));
+          if (!matches) {
+            return false;
+          }
         }
       }
 
@@ -244,20 +269,26 @@ export const ShopPage: React.FC = () => {
                 <span>All Categories</span>
                 {currentCategory === 'all' && <Check className="w-3.5 h-3.5 text-white" />}
               </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => updateParam('category', cat.slug)}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                    currentCategory === cat.slug
-                      ? 'bg-black text-white font-semibold'
-                      : 'text-neutral-700 hover:text-black hover:bg-neutral-100'
-                  }`}
-                >
-                  <span>{cat.name}</span>
-                  {currentCategory === cat.slug && <Check className="w-3.5 h-3.5 text-white" />}
-                </button>
-              ))}
+              {categories.map((cat) => {
+                const isSelected =
+                  currentCategory.toLowerCase() === cat.slug.toLowerCase() ||
+                  currentCategory.toLowerCase() === cat.id.toLowerCase() ||
+                  currentCategory.toLowerCase() === cat.name.toLowerCase();
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => updateParam('category', cat.slug)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center justify-between ${
+                      isSelected
+                        ? 'bg-black text-white font-semibold'
+                        : 'text-neutral-700 hover:text-black hover:bg-neutral-100'
+                    }`}
+                  >
+                    <span>{cat.name}</span>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -376,19 +407,25 @@ export const ShopPage: React.FC = () => {
                     >
                       All Categories
                     </button>
-                    {categories.map((cat) => (
-                      <button
-                        key={cat.id}
-                        onClick={() => updateParam('category', cat.slug)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-xs ${
-                          currentCategory === cat.slug
-                            ? 'bg-black text-white font-semibold'
-                            : 'text-neutral-700 hover:bg-neutral-100'
-                        }`}
-                      >
-                        {cat.name}
-                      </button>
-                    ))}
+                    {categories.map((cat) => {
+                      const isSelected =
+                        currentCategory.toLowerCase() === cat.slug.toLowerCase() ||
+                        currentCategory.toLowerCase() === cat.id.toLowerCase() ||
+                        currentCategory.toLowerCase() === cat.name.toLowerCase();
+                      return (
+                        <button
+                          key={cat.id}
+                          onClick={() => updateParam('category', cat.slug)}
+                          className={`w-full text-left px-3 py-2 rounded-lg text-xs ${
+                            isSelected
+                              ? 'bg-black text-white font-semibold'
+                              : 'text-neutral-700 hover:bg-neutral-100'
+                          }`}
+                        >
+                          {cat.name}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
