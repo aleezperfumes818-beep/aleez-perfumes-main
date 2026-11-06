@@ -15,6 +15,7 @@ import { useSettings } from '../context/SettingsContext';
 import { dbService } from '../lib/supabase';
 import { Order, OrderItem } from '../types';
 import { sanitizeName, sanitizeEmail, sanitizePhone, sanitizeMultiline, sanitizeText, sanitizePincode } from '../lib/sanitize';
+import { CouponInput } from '../components/CouponInput';
 
 const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
@@ -40,7 +41,7 @@ const loadRazorpayScript = (): Promise<boolean> => {
 };
 
 export const CheckoutPage: React.FC = () => {
-  const { cart, subtotal, shippingCharge, total, clearCart } = useCart();
+  const { cart, subtotal, shippingCharge, total, clearCart, appliedCoupon, discountAmount } = useCart();
   const { user } = useAuth();
   const { settings, formatPrice } = useSettings();
   const navigate = useNavigate();
@@ -279,6 +280,8 @@ export const CheckoutPage: React.FC = () => {
               shipping_pincode: cleanPincode,
               subtotal,
               shipping_charge: shippingCharge,
+              discount_amount: discountAmount,
+              coupon_code: appliedCoupon?.code,
               total_amount: total,
               payment_method: 'razorpay',
               payment_status: 'paid',
@@ -286,7 +289,9 @@ export const CheckoutPage: React.FC = () => {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id || `pay_${Date.now()}`,
               razorpay_signature: response.razorpay_signature || 'verified_sig',
-              notes: formData.notes,
+              notes: appliedCoupon
+                ? `${formData.notes ? `${formData.notes} | ` : ''}Coupon: ${appliedCoupon.code} (-₹${discountAmount})`
+                : formData.notes,
               items: orderItems,
               created_at: new Date().toISOString(),
             };
@@ -615,17 +620,33 @@ export const CheckoutPage: React.FC = () => {
               })}
             </div>
 
+            {/* Promo / Coupon Code Entry */}
+            <div className="pt-4 border-t border-neutral-200">
+              <span className="block text-xs uppercase tracking-wider text-neutral-700 font-semibold mb-2">
+                Have a Promo Code?
+              </span>
+              <CouponInput />
+            </div>
+
             {/* Calculation Breakdown with Zero Hidden Fees Notice */}
-            <div className="space-y-2 text-xs text-neutral-600 font-light pt-2">
+            <div className="space-y-2 text-xs text-neutral-600 font-light pt-2 border-t border-neutral-200">
               <div className="flex justify-between">
                 <span>Subtotal (All Taxes Included)</span>
                 <span className="font-mono text-black font-medium">{formatPrice(subtotal)}</span>
               </div>
+              {appliedCoupon && discountAmount > 0 && (
+                <div className="flex justify-between text-emerald-700 font-medium animate-fade-in">
+                  <span>Promo Discount ({appliedCoupon.code})</span>
+                  <span className="font-mono">-{formatPrice(discountAmount)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span>Express Luxury Shipping</span>
                 <span className="font-mono text-black font-medium">
                   {shippingCharge === 0 ? (
-                    <span className="text-black uppercase tracking-wider text-[11px] font-semibold">Free</span>
+                    <span className="text-black uppercase tracking-wider text-[11px] font-semibold">
+                      {appliedCoupon?.discount_type === 'free_shipping' ? 'Free (Coupon)' : 'Free'}
+                    </span>
                   ) : (
                     formatPrice(shippingCharge)
                   )}

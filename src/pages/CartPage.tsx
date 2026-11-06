@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Trash2, Plus, Minus, ArrowRight, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
+import { CouponInput } from '../components/CouponInput';
 
 export const CartPage: React.FC = () => {
   const {
@@ -10,6 +11,8 @@ export const CartPage: React.FC = () => {
     subtotal,
     shippingCharge,
     total,
+    appliedCoupon,
+    discountAmount,
     updateQuantity,
     removeFromCart,
     freeShippingThreshold,
@@ -173,11 +176,19 @@ export const CartPage: React.FC = () => {
                   <span>Subtotal</span>
                   <span className="font-mono text-black font-medium">{formatPrice(subtotal)}</span>
                 </div>
+                {appliedCoupon && discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-700 font-medium animate-fade-in">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span className="font-mono">-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Express Shipping</span>
                   <span className="font-mono text-black font-medium">
                     {shippingCharge === 0 ? (
-                      <span className="text-black uppercase tracking-wider text-[11px] font-semibold">Free</span>
+                      <span className="text-black uppercase tracking-wider text-[11px] font-semibold">
+                        {appliedCoupon?.discount_type === 'free_shipping' ? 'Free (Coupon)' : 'Free'}
+                      </span>
                     ) : (
                       formatPrice(shippingCharge)
                     )}
@@ -193,6 +204,14 @@ export const CartPage: React.FC = () => {
                     {formatPrice(total)}
                   </span>
                 </div>
+              </div>
+
+              {/* Coupon Code Entry */}
+              <div className="pt-3 border-t border-neutral-200">
+                <span className="block text-xs uppercase tracking-wider text-neutral-700 font-semibold mb-2">
+                  Promo / Coupon Code
+                </span>
+                <CouponInput />
               </div>
 
               <button

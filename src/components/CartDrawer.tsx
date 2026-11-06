@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight, ShieldCheck, Truck } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
+import { CouponInput } from './CouponInput';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -14,6 +15,8 @@ export const CartDrawer: React.FC = () => {
     subtotal,
     shippingCharge,
     total,
+    appliedCoupon,
+    discountAmount,
     freeShippingThreshold,
     progressToFreeShipping,
   } = useCart();
@@ -236,17 +239,30 @@ export const CartDrawer: React.FC = () => {
 
           {/* Drawer Footer & Checkout Action */}
           {cart.length > 0 && (
-            <div className="p-5 bg-neutral-50 border-t border-neutral-200 space-y-4">
-              <div className="space-y-2 text-xs text-neutral-600 font-light">
+            <div className="p-5 bg-neutral-50 border-t border-neutral-200 space-y-3.5">
+              {/* Compact Coupon Input in Drawer */}
+              <div className="pb-1">
+                <CouponInput showOffersList={false} />
+              </div>
+
+              <div className="space-y-2 text-xs text-neutral-600 font-light border-t border-neutral-200 pt-3">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span className="text-black font-mono font-medium">{formatPrice(subtotal)}</span>
                 </div>
+                {appliedCoupon && discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-700 font-medium animate-fade-in">
+                    <span>Discount ({appliedCoupon.code})</span>
+                    <span className="font-mono">-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span>Luxury Shipping</span>
                   <span className="text-black font-mono font-medium">
                     {shippingCharge === 0 ? (
-                      <span className="text-black uppercase tracking-wider text-[11px] font-semibold">Free</span>
+                      <span className="text-black uppercase tracking-wider text-[11px] font-semibold">
+                        {appliedCoupon?.discount_type === 'free_shipping' ? 'Free (Coupon)' : 'Free'}
+                      </span>
                     ) : (
                       formatPrice(shippingCharge)
                     )}

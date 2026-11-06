@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CartItem, Product } from '../types';
+import { CartItem, Product, Coupon } from '../types';
+import { validateCoupon } from '../lib/couponService';
 
 interface CartContextType {
   cart: CartItem[];
@@ -20,11 +21,16 @@ interface CartContextType {
   setIsCartOpen: (open: boolean) => void;
   freeShippingThreshold: number;
   progressToFreeShipping: number;
+  appliedCoupon: Coupon | null;
+  discountAmount: number;
+  applyCoupon: (code: string) => { success: boolean; message: string };
+  removeCoupon: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = 'aleez_perfumes_cart';
+const COUPON_STORAGE_KEY = 'aleez_perfumes_coupon';
 const FREE_SHIPPING_THRESHOLD = 999;
 const STANDARD_SHIPPING_FEE = 99;
 
@@ -38,6 +44,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
 
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(() => {
+    try {
+      const saved = localStorage.getItem(COUPON_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -47,6 +62,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Error saving cart to storage:', e);
     }
   }, [cart]);
+
+  useEffect(() => {
+    try {
+      if (appliedCoupon) {
+        localStorage.setItem(COUPON_STORAGE_KEY, JSON.stringify(appliedCoupon));
+      } else {
+        localStorage.removeItem(COUPON_STORAGE_KEY);
+      }
+    } catch (e) {
+      console.error('Error saving coupon to storage:', e);
+    }
+  }, [appliedCoupon]);
 
   const getItemEffectivePrice = (product: Product, size?: '50ml' | '100ml', customPrice?: number): number => {
     if (customPrice !== undefined && customPrice !== null && !isNaN(customPrice)) {
@@ -177,6 +204,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     setCart([]);
+    setAppliedCoupon(null);
   };
 
   const subtotal = cart.reduce((sum, item) => {
@@ -184,14 +212,50 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return sum + itemPrice * item.quantity;
   }, 0);
 
-  const shippingCharge = subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0 ? 0 : STANDARD_SHIPPING_FEE;
-  const total = subtotal + shippingCharge;
+  // Auto-remove coupon if subtotal falls below minimum requirement
+  useEffect(() => {
+    if (appliedCoupon && appliedCoupon.min_order_amount && subtotal > 0 && subtotal < appliedCoupon.min_order_amount) {
+      setAppliedCoupon(null);
+    }
+  }, [subtotal, appliedCoupon]);
+
+  const discountAmount = appliedCoupon
+    ? appliedCoupon.discount_type === 'percentage'
+      ? Math.round((subtotal * appliedCoupon.discount_value) / 100)
+      : appliedCoupon.discount_type === 'fixed'
+      ? Math.min(subtotal, appliedCoupon.discount_value)
+      : 0
+    : 0;
+
+  const isFreeShippingCoupon = appliedCoupon?.discount_type === 'free_shipping';
+  const shippingCharge =
+    isFreeShippingCoupon || subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0
+      ? 0
+      : STANDARD_SHIPPING_FEE;
+
+  const total = Math.max(0, subtotal - discountAmount + shippingCharge);
   const itemCount = cart.reduce((count, item) => count + item.quantity, 0);
 
   const progressToFreeShipping = Math.min(
     100,
     Math.round((subtotal / FREE_SHIPPING_THRESHOLD) * 100)
   );
+
+  const applyCoupon = (rawCode: string): { success: boolean; message: string } => {
+    const res = validateCoupon(rawCode, subtotal);
+    if (!res.valid || !res.coupon) {
+      return { success: false, message: res.error || 'Invalid coupon code.' };
+    }
+    setAppliedCoupon(res.coupon);
+    return {
+      success: true,
+      message: `Coupon "${res.coupon.code}" applied! ${res.coupon.description}`,
+    };
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+  };
 
   return (
     <CartContext.Provider
@@ -209,6 +273,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsCartOpen,
         freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
         progressToFreeShipping,
+        appliedCoupon,
+        discountAmount,
+        applyCoupon,
+        removeCoupon,
       }}
     >
       {children}

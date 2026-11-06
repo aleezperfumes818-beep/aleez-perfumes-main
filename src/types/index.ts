@@ -77,6 +77,14 @@ export interface OrderItem {
   selected_size?: string;
 }
 
+export interface Coupon {
+  code: string;
+  discount_type: 'percentage' | 'fixed' | 'free_shipping';
+  discount_value: number; // e.g. 10 for 10%, 200 for ₹200
+  min_order_amount?: number;
+  description: string;
+}
+
 export interface Order {
   id: string;
   order_number: string;
@@ -90,6 +98,8 @@ export interface Order {
   shipping_pincode: string;
   subtotal: number;
   shipping_charge: number;
+  discount_amount?: number;
+  coupon_code?: string;
   total_amount: number;
   payment_method: 'razorpay';
   payment_status: PaymentStatus;
