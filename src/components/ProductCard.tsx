@@ -146,12 +146,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
       </Link>
 
       {/* Product Content Details */}
-      <div className="p-4 flex flex-col flex-1 justify-between bg-white">
+      <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between bg-white">
         <div>
           {/* Category & Volume */}
-          <div className="flex items-center justify-between text-[11px] text-neutral-500 uppercase tracking-widest mb-1 font-medium">
+          <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-neutral-500 uppercase tracking-wider sm:tracking-widest mb-1 font-medium gap-1">
             <span className="truncate">{product.category_name || 'Haute Parfumerie'}</span>
-            <span>50ml • 100ml</span>
+            <span className="shrink-0">50ml • 100ml</span>
           </div>
 
           {/* Inspired By Formulation Tag */}
@@ -183,13 +183,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </div>
 
         {/* Price & Add to Bag Row */}
-        <div className="pt-3 mt-3 border-t border-neutral-200 flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-1.5 min-w-0">
-            <span className="font-mono text-sm sm:text-base font-semibold text-black truncate">
+        <div className="pt-2.5 sm:pt-3 mt-2 sm:mt-3 border-t border-neutral-200 flex items-center justify-between gap-1.5">
+          <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+            <span className="font-mono text-sm sm:text-base font-semibold text-black whitespace-nowrap">
               {formatPrice(product.sale_price !== null && product.sale_price !== undefined ? product.sale_price : product.price)}
             </span>
             {product.sale_price && (
-              <span className="font-mono text-[11px] sm:text-xs text-neutral-400 line-through">
+              <span className="font-mono text-[11px] sm:text-xs text-neutral-400 line-through whitespace-nowrap">
                 {formatPrice(product.price)}
               </span>
             )}
@@ -200,7 +200,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             disabled={isOutOfStock || isAdding}
             className={`shrink-0 rounded-sm text-xs font-semibold uppercase tracking-wider transition-all duration-200 flex items-center justify-center ${
               isOutOfStock
-                ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200 px-2.5 py-1.5'
+                ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200 px-2 py-1.5'
                 : justAdded
                 ? 'bg-black text-white shadow-sm w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 sm:space-x-1.5'
                 : 'bg-black text-white hover:bg-neutral-800 shadow-sm w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 sm:space-x-1.5 active:scale-95'
