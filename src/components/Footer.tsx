@@ -174,9 +174,6 @@ export const Footer: React.FC = () => {
             <div className="space-y-2.5 text-xs text-neutral-600 font-light leading-relaxed">
               <div>
                 <span className="font-semibold text-black block">Aleez Perfumes & Fragrances Pvt Ltd</span>
-                <span className="text-[11px] text-neutral-500 block">
-                  Plot No. 42, Luxury Parfumerie Enclave, Anna Salai, Chennai, Tamil Nadu 600002, India
-                </span>
                 <span className="text-[11px] font-mono text-neutral-700 block mt-0.5">
                   GSTIN: 33AAICA1234F1Z5
                 </span>
@@ -206,7 +203,7 @@ export const Footer: React.FC = () => {
 
               <div>
                 <span className="block text-[11px] uppercase tracking-wider text-neutral-700 font-semibold">Operating Hours</span>
-                <span className="text-[11px] text-neutral-600">Mon – Sat: 9:30 AM – 7:30 PM IST</span>
+                <span className="text-[11px] text-neutral-600">Open 24 Hours • 24/7 Online Store</span>
               </div>
 
               <div className="pt-1">

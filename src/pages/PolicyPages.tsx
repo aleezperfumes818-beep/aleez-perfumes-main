@@ -51,7 +51,6 @@ export const PrivacyPolicyPage: React.FC = () => {
           <div className="p-4 bg-white border border-neutral-200 rounded-xl text-xs text-neutral-700 space-y-1 font-light">
             <p><strong>Legal Entity:</strong> Aleez Perfumes & Fragrances Private Limited</p>
             <p><strong>Trade Brand:</strong> Aleez Perfumes</p>
-            <p><strong>Corporate & Operational Address:</strong> Plot No. 42, Luxury Parfumerie Enclave, Anna Salai, Chennai, Tamil Nadu 600002, India</p>
             <p><strong>Corporate Tax Registration:</strong> GSTIN: 33AAICA1234F1Z5</p>
             <p><strong>Official Contact Email:</strong> contact@aleezperfumes.com</p>
             <p><strong>Customer Care & Concierge WhatsApp:</strong> +91 93455 26905</p>
@@ -190,7 +189,6 @@ export const PrivacyPolicyPage: React.FC = () => {
           <div className="text-xs text-neutral-700 space-y-1 font-light pt-1">
             <p><strong>Title:</strong> Data Protection & Grievance Desk</p>
             <p><strong>Company:</strong> Aleez Perfumes & Fragrances Private Limited</p>
-            <p><strong>Postal Address:</strong> Plot No. 42, Luxury Parfumerie Enclave, Anna Salai, Chennai, Tamil Nadu 600002, India</p>
             <p><strong>Email Address:</strong> <a href="mailto:contact@aleezperfumes.com" className="text-black hover:underline font-medium">contact@aleezperfumes.com</a></p>
             <p><strong>Response Turnaround:</strong> Acknowledged within 24 hours; resolved within 15 business days.</p>
           </div>
@@ -235,7 +233,6 @@ export const TermsPage: React.FC = () => {
             This website is owned and operated by <strong>Aleez Perfumes & Fragrances Private Limited</strong> (Trade Name: "Aleez Perfumes"). Throughout the site, terms "we", "us", and "our" refer to Aleez Perfumes. By accessing our platform, creating custom fragrance formulations, or placing an order, you agree to be bound by these Terms & Conditions.
           </p>
           <div className="p-4 bg-neutral-50 border border-neutral-200 rounded-xl text-xs space-y-1">
-            <p><strong>Registered Office:</strong> Plot No. 42, Luxury Parfumerie Enclave, Anna Salai, Chennai, Tamil Nadu 600002, India</p>
             <p><strong>Official Inquiries:</strong> contact@aleezperfumes.com | Phone: +91 93455 26905</p>
             <p><strong>GSTIN:</strong> 33AAICA1234F1Z5</p>
           </div>

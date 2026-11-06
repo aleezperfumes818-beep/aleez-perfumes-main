@@ -351,7 +351,6 @@ export const DataDeletionPage: React.FC = () => {
                 <p><strong>Desk:</strong> Data Protection & Compliance</p>
                 <p><strong>Entity:</strong> Aleez Perfumes & Fragrances Private Limited</p>
                 <p><strong>Official Email:</strong> <a href="mailto:contact@aleezperfumes.com" className="text-black hover:underline font-medium">contact@aleezperfumes.com</a></p>
-                <p><strong>Office Address:</strong> Plot No. 42, Luxury Parfumerie Enclave, Anna Salai, Chennai, Tamil Nadu 600002, India</p>
               </div>
             </div>
           </div>
