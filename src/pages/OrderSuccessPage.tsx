@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useLocation, Link } from 'react-router-dom';
-import { CheckCircle2, MessageCircle, Printer, ArrowRight, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, MessageCircle, Printer, ArrowRight, ShieldCheck, Truck, ExternalLink } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useSettings } from '../context/SettingsContext';
 import { dbService } from '../lib/supabase';
@@ -11,7 +11,7 @@ export const OrderSuccessPage: React.FC = () => {
   const location = useLocation();
   const [order, setOrder] = useState<Order | null>((location.state as any)?.order || null);
   const [loading, setLoading] = useState<boolean>(!order && !!orderNumber);
-  const { formatPrice, settings } = useSettings();
+  const { formatPrice, settings, getWhatsAppUrl } = useSettings();
 
   useEffect(() => {
     try {
@@ -33,8 +33,8 @@ export const OrderSuccessPage: React.FC = () => {
     }
   }, [order, orderNumber]);
 
-  const whatsAppTrackingMessage = `Hi Aleez Perfumes, I have placed Order #${orderNumber}. Could you please share dispatch and tracking updates?`;
-  const whatsAppUrl = `https://wa.me/919345526905?text=${encodeURIComponent(whatsAppTrackingMessage)}`;
+  const whatsAppTrackingMessage = `Hi ${settings.brand_name || 'Aleez Perfumes'}, I have placed Order #${orderNumber}. Could you please share dispatch and tracking updates?`;
+  const whatsAppUrl = getWhatsAppUrl(whatsAppTrackingMessage);
 
   const handlePrint = () => {
     window.print();
@@ -118,7 +118,28 @@ export const OrderSuccessPage: React.FC = () => {
               <p>
                 {order.shipping_city}, {order.shipping_state} - {order.shipping_pincode}
               </p>
-              <p className="text-neutral-500 text-[11px] mt-1 font-medium">Express Pan-India Courier</p>
+              {order.awb_code ? (
+                <div className="mt-2 pt-2 border-t border-neutral-200 space-y-1 font-mono text-[11px]">
+                  <span className="text-black font-semibold flex items-center space-x-1.5">
+                    <Truck className="w-3.5 h-3.5" />
+                    <span>{order.courier_name || 'Delhivery Surface'}</span>
+                  </span>
+                  <p className="text-neutral-600">AWB: {order.awb_code}</p>
+                  {order.tracking_url && (
+                    <a
+                      href={order.tracking_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center space-x-1 text-black font-sans font-semibold underline text-xs pt-0.5 hover:text-neutral-600"
+                    >
+                      <span>Track Package Live</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              ) : (
+                <p className="text-neutral-500 text-[11px] mt-1 font-medium">Express Pan-India Courier (Delhivery / Blue Dart Surface)</p>
+              )}
             </div>
           </div>
         )}

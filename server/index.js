@@ -8,6 +8,7 @@ import Razorpay from 'razorpay';
 import { createClient } from '@supabase/supabase-js';
 import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail } from './emailService.js';
 import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizePincode, sanitizeMultiline } from './sanitize.js';
+import { createShiprocketOrder, generateShippingLabel, trackShipment, getShiprocketToken } from './shiprocketService.js';
 import { globalApiLimiter, authLimiter, orderLimiter, emailLimiter, adminLimiter } from './rateLimit.js';
 
 dotenv.config();
@@ -1086,6 +1087,95 @@ app.post('/api/admin/homepage', adminLimiter, requireAdmin, async (req, res) => 
       return res.json({ success: true, content: data?.value || content });
     }
     return res.json({ success: true, content });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// --- 7. SHIPROCKET LOGISTICS & DELIVERY APIS ---
+
+// Test Shiprocket API Connection
+app.post('/api/shipping/shiprocket/test-connection', adminLimiter, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const authResult = await getShiprocketToken({ email, password });
+    if (authResult.token) {
+      return res.json({ success: true, message: 'Connected to Shiprocket successfully!' });
+    }
+    return res.status(400).json({
+      success: false,
+      isMock: authResult.isMock,
+      error: authResult.error || 'Authentication rejected by Shiprocket',
+    });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Create Shiprocket Order / Allocate Courier
+app.post('/api/shipping/shiprocket/create-order', orderLimiter, async (req, res) => {
+  try {
+    const { order, credentials } = req.body;
+    if (!order || !order.order_number) {
+      return res.status(400).json({ error: 'Order details are required.' });
+    }
+
+    const shipmentResult = await createShiprocketOrder(order, credentials);
+    if (!shipmentResult.success) {
+      return res.status(400).json({ error: shipmentResult.error || 'Failed to dispatch shipment.' });
+    }
+
+    // Persist AWB & shipment info if database is active
+    if (supabase && shipmentResult.awb_code) {
+      await supabase
+        .from('orders')
+        .update({
+          order_status: 'shipped',
+          awb_code: shipmentResult.awb_code,
+          courier_name: shipmentResult.courier_name,
+          tracking_url: shipmentResult.tracking_url,
+          shiprocket_order_id: shipmentResult.order_id,
+          shiprocket_shipment_id: shipmentResult.shipment_id,
+        })
+        .eq('order_number', order.order_number)
+        .catch((e) => console.warn('Supabase AWB update notice:', e.message));
+    }
+
+    return res.json({
+      success: true,
+      data: shipmentResult,
+    });
+  } catch (err) {
+    console.error('Shiprocket order creation API error:', err);
+    return res.status(500).json({ error: err.message || 'Error creating Shiprocket order.' });
+  }
+});
+
+// Generate Shipping Label PDF
+app.post('/api/shipping/shiprocket/generate-label', orderLimiter, async (req, res) => {
+  try {
+    const { shipmentId, credentials } = req.body;
+    if (!shipmentId) {
+      return res.status(400).json({ error: 'Shipment ID is required.' });
+    }
+
+    const labelResult = await generateShippingLabel(shipmentId, credentials);
+    return res.json(labelResult);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Track Shipment by AWB
+app.get('/api/shipping/shiprocket/track/:awbCode', async (req, res) => {
+  try {
+    const { awbCode } = req.params;
+    if (!awbCode) {
+      return res.status(400).json({ error: 'AWB code is required.' });
+    }
+
+    const trackResult = await trackShipment(awbCode);
+    return res.json(trackResult);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Settings, Save, CheckCircle, AlertCircle, RefreshCw, Users, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Settings, Save, CheckCircle, AlertCircle, RefreshCw, Users, ArrowRight, ShieldCheck, Truck } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
+import { shippingService } from '../lib/shippingService';
 
 export const AdminSettings: React.FC = () => {
   const { settings, updateSettings } = useSettings();
@@ -21,10 +22,28 @@ export const AdminSettings: React.FC = () => {
     standard_shipping_fee: settings.standard_shipping_fee || 99,
     announcement_bar: settings.announcement_bar || '',
     is_store_open: settings.is_store_open !== undefined ? settings.is_store_open : true,
+    shiprocket_email: settings.shiprocket_email || '',
+    shiprocket_password: settings.shiprocket_password || '',
+    shiprocket_pickup_location: settings.shiprocket_pickup_location || 'Primary',
   });
 
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [testStatus, setTestStatus] = useState<{ testing: boolean; message?: string; success?: boolean } | null>(null);
+
+  const handleTestShiprocket = async () => {
+    if (!formData.shiprocket_email || !formData.shiprocket_password) {
+      setTestStatus({ testing: false, success: false, message: 'Please enter your Shiprocket email & password first.' });
+      return;
+    }
+    setTestStatus({ testing: true });
+    const result = await shippingService.testConnection(formData.shiprocket_email, formData.shiprocket_password);
+    setTestStatus({
+      testing: false,
+      success: result.success,
+      message: result.success ? 'Successfully verified Shiprocket API connection!' : (result.error || 'Connection failed. Check credentials.'),
+    });
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target as any;
@@ -247,13 +266,102 @@ export const AdminSettings: React.FC = () => {
           </div>
         </div>
 
+        {/* Shiprocket Logistics & Courier Integration */}
+        <div className="bg-white border border-luxury-border rounded-xl p-6 space-y-4 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-border pb-2 gap-2">
+            <div className="flex items-center space-x-2">
+              <Truck className="w-5 h-5 text-luxury-gold" />
+              <h2 className="font-serif text-lg text-luxury-dark">
+                4. Shiprocket Delivery & Courier Integration
+              </h2>
+            </div>
+            <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Pan-India Surface (Delhivery • Blue Dart)
+            </span>
+          </div>
+
+          <p className="text-xs text-stone-600 font-light leading-relaxed">
+            Connect your <strong>Shiprocket</strong> account to automatically allocate couriers (Delhivery Surface, Blue Dart Surface, DTDC), generate AWB tracking barcodes, and provide 24/7 delivery updates to customers across India.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+                Shiprocket Email ID
+              </label>
+              <input
+                type="email"
+                name="shiprocket_email"
+                placeholder="your-account@email.com"
+                value={formData.shiprocket_email}
+                onChange={handleChange}
+                className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+                Shiprocket Password
+              </label>
+              <input
+                type="password"
+                name="shiprocket_password"
+                placeholder="••••••••••••"
+                value={formData.shiprocket_password}
+                onChange={handleChange}
+                className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+              Pickup Location Name in Shiprocket
+            </label>
+            <input
+              type="text"
+              name="shiprocket_pickup_location"
+              placeholder="Primary (or your exact Shiprocket pickup hub name)"
+              value={formData.shiprocket_pickup_location}
+              onChange={handleChange}
+              className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
+            />
+            <p className="text-[11px] text-stone-400 mt-1">
+              Must match the "Pickup Address Nickname" saved in your Shiprocket Settings (default is often "Primary").
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleTestShiprocket}
+              disabled={testStatus?.testing}
+              className="px-4 py-2 border border-luxury-gold text-luxury-gold hover:bg-luxury-gold hover:text-white rounded text-xs font-semibold uppercase tracking-wider transition-colors flex items-center space-x-2"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${testStatus?.testing ? 'animate-spin' : ''}`} />
+              <span>{testStatus?.testing ? 'Testing Connection...' : 'Test Shiprocket Connection'}</span>
+            </button>
+
+            {testStatus?.message && (
+              <span
+                className={`text-xs flex items-center space-x-1.5 ${
+                  testStatus.success ? 'text-emerald-600 font-medium' : 'text-red-500'
+                }`}
+              >
+                {testStatus.success ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                <span>{testStatus.message}</span>
+              </span>
+            )}
+          </div>
+        </div>
+
         {/* Administrators & Team Permissions */}
         <div className="bg-white border border-luxury-border rounded-xl p-6 space-y-4 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-border pb-2 gap-2">
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-5 h-5 text-luxury-gold" />
               <h2 className="font-serif text-lg text-luxury-dark">
-                4. Authorized Administrators & Team Staff
+                5. Authorized Administrators & Team Staff
               </h2>
             </div>
             <Link

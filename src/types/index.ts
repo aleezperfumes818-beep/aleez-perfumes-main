@@ -115,6 +115,12 @@ export interface Order {
   items: OrderItem[];
   created_at: string;
   updated_at?: string;
+  shiprocket_order_id?: number | string;
+  shiprocket_shipment_id?: number | string;
+  awb_code?: string;
+  courier_name?: string;
+  tracking_url?: string;
+  shipping_label_url?: string;
 }
 
 export interface UserProfile {
@@ -156,6 +162,9 @@ export interface StoreSettings {
   standard_shipping_fee: number;
   announcement_bar: string;
   is_store_open: boolean;
+  shiprocket_email?: string;
+  shiprocket_password?: string;
+  shiprocket_pickup_location?: string;
 }
 
 export interface RazorpayOptions {

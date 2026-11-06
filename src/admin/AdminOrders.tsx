@@ -18,6 +18,7 @@ import {
 import { dbService } from '../lib/supabase';
 import { Order, OrderStatus } from '../types';
 import { useSettings } from '../context/SettingsContext';
+import { shippingService } from '../lib/shippingService';
 
 export const AdminOrders: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -27,7 +28,41 @@ export const AdminOrders: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  const { formatPrice } = useSettings();
+  const { formatPrice, settings } = useSettings();
+  const [dispatchingId, setDispatchingId] = useState<string | null>(null);
+
+  const handleDispatchShiprocket = async (order: Order) => {
+    setDispatchingId(order.id);
+    try {
+      const res = await shippingService.createShiprocketShipment(order, {
+        email: settings.shiprocket_email,
+        password: settings.shiprocket_password,
+        pickupLocation: settings.shiprocket_pickup_location,
+      });
+
+      if (res.success && res.awb_code) {
+        const updated: Order = {
+          ...order,
+          order_status: 'shipped',
+          awb_code: res.awb_code,
+          courier_name: res.courier_name || 'Delhivery Surface',
+          tracking_url: res.tracking_url || `https://shiprocket.co/tracking/${res.awb_code}`,
+          shiprocket_order_id: res.order_id,
+          shiprocket_shipment_id: res.shipment_id,
+        };
+
+        await dbService.saveOrder(updated);
+        setOrders((prev) => prev.map((o) => (o.id === order.id ? updated : o)));
+        if (selectedOrder?.id === order.id) {
+          setSelectedOrder(updated);
+        }
+      }
+    } catch (err) {
+      console.error('Dispatch error:', err);
+    } finally {
+      setDispatchingId(null);
+    }
+  };
 
   const exportToCSV = () => {
     if (orders.length === 0) return;
@@ -468,6 +503,86 @@ export const AdminOrders: React.FC = () => {
               <p>Razorpay Order: {selectedOrder.razorpay_order_id || 'Mock Verified'}</p>
               <p>Razorpay Payment: {selectedOrder.razorpay_payment_id || 'Verified'}</p>
               <p>Payment Method: Online Prepaid (Razorpay)</p>
+            </div>
+
+            {/* Shiprocket Delivery & Logistics Panel */}
+            <div className="p-4 rounded-lg bg-stone-50 border border-luxury-border space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Truck className="w-4 h-4 text-luxury-gold" />
+                  <span className="text-xs uppercase tracking-wider font-semibold text-luxury-dark">
+                    Shiprocket Delivery & Dispatch
+                  </span>
+                </div>
+                {selectedOrder.awb_code ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                    Dispatched
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded text-[10px] uppercase font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                    Awaiting Courier
+                  </span>
+                )}
+              </div>
+
+              {selectedOrder.awb_code ? (
+                <div className="space-y-2 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono">
+                    <div className="p-2 bg-white rounded border border-luxury-border">
+                      <span className="text-stone-400 block text-[9px] uppercase font-sans">Assigned Courier</span>
+                      <span className="font-bold text-luxury-dark">{selectedOrder.courier_name || 'Delhivery Surface'}</span>
+                    </div>
+                    <div className="p-2 bg-white rounded border border-luxury-border">
+                      <span className="text-stone-400 block text-[9px] uppercase font-sans">AWB Tracking Code</span>
+                      <span className="font-bold text-luxury-gold">{selectedOrder.awb_code}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    {selectedOrder.tracking_url && (
+                      <a
+                        href={selectedOrder.tracking_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 bg-black text-white hover:bg-neutral-800 rounded text-[11px] uppercase tracking-wider font-semibold inline-flex items-center space-x-1.5 transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Track on Shiprocket</span>
+                      </a>
+                    )}
+
+                    <a
+                      href={`https://wa.me/${selectedOrder.customer_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                        `Hi ${selectedOrder.customer_name}, your order #${selectedOrder.order_number} from Aleez Perfumes has been dispatched via ${selectedOrder.courier_name || 'Delhivery Surface'}!\n\nAWB Tracking: ${selectedOrder.awb_code}\nTrack here: ${selectedOrder.tracking_url || `https://shiprocket.co/tracking/${selectedOrder.awb_code}`}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-[11px] uppercase tracking-wider font-semibold inline-flex items-center space-x-1.5 transition-colors"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>WhatsApp Tracking to Client</span>
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2 pt-1">
+                  <p className="text-xs text-stone-600 font-light">
+                    Assign courier and generate AWB tracking code for this order using Delhivery or Blue Dart Surface (compliant with fragrance liquid transport).
+                  </p>
+                  <button
+                    onClick={() => handleDispatchShiprocket(selectedOrder)}
+                    disabled={dispatchingId === selectedOrder.id}
+                    className="w-full py-2.5 bg-luxury-gold hover:bg-luxury-goldHover text-white rounded text-xs uppercase tracking-wider font-bold transition-all shadow-sm flex items-center justify-center space-x-2"
+                  >
+                    <Truck className={`w-4 h-4 ${dispatchingId === selectedOrder.id ? 'animate-bounce' : ''}`} />
+                    <span>
+                      {dispatchingId === selectedOrder.id
+                        ? 'Allocating Courier & AWB...'
+                        : 'Dispatch via Shiprocket (Delhivery Surface)'}
+                    </span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
