@@ -19,6 +19,7 @@ import { dbService } from '../lib/supabase';
 import { Order, OrderStatus } from '../types';
 import { useSettings } from '../context/SettingsContext';
 import { shippingService } from '../lib/shippingService';
+import { whatsappService, WhatsAppTrigger } from '../lib/whatsappService';
 
 export const AdminOrders: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -140,6 +141,28 @@ export const AdminOrders: React.FC = () => {
       setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
       if (selectedOrder?.id === orderId) {
         setSelectedOrder(updated);
+      }
+
+      // Automated WhatsApp dispatch on delivery, dispatch or cancellation
+      const target = orders.find((o) => o.id === orderId) || updated;
+      if (target && target.customer_phone) {
+        let trigger: WhatsAppTrigger | null = null;
+        if (newStatus === 'delivered') trigger = 'ORDER_DELIVERED';
+        else if (newStatus === 'cancelled') trigger = 'ORDER_CANCELLED';
+        else if (newStatus === 'shipped') trigger = 'ORDER_SHIPPED';
+
+        if (trigger) {
+          whatsappService.sendAutomatedMessage(trigger, {
+            customerName: target.customer_name,
+            customerPhone: target.customer_phone,
+            orderNumber: target.order_number,
+            totalAmount: target.total_amount,
+            courierName: target.courier_name,
+            awbCode: target.awb_code,
+            trackingUrl: target.tracking_url,
+            items: target.items,
+          });
+        }
       }
     } catch (err) {
       console.error('Failed to update order status:', err);
@@ -403,17 +426,73 @@ export const AdminOrders: React.FC = () => {
                 <p className="text-stone-600 font-mono">{selectedOrder.customer_phone}</p>
                 <p className="text-stone-500 break-all">{selectedOrder.customer_email}</p>
 
-                <a
-                  href={`https://wa.me/${selectedOrder.customer_phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                    `Hi ${selectedOrder.customer_name}, this is Aleez Perfumes regarding your Order #${selectedOrder.order_number}.`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-1.5 text-emerald-600 hover:underline pt-1 text-[11px] font-medium"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>Message Client on WhatsApp</span>
-                </a>
+                <div className="pt-2 border-t border-luxury-border space-y-1.5">
+                  <span className="text-[10px] uppercase font-bold text-stone-500 block">
+                    Instant WhatsApp Alerts (1-Click Send)
+                  </span>
+                  <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+                    <a
+                      href={whatsappService.getDirectWhatsAppUrl('ORDER_PLACED', {
+                        customerName: selectedOrder.customer_name,
+                        customerPhone: selectedOrder.customer_phone,
+                        orderNumber: selectedOrder.order_number,
+                        totalAmount: selectedOrder.total_amount,
+                        items: selectedOrder.items,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-white border border-luxury-border hover:border-emerald-500 rounded text-stone-700 hover:text-emerald-700 flex items-center space-x-1"
+                    >
+                      <MessageCircle className="w-3 h-3 text-emerald-600 shrink-0" />
+                      <span className="truncate">Confirmed Msg</span>
+                    </a>
+
+                    <a
+                      href={whatsappService.getDirectWhatsAppUrl('ORDER_SHIPPED', {
+                        customerName: selectedOrder.customer_name,
+                        customerPhone: selectedOrder.customer_phone,
+                        orderNumber: selectedOrder.order_number,
+                        courierName: selectedOrder.courier_name,
+                        awbCode: selectedOrder.awb_code,
+                        trackingUrl: selectedOrder.tracking_url,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-white border border-luxury-border hover:border-purple-500 rounded text-stone-700 hover:text-purple-700 flex items-center space-x-1"
+                    >
+                      <Truck className="w-3 h-3 text-purple-600 shrink-0" />
+                      <span className="truncate">Dispatched Msg</span>
+                    </a>
+
+                    <a
+                      href={whatsappService.getDirectWhatsAppUrl('ORDER_DELIVERED', {
+                        customerName: selectedOrder.customer_name,
+                        customerPhone: selectedOrder.customer_phone,
+                        orderNumber: selectedOrder.order_number,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-white border border-luxury-border hover:border-green-500 rounded text-stone-700 hover:text-green-700 flex items-center space-x-1"
+                    >
+                      <CheckCircle className="w-3 h-3 text-green-600 shrink-0" />
+                      <span className="truncate">Delivered Msg</span>
+                    </a>
+
+                    <a
+                      href={whatsappService.getDirectWhatsAppUrl('ORDER_CANCELLED', {
+                        customerName: selectedOrder.customer_name,
+                        customerPhone: selectedOrder.customer_phone,
+                        orderNumber: selectedOrder.order_number,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-1.5 bg-white border border-luxury-border hover:border-red-500 rounded text-stone-700 hover:text-red-700 flex items-center space-x-1"
+                    >
+                      <XCircle className="w-3 h-3 text-red-500 shrink-0" />
+                      <span className="truncate">Cancelled Msg</span>
+                    </a>
+                  </div>
+                </div>
               </div>
 
               <div className="p-4 bg-stone-50 rounded-lg border border-luxury-border space-y-1.5">

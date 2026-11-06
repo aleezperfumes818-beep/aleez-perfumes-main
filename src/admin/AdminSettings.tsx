@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Settings, Save, CheckCircle, AlertCircle, RefreshCw, Users, ArrowRight, ShieldCheck, Truck } from 'lucide-react';
+import { Settings, Save, CheckCircle, AlertCircle, RefreshCw, Users, ArrowRight, ShieldCheck, Truck, MessageCircle } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { shippingService } from '../lib/shippingService';
 
@@ -25,6 +25,10 @@ export const AdminSettings: React.FC = () => {
     shiprocket_email: settings.shiprocket_email || '',
     shiprocket_password: settings.shiprocket_password || '',
     shiprocket_pickup_location: settings.shiprocket_pickup_location || 'Primary',
+    whatsapp_phone_number_id: settings.whatsapp_phone_number_id || '',
+    whatsapp_access_token: settings.whatsapp_access_token || '',
+    whatsapp_bsp_api_key: settings.whatsapp_bsp_api_key || '',
+    whatsapp_bsp_endpoint: settings.whatsapp_bsp_endpoint || '',
   });
 
   const [saved, setSaved] = useState(false);
@@ -355,13 +359,69 @@ export const AdminSettings: React.FC = () => {
           </div>
         </div>
 
+        {/* WhatsApp Business Automation */}
+        <div className="bg-white border border-luxury-border rounded-xl p-6 space-y-4 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-border pb-2 gap-2">
+            <div className="flex items-center space-x-2">
+              <MessageCircle className="w-5 h-5 text-emerald-600" />
+              <h2 className="font-serif text-lg text-luxury-dark">
+                5. Automated WhatsApp Notifications & Abandoned Carts
+              </h2>
+            </div>
+            <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Orders • Dispatches • Carts
+            </span>
+          </div>
+
+          <p className="text-xs text-stone-600 font-light leading-relaxed">
+            Automatically notify customers on WhatsApp when an order is <strong>Confirmed</strong>, <strong>Dispatched</strong> with live tracking, <strong>Delivered</strong>, or <strong>Cancelled</strong>, and re-engage visitors who left items in their cart.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+                WhatsApp Phone Number ID (Meta Cloud API)
+              </label>
+              <input
+                type="text"
+                name="whatsapp_phone_number_id"
+                placeholder="e.g. 104859203847291"
+                value={formData.whatsapp_phone_number_id}
+                onChange={handleChange}
+                className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+                System Access Token (Meta Permanent Token)
+              </label>
+              <input
+                type="password"
+                name="whatsapp_access_token"
+                placeholder="EAA..."
+                value={formData.whatsapp_access_token}
+                onChange={handleChange}
+                className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="p-3 bg-stone-50 rounded-lg border border-luxury-border text-xs text-stone-600 space-y-1">
+            <span className="font-semibold text-luxury-dark block">⚡ 100% Free 1-Click WhatsApp Concierge is Always Ready</span>
+            <p>
+              Even without API keys, you can send official formatted updates with <strong>one click</strong> directly from any order’s Details window in <Link to="/admin/orders" className="text-luxury-gold font-medium underline">Admin Orders</Link>!
+            </p>
+          </div>
+        </div>
+
         {/* Administrators & Team Permissions */}
         <div className="bg-white border border-luxury-border rounded-xl p-6 space-y-4 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-border pb-2 gap-2">
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-5 h-5 text-luxury-gold" />
               <h2 className="font-serif text-lg text-luxury-dark">
-                5. Authorized Administrators & Team Staff
+                6. Authorized Administrators & Team Staff
               </h2>
             </div>
             <Link

@@ -13,6 +13,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
 import { dbService } from '../lib/supabase';
+import { whatsappService } from '../lib/whatsappService';
 import { Order, OrderItem } from '../types';
 import { sanitizeName, sanitizeEmail, sanitizePhone, sanitizeMultiline, sanitizeText, sanitizePincode } from '../lib/sanitize';
 import { CouponInput } from '../components/CouponInput';
@@ -78,6 +79,23 @@ export const CheckoutPage: React.FC = () => {
         const copy = { ...prev };
         delete copy[name];
         return copy;
+      });
+    }
+  };
+
+  const handlePhoneBlur = () => {
+    const rawPhone = formData.phone.replace(/[^0-9]/g, '');
+    if (rawPhone.length >= 10 && cart.length > 0) {
+      whatsappService.recordAbandonedCart({
+        name: formData.fullName || 'Valued Client',
+        phone: rawPhone,
+        email: formData.email,
+        items: cart.map((it) => ({
+          product_name: it.product.name,
+          quantity: it.quantity,
+          unit_price: getItemEffectivePrice(it),
+        })),
+        total,
       });
     }
   };
@@ -437,6 +455,7 @@ export const CheckoutPage: React.FC = () => {
                   aria-invalid={!!formErrors.phone}
                   value={formData.phone}
                   onChange={handleInputChange}
+                  onBlur={handlePhoneBlur}
                   placeholder="10-digit mobile number"
                   className={`w-full bg-neutral-50 border rounded-sm px-3.5 py-2.5 text-sm text-black focus:outline-none focus:ring-2 focus:ring-black ${
                     formErrors.phone ? 'border-red-500' : 'border-neutral-300 focus:border-black'

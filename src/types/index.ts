@@ -165,6 +165,10 @@ export interface StoreSettings {
   shiprocket_email?: string;
   shiprocket_password?: string;
   shiprocket_pickup_location?: string;
+  whatsapp_access_token?: string;
+  whatsapp_phone_number_id?: string;
+  whatsapp_bsp_api_key?: string;
+  whatsapp_bsp_endpoint?: string;
 }
 
 export interface RazorpayOptions {

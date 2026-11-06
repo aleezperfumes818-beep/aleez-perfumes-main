@@ -9,6 +9,7 @@ import { createClient } from '@supabase/supabase-js';
 import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail } from './emailService.js';
 import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizePincode, sanitizeMultiline } from './sanitize.js';
 import { createShiprocketOrder, generateShippingLabel, trackShipment, getShiprocketToken } from './shiprocketService.js';
+import { sendWhatsAppNotification, buildWhatsAppTemplate } from './whatsappService.js';
 import { globalApiLimiter, authLimiter, orderLimiter, emailLimiter, adminLimiter } from './rateLimit.js';
 
 dotenv.config();
@@ -585,6 +586,13 @@ app.post('/api/razorpay/verify-payment', orderLimiter, async (req, res) => {
         }).catch((err) => console.warn('[EmailService] Order confirmation email error:', err));
       }
 
+      // Automated WhatsApp Order Confirmation
+      if (resolvedOrder.customer_phone) {
+        sendWhatsAppNotification('ORDER_PLACED', resolvedOrder).catch((err) =>
+          console.warn('[WhatsAppService] Automated order confirmation notice:', err.message)
+        );
+      }
+
       sendAdminOrderNotificationEmail({
         order: resolvedOrder,
         items: emailItems,
@@ -1157,6 +1165,59 @@ app.get('/api/shipping/shiprocket/track/:awbCode', async (req, res) => {
     return res.json(trackResult);
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+});
+
+// --- 8. AUTOMATED WHATSAPP NOTIFICATION & ABANDONED CART APIS ---
+const abandonedCartsMap = new Map();
+
+// Record Abandoned Cart Lead
+app.post('/api/whatsapp/record-abandoned-cart', async (req, res) => {
+  try {
+    const { name, phone, email, items, total } = req.body;
+    if (!phone) return res.status(400).json({ error: 'Phone number required' });
+
+    const cleanPhone = sanitizePhone(phone);
+    const lead = {
+      id: `cart_${Date.now()}`,
+      name: sanitizeText(name || 'Valued Client', 60),
+      phone: cleanPhone,
+      email: sanitizeEmail(email || ''),
+      items: Array.isArray(items) ? items : [],
+      total: Number(total) || 0,
+      updated_at: new Date().toISOString(),
+    };
+
+    abandonedCartsMap.set(cleanPhone, lead);
+    return res.json({ success: true, lead });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// List Abandoned Carts (Admin only)
+app.get('/api/whatsapp/abandoned-carts', adminLimiter, requireAdmin, async (req, res) => {
+  try {
+    const leads = Array.from(abandonedCartsMap.values()).reverse();
+    return res.json({ success: true, leads });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Send WhatsApp Notification (Manual or System trigger)
+app.post('/api/whatsapp/send', orderLimiter, async (req, res) => {
+  try {
+    const { type, payload, config } = req.body;
+    if (!type || !payload) {
+      return res.status(400).json({ error: 'Notification type and payload are required.' });
+    }
+
+    const result = await sendWhatsAppNotification(type, payload, config);
+    return res.json(result);
+  } catch (err) {
+    console.error('[WhatsApp API Error]:', err);
+    return res.status(500).json({ success: false, error: err.message });
   }
 });
 
