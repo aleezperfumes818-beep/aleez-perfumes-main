@@ -155,8 +155,18 @@ export const dbService = {
               images: p.product_images || [],
             };
           });
-          saveToStorage(STORAGE_KEYS.PRODUCTS, mapped);
-          return mapped;
+
+          // Also preserve locally created products that may still be syncing
+          const localStored = getFromStorage<Product[]>(STORAGE_KEYS.PRODUCTS, []);
+          const merged = [...mapped];
+          for (const lp of localStored) {
+            if (!merged.some((m) => m.id === lp.id || m.slug === lp.slug)) {
+              merged.push(lp);
+            }
+          }
+
+          saveToStorage(STORAGE_KEYS.PRODUCTS, merged);
+          return merged;
         }
       } catch (err) {
         console.warn('Supabase fetch products failed, falling back to local store', err);
@@ -265,6 +275,7 @@ export const dbService = {
       updated_at: new Date().toISOString(),
     };
 
+    let savedToBackend = false;
     // 1. Sync via Backend API (uses Supabase service role, guarantees RLS bypass)
     try {
       const authHeaders = await getAuthHeaders();
@@ -281,10 +292,65 @@ export const dbService = {
             ...json.product,
             images: json.product.images?.length > 0 ? json.product.images : updatedProduct.images,
           };
+          savedToBackend = true;
         }
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        console.warn('Backend product save endpoint returned status:', res.status, errJson);
       }
     } catch (apiErr) {
-      console.warn('Backend product save endpoint unreachable, using local fallback:', apiErr);
+      console.warn('Backend product save endpoint unreachable, trying direct Supabase client save:', apiErr);
+    }
+
+    // 2. Direct Supabase Client fallback (if backend endpoint was unreachable or returned error)
+    if (!savedToBackend && supabase) {
+      try {
+        const dbPayload: any = {
+          id: updatedProduct.id,
+          name: updatedProduct.name,
+          slug: updatedProduct.slug,
+          category_id: updatedProduct.category_id || null,
+          price: p50,
+          sale_price: sp50,
+          description: encodedDesc,
+          fragrance_family: updatedProduct.fragrance_family || null,
+          inspired_by: updatedProduct.inspired_by || null,
+          top_notes: updatedProduct.top_notes || null,
+          heart_notes: updatedProduct.heart_notes || null,
+          base_notes: updatedProduct.base_notes || null,
+          volume_ml: updatedProduct.volume_ml,
+          stock_quantity: updatedProduct.stock_quantity,
+          sku: updatedProduct.sku,
+          is_bestseller: updatedProduct.is_bestseller,
+          is_new_arrival: updatedProduct.is_new_arrival,
+          is_featured: updatedProduct.is_featured,
+          is_active: updatedProduct.is_active,
+        };
+
+        const { data: dbData, error: dbErr } = await supabase
+          .from('products')
+          .upsert(dbPayload)
+          .select()
+          .single();
+
+        if (!dbErr && dbData) {
+          savedToBackend = true;
+          if (updatedProduct.images && updatedProduct.images.length > 0) {
+            await supabase.from('product_images').delete().eq('product_id', updatedProduct.id);
+            await supabase.from('product_images').insert(
+              updatedProduct.images.map((img, idx) => ({
+                product_id: updatedProduct.id,
+                image_url: img.image_url,
+                alt_text: img.alt_text || updatedProduct.name,
+                display_order: img.display_order || idx + 1,
+                is_primary: img.is_primary,
+              }))
+            );
+          }
+        }
+      } catch (directErr) {
+        console.warn('Direct client Supabase product save failed:', directErr);
+      }
     }
 
     // Ensure returned and cached product has clean description and explicit size prices
