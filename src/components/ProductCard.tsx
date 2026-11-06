@@ -183,13 +183,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </div>
 
         {/* Price & Add to Bag Row */}
-        <div className="pt-3 mt-3 border-t border-neutral-200 flex items-center justify-between">
-          <div className="flex items-baseline space-x-2">
-            <span className="font-mono text-base font-semibold text-black">
+        <div className="pt-3 mt-3 border-t border-neutral-200 flex items-center justify-between gap-2">
+          <div className="flex items-baseline gap-1.5 min-w-0">
+            <span className="font-mono text-sm sm:text-base font-semibold text-black truncate">
               {formatPrice(product.sale_price !== null && product.sale_price !== undefined ? product.sale_price : product.price)}
             </span>
             {product.sale_price && (
-              <span className="font-mono text-xs text-neutral-400 line-through">
+              <span className="font-mono text-[11px] sm:text-xs text-neutral-400 line-through">
                 {formatPrice(product.price)}
               </span>
             )}
@@ -198,26 +198,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           <button
             onClick={handleAddToCart}
             disabled={isOutOfStock || isAdding}
-            className={`px-3 py-1.5 rounded-sm text-xs font-semibold uppercase tracking-wider transition-all duration-200 flex items-center space-x-1.5 ${
+            className={`shrink-0 rounded-sm text-xs font-semibold uppercase tracking-wider transition-all duration-200 flex items-center justify-center ${
               isOutOfStock
-                ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
+                ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200 px-2.5 py-1.5'
                 : justAdded
-                ? 'bg-black text-white shadow-sm'
-                : 'bg-black text-white hover:bg-neutral-800 shadow-sm'
+                ? 'bg-black text-white shadow-sm w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 sm:space-x-1.5'
+                : 'bg-black text-white hover:bg-neutral-800 shadow-sm w-8 h-8 sm:w-auto sm:px-3 sm:py-1.5 sm:space-x-1.5 active:scale-95'
             }`}
             aria-label={`Add ${product.name} to bag`}
           >
             {justAdded ? (
               <>
-                <Check className="w-3.5 h-3.5" />
-                <span>Added</span>
+                <Check className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">Added</span>
               </>
             ) : isOutOfStock ? (
-              <span>Sold Out</span>
+              <span className="text-[10px] sm:text-xs">Sold Out</span>
             ) : (
               <>
-                <ShoppingBag className="w-3.5 h-3.5" />
-                <span>Add</span>
+                <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline">Add</span>
               </>
             )}
           </button>

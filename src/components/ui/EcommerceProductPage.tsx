@@ -416,7 +416,8 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
           {/* 2. QUANTITY & CONVERSION CTAs                                           */}
           {/* ======================================================================= */}
           <div className="space-y-3 pt-2">
-            <div className="flex items-center space-x-3">
+            {/* Desktop CTAs (sm and up) */}
+            <div className="hidden sm:flex items-center space-x-3">
               {/* Stepper */}
               <div className="flex items-center border border-neutral-300 bg-neutral-50 px-3 py-2">
                 <button
@@ -477,6 +478,76 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
                 aria-label="Save to Wishlist"
               >
                 <Heart className={`w-5 h-5 ${isWished ? 'fill-white' : ''}`} />
+              </button>
+            </div>
+
+            {/* Mobile CTAs (under sm) - Never cramped, never fumbled */}
+            <div className="sm:hidden space-y-3">
+              {/* Stepper + Wishlist Row */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between border border-neutral-300 bg-neutral-50 px-3 py-2 flex-1">
+                  <span className="text-[11px] uppercase tracking-wider text-neutral-500 font-mono">Qty</span>
+                  <div className="flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                      className="text-neutral-700 hover:text-black px-2.5 text-base font-semibold"
+                      aria-label="Decrease quantity"
+                    >
+                      -
+                    </button>
+                    <span className="font-mono text-sm px-2 text-black font-bold">{quantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity((q) => Math.min(product.stock_quantity || 10, q + 1))}
+                      disabled={quantity >= product.stock_quantity}
+                      className="text-neutral-700 hover:text-black px-2.5 text-base font-semibold disabled:opacity-30"
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => toggleWishlist(product)}
+                  className={`py-2.5 px-4 border transition-colors flex items-center justify-center space-x-2 text-xs uppercase tracking-wider font-semibold ${
+                    isWished
+                      ? 'border-black bg-black text-white shadow-sm'
+                      : 'border-neutral-300 bg-white text-neutral-700 hover:text-black hover:border-black'
+                  }`}
+                  aria-label="Save to Wishlist"
+                >
+                  <Heart className={`w-4 h-4 ${isWished ? 'fill-white text-white' : ''}`} />
+                  <span>{isWished ? 'Saved' : 'Wishlist'}</span>
+                </button>
+              </div>
+
+              {/* Add to Bag: Full Width, Uncompromised Luxury Primary Button */}
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                className={`w-full py-4 text-xs uppercase tracking-[0.2em] font-bold transition-all duration-300 flex items-center justify-center space-x-2.5 shadow-lg active:scale-[0.99] ${
+                  isOutOfStock
+                    ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
+                    : justAdded
+                    ? 'bg-neutral-900 text-white'
+                    : 'bg-black hover:bg-neutral-800 text-white'
+                }`}
+              >
+                {justAdded ? (
+                  <>
+                    <Check className="w-4 h-4 text-white" />
+                    <span>Added ({selectedSize.toUpperCase()} Extrait)</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Add to Bag &bull; {formatPrice(currentPrice * quantity)}</span>
+                  </>
+                )}
               </button>
             </div>
 
@@ -597,6 +668,47 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
           </div>
         </section>
       )}
+
+      {/* ========================================================================= */}
+      {/* MOBILE STICKY BOTTOM PURCHASE BAR                                        */}
+      {/* Keeps "Add to Bag" visible at all times when scrolling on mobile          */}
+      {/* ========================================================================= */}
+      <div className="fixed bottom-0 inset-x-0 z-30 sm:hidden bg-white/95 backdrop-blur-md border-t border-neutral-200 px-4 py-3 shadow-[0_-4px_25px_rgba(0,0,0,0.08)] flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="text-xs font-serif font-bold text-black truncate">{product.name}</div>
+          <div className="text-xs font-mono font-semibold text-neutral-900 flex items-center space-x-1.5">
+            <span>{formatPrice(currentPrice * quantity)}</span>
+            <span className="text-[10px] text-neutral-500 font-normal">({selectedSize})</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={isOutOfStock}
+          className={`px-5 py-2.5 rounded-sm text-xs uppercase tracking-wider font-bold transition-all flex items-center justify-center space-x-1.5 shrink-0 ${
+            isOutOfStock
+              ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200'
+              : justAdded
+              ? 'bg-neutral-900 text-white shadow-sm'
+              : 'bg-black text-white hover:bg-neutral-800 shadow-md active:scale-95'
+          }`}
+          aria-label={`Add ${product.name} to bag`}
+        >
+          {justAdded ? (
+            <>
+              <Check className="w-3.5 h-3.5 text-white" />
+              <span>Added</span>
+            </>
+          ) : isOutOfStock ? (
+            <span>Sold Out</span>
+          ) : (
+            <>
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>Add to Bag</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 };
