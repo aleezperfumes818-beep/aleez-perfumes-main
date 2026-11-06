@@ -26,6 +26,39 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | null>(null);
 
+  // Responsive window measurement for mobile card sizing & peeking
+  const [windowWidth, setWindowWidth] = useState<number>(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 640;
+  const isTablet = windowWidth >= 640 && windowWidth < 1024;
+
+  // Responsive card width & spacing:
+  // On mobile, card is ~68-72% of screen width, leaving ~35-45px visible peek of previous and next slides!
+  let cardWidth = 340;
+  let spacing = 360;
+
+  if (isMobile) {
+    cardWidth = Math.min(275, Math.max(235, Math.round(windowWidth * 0.70)));
+    spacing = Math.round(cardWidth * 1.05);
+  } else if (isTablet) {
+    cardWidth = 300;
+    spacing = 330;
+  } else {
+    cardWidth = 340;
+    spacing = 360;
+  }
+
   const total = products.length;
 
   const nextSlide = useCallback(() => {
@@ -52,8 +85,8 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
-    if (diff > 50) nextSlide();
-    if (diff < -50) prevSlide();
+    if (diff > 35) nextSlide();
+    if (diff < -35) prevSlide();
     touchStartX.current = null;
   };
 
@@ -77,11 +110,11 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="relative w-full overflow-hidden py-8 select-none"
+      className="relative w-full overflow-hidden py-6 sm:py-8 select-none"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8">
         {/* Navigation Controls Bar */}
-        <div className="flex items-center justify-end space-x-2 mb-6">
+        <div className="flex items-center justify-end space-x-2 mb-4 sm:mb-6 px-4 sm:px-0">
           <button
             onClick={prevSlide}
             aria-label="Previous Product"
@@ -99,7 +132,7 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
         </div>
 
         {/* Straight Horizontal Carousel Stage */}
-        <div className="relative min-h-[480px] sm:min-h-[520px] flex items-center justify-center overflow-visible">
+        <div className="relative min-h-[440px] sm:min-h-[520px] flex items-center justify-center overflow-visible">
           <div className="w-full flex items-center justify-center">
             {products.map((product, index) => {
               // Calculate relative offset from active index (-2, -1, 0, 1, 2)
@@ -113,8 +146,6 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
               if (!isVisible) return null;
 
               // Completely straight level horizontal layout (0deg tilt, 0deg skew)
-              const cardWidth = 320; // base width in px
-              const spacing = 340; // spacing between centers
               const translateX = offset * spacing;
               const scale = isCenter ? 1.0 : Math.max(0.88, 1 - Math.abs(offset) * 0.08);
               const zIndex = 30 - Math.abs(offset) * 10;
@@ -128,8 +159,9 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
                 <div
                   key={product.id}
                   onClick={() => setCurrentIndex(index)}
-                  className="absolute w-[280px] sm:w-[320px] md:w-[340px] transition-all duration-500 ease-out cursor-pointer group"
+                  className="absolute transition-all duration-500 ease-out cursor-pointer group"
                   style={{
+                    width: `${cardWidth}px`,
                     transform: `translateX(${translateX}px) scale(${scale})`,
                     zIndex,
                     opacity,
@@ -181,7 +213,7 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
                     </div>
 
                     {/* Card Content & Details (Straight Square Margins) */}
-                    <div className="p-4 sm:p-5 flex flex-col justify-between bg-white border-t border-neutral-100">
+                    <div className="p-3.5 sm:p-5 flex flex-col justify-between bg-white border-t border-neutral-100">
                       <div>
                         {product.category_name && (
                           <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-mono block mb-1">
@@ -189,7 +221,7 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
                           </span>
                         )}
 
-                        <h3 className="font-serif text-lg font-medium text-black group-hover:text-neutral-700 transition-colors line-clamp-1">
+                        <h3 className="font-serif text-base sm:text-lg font-medium text-black group-hover:text-neutral-700 transition-colors line-clamp-1">
                           {product.name}
                         </h3>
 
@@ -203,13 +235,13 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
                       </div>
 
                       {/* Pricing & Add to Cart */}
-                      <div className="pt-3 border-t border-neutral-100 flex items-center justify-between mt-3">
-                        <div className="flex items-baseline space-x-2">
-                          <span className="font-serif text-lg font-semibold text-black">
+                      <div className="pt-2.5 sm:pt-3 border-t border-neutral-100 flex items-center justify-between mt-2.5 sm:mt-3 gap-1.5">
+                        <div className="flex items-baseline space-x-1.5 min-w-0">
+                          <span className="font-serif text-base sm:text-lg font-semibold text-black whitespace-nowrap">
                             {formatPrice(product.sale_price || product.price)}
                           </span>
                           {product.sale_price && product.price > product.sale_price && (
-                            <span className="text-xs text-neutral-400 line-through font-mono">
+                            <span className="text-[11px] sm:text-xs text-neutral-400 line-through font-mono whitespace-nowrap">
                               {formatPrice(product.price)}
                             </span>
                           )}
@@ -217,7 +249,7 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
 
                         <button
                           onClick={(e) => handleAddToCart(e, product)}
-                          className="px-3.5 py-1.5 bg-black hover:bg-neutral-800 text-white text-[10px] uppercase tracking-widest font-semibold rounded-none transition-all duration-300 flex items-center space-x-1.5 shadow-sm active:scale-95"
+                          className="shrink-0 px-3 py-1.5 sm:px-3.5 sm:py-1.5 bg-black hover:bg-neutral-800 text-white text-[10px] uppercase tracking-widest font-semibold rounded-none transition-all duration-300 flex items-center space-x-1.5 shadow-sm active:scale-95"
                         >
                           <ShoppingBag className="w-3 h-3" />
                           <span>{addedId === product.id ? 'Added' : 'Add'}</span>
@@ -232,7 +264,7 @@ export const SkewedCarousel: React.FC<SkewedCarouselProps> = ({
         </div>
 
         {/* Carousel Pagination Dots */}
-        <div className="flex items-center justify-center space-x-2 pt-6">
+        <div className="flex items-center justify-center space-x-2 pt-6 px-4 sm:px-0">
           {products.slice(0, Math.min(products.length, 8)).map((_, dotIdx) => (
             <button
               key={dotIdx}

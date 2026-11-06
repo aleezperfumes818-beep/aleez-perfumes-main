@@ -530,8 +530,8 @@ export const HomePage: React.FC = () => {
       {/* ========================================================================= */}
       {/* 3. BRAND INSPIRATIONS & BESTSELLERS (React Bits Pro Skewed Carousel)      */}
       {/* ========================================================================= */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-4 pb-4 border-b border-neutral-200">
+      <section className="max-w-7xl mx-auto px-0 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-4 pb-4 border-b border-neutral-200 px-4 sm:px-0">
           <div>
             <h2 className="font-serif text-3xl sm:text-4xl text-black">
               {content.bestsellers_section.title}
