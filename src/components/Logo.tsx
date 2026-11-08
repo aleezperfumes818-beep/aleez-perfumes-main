@@ -5,6 +5,7 @@ interface LogoProps {
   variant?: 'dark' | 'white';
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   showText?: boolean;
+  showIcon?: boolean;
 }
 
 export const Logo: React.FC<LogoProps> = ({
@@ -12,6 +13,7 @@ export const Logo: React.FC<LogoProps> = ({
   variant = 'dark',
   size = 'md',
   showText = true,
+  showIcon = false,
 }) => {
   const heightClasses = {
     xs: 'h-6',
@@ -25,12 +27,14 @@ export const Logo: React.FC<LogoProps> = ({
 
   return (
     <div className={`inline-flex items-center gap-2.5 select-none group ${className}`}>
-      <img
-        src={imageSrc}
-        alt="AZ Monogram"
-        className={`${heightClasses[size]} w-auto object-contain transition-transform duration-300 group-hover:scale-105`}
-        loading="eager"
-      />
+      {showIcon && (
+        <img
+          src={imageSrc}
+          alt="AZ Monogram"
+          className={`${heightClasses[size]} w-auto object-contain transition-transform duration-300 group-hover:scale-105`}
+          loading="eager"
+        />
+      )}
       {showText && (
         <div className="flex flex-col text-left">
           <span

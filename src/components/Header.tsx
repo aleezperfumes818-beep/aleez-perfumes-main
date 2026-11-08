@@ -108,9 +108,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
               </button>
             </div>
 
-            {/* AZ Monogram Logo */}
+            {/* ALEEZ Brand Wordmark */}
             <div className="flex items-center flex-shrink-0 mr-6 sm:mr-8 lg:mr-10 xl:mr-16">
-              <Link to="/" className="group flex items-center" aria-label="AZ Home">
+              <Link to="/" className="group flex items-center" aria-label="ALEEZ Home">
                 <Logo variant="dark" size="md" />
               </Link>
             </div>
@@ -289,7 +289,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenSearch }) => {
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center"
-                aria-label="AZ Home"
+                aria-label="ALEEZ Home"
               >
                 <Logo variant="dark" size="sm" showText={true} />
               </Link>

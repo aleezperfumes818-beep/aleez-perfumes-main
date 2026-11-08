@@ -125,7 +125,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </button>
 
           <Link to="/admin" className="flex items-center space-x-2.5">
-            <Logo variant="dark" size="sm" showText={false} />
             <span className="font-serif text-lg tracking-[0.2em] font-bold text-luxury-dark">
               ALEEZ
             </span>

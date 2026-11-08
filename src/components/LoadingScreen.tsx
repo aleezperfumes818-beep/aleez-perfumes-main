@@ -46,16 +46,6 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
       aria-hidden="true"
     >
       <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-md mx-auto space-y-7 animate-fade-in">
-        {/* AZ Monogram Emblem */}
-        <div className="transition-transform duration-500">
-          <img
-            src="/logo-white.png"
-            alt="AZ Monogram"
-            className="h-16 sm:h-20 w-auto object-contain drop-shadow-md"
-            loading="eager"
-          />
-        </div>
-
         {/* Brand Typography */}
         <div className="space-y-1.5 text-center">
           <h1 className="font-serif text-3xl sm:text-4xl tracking-[0.32em] font-light text-white uppercase">
