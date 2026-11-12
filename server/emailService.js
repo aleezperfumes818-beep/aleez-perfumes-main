@@ -129,8 +129,11 @@ const renderEmailShell = (title, contentHtml) => {
   <div class="wrapper">
     <div class="container">
       <div class="header">
-        <h1 class="brand-title">ALEEZ</h1>
-        <div class="brand-subtitle">Perfumes • Luxury Attars &amp; Parfums</div>
+        <a href="https://www.aleezperfumes.in" style="text-decoration: none; display: inline-block;">
+          <img src="https://www.aleezperfumes.in/logo.png" alt="ALEEZ PERFUMES" width="56" height="56" style="display: block; margin: 0 auto 12px; border: 0; outline: none; object-contain;" />
+          <h1 class="brand-title">ALEEZ</h1>
+          <div class="brand-subtitle">Perfumes &bull; Luxury Attars &amp; Parfums</div>
+        </a>
       </div>
       <div class="content">
         ${contentHtml}
