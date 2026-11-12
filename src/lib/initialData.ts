@@ -90,6 +90,33 @@ export const initialCategories: Category[] = [
     display_order: 8,
     is_active: true,
   },
+  {
+    id: "c9999999-9999-4999-8999-999999999901",
+    name: "Body Creams",
+    slug: "body-creams",
+    description: "Velvety, deeply nourishing body butters and scented creams infused with signature Aleez fragrances.",
+    image_url: "/images/body-creams.jpg",
+    display_order: 9,
+    is_active: true,
+  },
+  {
+    id: "c9999999-9999-4999-8999-999999999902",
+    name: "Candles",
+    slug: "candles",
+    description: "Hand-poured luxury scented candles crafted to fill your space with warm, enduring ambiance.",
+    image_url: "/images/candles.jpg",
+    display_order: 10,
+    is_active: true,
+  },
+  {
+    id: "c9999999-9999-4999-8999-999999999903",
+    name: "Bakhoor",
+    slug: "bakhoor",
+    description: "Artisanal agarwood chips soaked in rich aromatic oils, resins, and pure oud for traditional home scenting.",
+    image_url: "/images/bakhoor.jpg",
+    display_order: 11,
+    is_active: true,
+  },
 ];
 
 export const initialProducts: Product[] = [

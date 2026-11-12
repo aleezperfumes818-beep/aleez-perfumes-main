@@ -651,7 +651,7 @@ export const HomePage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
           {/* 1. Body Creams */}
-          <Link to="/shop?search=body+cream" className="group block text-center">
+          <Link to="/shop?category=body-creams" className="group block text-center">
             <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100">
               <img
                 src="/images/body-creams.jpg"
@@ -666,7 +666,7 @@ export const HomePage: React.FC = () => {
           </Link>
 
           {/* 2. Candles */}
-          <Link to="/shop?search=candle" className="group block text-center">
+          <Link to="/shop?category=candles" className="group block text-center">
             <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100">
               <img
                 src="/images/candles.jpg"
@@ -681,7 +681,7 @@ export const HomePage: React.FC = () => {
           </Link>
 
           {/* 3. Bakhoor */}
-          <Link to="/shop?search=bakhoor" className="group block text-center">
+          <Link to="/shop?category=bakhoor" className="group block text-center">
             <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100">
               <img
                 src="/images/bakhoor.jpg"
