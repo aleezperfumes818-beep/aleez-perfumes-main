@@ -656,7 +656,7 @@ export const HomePage: React.FC = () => {
               <img
                 src="/images/body-creams.jpg"
                 alt="Aleez Perfumes Body Creams"
-                className="w-full h-full object-cover object-[center_78%] group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
             </div>
@@ -671,7 +671,7 @@ export const HomePage: React.FC = () => {
               <img
                 src="/images/candles.jpg"
                 alt="Aleez Perfumes Scented Candles"
-                className="w-full h-full object-cover object-[center_65%] group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-full object-cover object-[center_72%] group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
             </div>
@@ -682,7 +682,7 @@ export const HomePage: React.FC = () => {
 
           {/* 3. Bakhoor */}
           <Link to="/shop?search=bakhoor" className="group block text-center">
-            <div className="aspect-[16/10] w-full overflow-hidden bg-[#f2f1ef]">
+            <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100">
               <img
                 src="/images/bakhoor.jpg"
                 alt="Aleez Perfumes Bakhoor"
