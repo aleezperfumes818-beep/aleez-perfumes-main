@@ -671,7 +671,7 @@ export const HomePage: React.FC = () => {
               <img
                 src="/images/candles.jpg"
                 alt="Aleez Perfumes Scented Candles"
-                className="w-full h-full object-cover object-[center_72%] group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
             </div>
