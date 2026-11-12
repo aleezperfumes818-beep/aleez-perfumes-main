@@ -569,7 +569,7 @@ export const HomePage: React.FC = () => {
             {/* 1. Best Sellers */}
             <Link
               to="/shop?filter=bestseller"
-              className="group w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-[#2c3a30] hover:bg-[#232f27] flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+              className="group w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-neutral-700 hover:bg-neutral-800 flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
             >
               <span className="font-serif text-sm sm:text-base tracking-[0.16em] text-[#f3efe6] uppercase text-center leading-relaxed font-normal">
                 Best
@@ -581,7 +581,7 @@ export const HomePage: React.FC = () => {
             {/* 2. Perfumes */}
             <Link
               to="/shop?category=eau-de-parfum"
-              className="group w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-[#2c3a30] hover:bg-[#232f27] flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+              className="group w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-neutral-700 hover:bg-neutral-800 flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
             >
               <span className="font-serif text-sm sm:text-base tracking-[0.16em] text-[#f3efe6] uppercase text-center leading-relaxed font-normal">
                 Perfumes
@@ -591,7 +591,7 @@ export const HomePage: React.FC = () => {
             {/* 3. Perfume Oils */}
             <Link
               to="/shop?category=artisanal-attars"
-              className="group w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-[#2c3a30] hover:bg-[#232f27] flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+              className="group w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-neutral-700 hover:bg-neutral-800 flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
             >
               <span className="font-serif text-sm sm:text-base tracking-[0.16em] text-[#f3efe6] uppercase text-center leading-relaxed font-normal">
                 Perfume
@@ -603,7 +603,7 @@ export const HomePage: React.FC = () => {
             {/* 4. New Arrivals (Circular NEW ring around ARRIVALS) */}
             <Link
               to="/shop?sort=newest"
-              className="group relative w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-[#2c3a30] hover:bg-[#232f27] flex items-center justify-center p-3 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+              className="group relative w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-neutral-700 hover:bg-neutral-800 flex items-center justify-center p-3 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
             >
               <svg
                 viewBox="0 0 120 120"
