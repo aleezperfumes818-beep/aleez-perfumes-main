@@ -579,27 +579,38 @@ app.post('/api/razorpay/verify-payment', orderLimiter, async (req, res) => {
         pincode: resolvedOrder.shipping_pincode || '',
       };
 
+      const notificationTasks = [];
+
       if (customerInfo.email) {
-        sendOrderConfirmationEmail({
-          order: resolvedOrder,
-          items: emailItems,
-          customer: customerInfo,
-          shippingAddress: shippingInfo,
-        }).catch((err) => console.warn('[EmailService] Order confirmation email error:', err));
+        notificationTasks.push(
+          sendOrderConfirmationEmail({
+            order: resolvedOrder,
+            items: emailItems,
+            customer: customerInfo,
+            shippingAddress: shippingInfo,
+          }).catch((err) => console.warn('[EmailService] Order confirmation email error:', err))
+        );
       }
 
       // Automated WhatsApp Order Confirmation
       if (resolvedOrder.customer_phone) {
-        sendWhatsAppNotification('ORDER_PLACED', resolvedOrder).catch((err) =>
-          console.warn('[WhatsAppService] Automated order confirmation notice:', err.message)
+        notificationTasks.push(
+          sendWhatsAppNotification('ORDER_PLACED', resolvedOrder).catch((err) =>
+            console.warn('[WhatsAppService] Automated order confirmation notice:', err.message)
+          )
         );
       }
 
-      sendAdminOrderNotificationEmail({
-        order: resolvedOrder,
-        items: emailItems,
-        customer: customerInfo,
-      }).catch((err) => console.warn('[EmailService] Admin order notification error:', err));
+      notificationTasks.push(
+        sendAdminOrderNotificationEmail({
+          order: resolvedOrder,
+          items: emailItems,
+          customer: customerInfo,
+        }).catch((err) => console.warn('[EmailService] Admin order notification error:', err))
+      );
+
+      // Await notifications before returning so Vercel serverless functions don't terminate mid-flight
+      await Promise.allSettled(notificationTasks);
     }
 
     return res.json({
@@ -735,9 +746,9 @@ app.post('/api/auth/register-fallback', authLimiter, async (req, res) => {
       return res.status(400).json({ success: false, error: error.message });
     }
 
-    // Trigger welcome email asynchronously
-    sendWelcomeEmail({ email: cleanEmail, name: fullName }).catch((e) =>
-      console.warn('[EmailService] Welcome email async warning:', e)
+    // Await welcome email so Vercel serverless functions complete delivery before responding
+    await sendWelcomeEmail({ email: cleanEmail, name: fullName }).catch((e) =>
+      console.warn('[EmailService] Welcome email warning:', e)
     );
 
     return res.json({ success: true, user: data.user, autoConfirmed: true });
@@ -766,9 +777,9 @@ app.post('/api/auth/recover-fallback', authLimiter, async (req, res) => {
       });
 
       if (!error && data?.properties?.action_link) {
-        // Dispatch branded password recovery email via Resend
-        sendRecoveryEmail({ email: cleanEmail, recoveryUrl: data.properties.action_link }).catch((e) =>
-          console.warn('[EmailService] Recovery email async warning:', e)
+        // Dispatch branded password recovery email via Resend (awaited for Vercel serverless)
+        await sendRecoveryEmail({ email: cleanEmail, recoveryUrl: data.properties.action_link }).catch((e) =>
+          console.warn('[EmailService] Recovery email warning:', e)
         );
       }
     }

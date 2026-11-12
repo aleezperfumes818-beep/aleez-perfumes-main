@@ -429,22 +429,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const redirectUrl = `${window.location.origin}/reset-password`;
 
-      const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
-        redirectTo: redirectUrl,
-      });
+      // Primary: Dispatch branded password recovery email via Resend backend
+      let backendDelivered = false;
+      try {
+        const resp = await fetch("/api/auth/recover-fallback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: cleanEmail, redirectTo: redirectUrl }),
+        });
+        if (resp.ok) {
+          backendDelivered = true;
+        }
+      } catch (backendErr) {
+        console.warn('Backend recovery dispatch error, falling back to Supabase:', backendErr);
+      }
 
-      if (error) {
-        console.warn('Password recovery error:', error.message);
-        // Resilient fallback to backend password recovery handler
-        try {
-          fetch("/api/auth/recover-fallback", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email: cleanEmail, redirectTo: redirectUrl }),
-          }).catch(() => {});
-        } catch (_) {}
-
-        if (error.message.toLowerCase().includes('rate limit')) {
+      if (!backendDelivered && supabase) {
+        const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail, {
+          redirectTo: redirectUrl,
+        });
+        if (error && error.message.toLowerCase().includes('rate limit')) {
           return { success: false, error: mapAuthError(error) };
         }
       }
