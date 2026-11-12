@@ -637,6 +637,67 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
+      {/* 4B. SCENTED DELIGHTS (A Trio of Luxurious Fragrances)                     */}
+      {/* ========================================================================= */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+        <div className="text-center space-y-2 mb-10 sm:mb-12">
+          <h2 className="text-xl sm:text-2xl uppercase tracking-[0.26em] text-black font-normal">
+            Scented Delights
+          </h2>
+          <p className="text-[11px] sm:text-xs uppercase tracking-[0.22em] text-neutral-500 font-light">
+            A Trio of Luxurious Fragrances
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          {/* 1. Body Creams */}
+          <Link to="/shop?search=body+cream" className="group block text-center">
+            <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100">
+              <img
+                src="/images/body-creams.jpg"
+                alt="Aleez Perfumes Body Creams"
+                className="w-full h-full object-cover object-[center_78%] group-hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+              />
+            </div>
+            <span className="block mt-4 text-xs sm:text-sm uppercase tracking-[0.24em] text-neutral-800 group-hover:text-black font-normal">
+              Body Creams
+            </span>
+          </Link>
+
+          {/* 2. Candles */}
+          <Link to="/shop?search=candle" className="group block text-center">
+            <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100">
+              <img
+                src="/images/candles.jpg"
+                alt="Aleez Perfumes Scented Candles"
+                className="w-full h-full object-cover object-[center_65%] group-hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+              />
+            </div>
+            <span className="block mt-4 text-xs sm:text-sm uppercase tracking-[0.24em] text-neutral-800 group-hover:text-black font-normal">
+              Candles
+            </span>
+          </Link>
+
+          {/* 3. Bakhoor */}
+          <Link to="/shop?search=bakhoor" className="group block text-center">
+            <div className="aspect-[16/10] w-full overflow-hidden bg-[#f2f1ef]">
+              <img
+                src="/images/bakhoor.jpg"
+                alt="Aleez Perfumes Bakhoor"
+                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+              />
+            </div>
+            <span className="block mt-4 text-xs sm:text-sm uppercase tracking-[0.24em] text-neutral-800 group-hover:text-black font-normal">
+              Bakhoor
+            </span>
+          </Link>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
       {/* 5. CUSTOM PERFUMERY STUDIO                                                */}
       {/* ========================================================================= */}
       {content.bespoke_studio.enabled !== false && (
