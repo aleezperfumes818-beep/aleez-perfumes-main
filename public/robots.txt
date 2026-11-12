@@ -4,4 +4,4 @@ Disallow: /admin
 Disallow: /account
 Disallow: /order-success/
 
-Sitemap: https://aleezperfumes.com/sitemap.xml
+Sitemap: https://aleezperfumes.in/sitemap.xml

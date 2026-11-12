@@ -45,7 +45,7 @@ export function buildWhatsAppTemplate(type: WhatsAppTrigger, data: WhatsAppNotif
         `• Total Paid: ₹${Number(total).toLocaleString('en-IN')}\n` +
         `• Status: Preparing for Express Dispatch\n\n` +
         `We are carefully bottling and packaging your fragrance. You will receive your AWB courier tracking link as soon as it is dispatched.\n\n` +
-        `Need help? Reply directly to this WhatsApp concierge or visit aleezperfumes.com.`
+        `Need help? Reply directly to this WhatsApp concierge or visit aleezperfumes.in.`
       );
 
     case 'ORDER_SHIPPED':

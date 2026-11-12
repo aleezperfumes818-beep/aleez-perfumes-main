@@ -16,7 +16,7 @@ export function buildWhatsAppTemplate(type, data) {
   const courier = data.courierName || data.courier_name || 'Delhivery Surface';
   const awb = data.awbCode || data.awb_code || '';
   const trackingUrl = data.trackingUrl || data.tracking_url || `https://shiprocket.co/tracking/${awb}`;
-  const checkoutUrl = data.checkoutUrl || 'https://aleezperfumes.com/checkout';
+  const checkoutUrl = data.checkoutUrl || 'https://aleezperfumes.in/checkout';
 
   // Format line items preview
   let itemsSummary = '';
@@ -40,7 +40,7 @@ export function buildWhatsAppTemplate(type, data) {
         `• Total Paid: ₹${Number(total).toLocaleString('en-IN')}\n` +
         `• Status: Preparing for Express Dispatch\n\n` +
         `We are carefully bottling and packaging your fragrance. You will receive your AWB courier tracking link as soon as it is dispatched.\n\n` +
-        `Need help? Reply directly to this WhatsApp concierge or visit aleezperfumes.com.`
+        `Need help? Reply directly to this WhatsApp concierge or visit aleezperfumes.in.`
       );
 
     case 'ORDER_SHIPPED':

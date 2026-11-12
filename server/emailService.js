@@ -181,7 +181,7 @@ export const sendWelcomeEmail = async ({ email, name }) => {
       </div>
 
       <div style="text-align: center;">
-        <a href="https://aleez-perfumes-main-61o4.vercel.app/shop" class="btn">Explore The Collection</a>
+        <a href="https://aleezperfumes.in/shop" class="btn">Explore The Collection</a>
       </div>
 
       <p style="font-size: 12px; color: #666; margin-top: 25px;">
@@ -291,7 +291,7 @@ export const sendOrderConfirmationEmail = async ({ order, items = [], customer, 
       </div>
 
       <div style="text-align: center;">
-        <a href="https://aleez-perfumes-main-61o4.vercel.app/account" class="btn">View Order In Account</a>
+        <a href="https://aleezperfumes.in/account" class="btn">View Order In Account</a>
       </div>
     `
   );
@@ -349,7 +349,7 @@ export const sendAdminOrderNotificationEmail = async ({ order, items = [], custo
       </ul>
 
       <div style="text-align: center; margin-top: 25px;">
-        <a href="https://aleez-perfumes-main-61o4.vercel.app/admin" class="btn">Open Admin Dashboard</a>
+        <a href="https://aleezperfumes.in/admin" class="btn">Open Admin Dashboard</a>
       </div>
     `
   );

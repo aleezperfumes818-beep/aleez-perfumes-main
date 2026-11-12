@@ -40,6 +40,8 @@ const envAdditionalOrigins = (process.env.ADDITIONAL_ALLOWED_ORIGINS || '')
   .filter(Boolean);
 
 const staticAllowedOrigins = [
+  'https://aleezperfumes.in',
+  'https://www.aleezperfumes.in',
   'https://aleez-perfumes-main-61o4.vercel.app',
   'http://localhost:5173',
   'http://localhost:5000',
@@ -755,7 +757,7 @@ app.post('/api/auth/recover-fallback', authLimiter, async (req, res) => {
 
     if (supabase) {
       const cleanEmail = email.trim().toLowerCase();
-      const redirectUrl = redirectTo || 'https://aleez-perfumes-main-61o4.vercel.app/reset-password';
+      const redirectUrl = redirectTo || 'https://aleezperfumes.in/reset-password';
 
       const { data, error } = await supabase.auth.admin.generateLink({
         type: 'recovery',
