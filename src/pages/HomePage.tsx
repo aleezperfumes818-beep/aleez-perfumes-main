@@ -557,6 +557,86 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ========================================================================= */}
+      {/* 4. HANDPICKED SPECIALTIES (4 Squircle Category Showcase)                  */}
+      {/* ========================================================================= */}
+      <section className="bg-[#f4f3f1] py-14 sm:py-20 border-y border-neutral-200/70">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-[11px] sm:text-xs uppercase tracking-[0.28em] text-neutral-700 font-medium mb-10 sm:mb-14">
+            Our True Masterclass Into Handpicked Specialties
+          </p>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-10 lg:gap-14 justify-items-center max-w-4xl mx-auto">
+            {/* 1. Best Sellers */}
+            <Link
+              to="/shop?filter=bestseller"
+              className="group w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-[#2c3a30] hover:bg-[#232f27] flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+            >
+              <span className="font-serif text-sm sm:text-base tracking-[0.16em] text-[#f3efe6] uppercase text-center leading-relaxed font-normal">
+                Best
+                <br />
+                Sellers
+              </span>
+            </Link>
+
+            {/* 2. Perfumes */}
+            <Link
+              to="/shop?category=eau-de-parfum"
+              className="group w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-[#2c3a30] hover:bg-[#232f27] flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+            >
+              <span className="font-serif text-sm sm:text-base tracking-[0.16em] text-[#f3efe6] uppercase text-center leading-relaxed font-normal">
+                Perfumes
+              </span>
+            </Link>
+
+            {/* 3. Perfume Oils */}
+            <Link
+              to="/shop?category=artisanal-attars"
+              className="group w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-[#2c3a30] hover:bg-[#232f27] flex items-center justify-center p-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+            >
+              <span className="font-serif text-sm sm:text-base tracking-[0.16em] text-[#f3efe6] uppercase text-center leading-relaxed font-normal">
+                Perfume
+                <br />
+                Oils
+              </span>
+            </Link>
+
+            {/* 4. New Arrivals (Circular NEW ring around ARRIVALS) */}
+            <Link
+              to="/shop?sort=newest"
+              className="group relative w-36 h-36 sm:w-44 sm:h-44 rounded-[28px] sm:rounded-[34px] bg-[#2c3a30] hover:bg-[#232f27] flex items-center justify-center p-3 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300"
+            >
+              <svg
+                viewBox="0 0 120 120"
+                className="w-28 h-28 sm:w-32 sm:h-32 text-[#f3efe6] transition-transform duration-700 group-hover:rotate-45"
+                aria-hidden="true"
+              >
+                <defs>
+                  <path
+                    id="newArrivalsRing"
+                    d="M 60, 60 m -42, 0 a 42,42 0 1,1 84,0 a 42,42 0 1,1 -84,0"
+                  />
+                </defs>
+                <text
+                  fill="currentColor"
+                  fontSize="8.5"
+                  fontWeight="500"
+                  letterSpacing="2.4"
+                  className="uppercase font-sans"
+                >
+                  <textPath href="#newArrivalsRing" startOffset="0%">
+                    • NEW • NEW • NEW • NEW • NEW • NEW
+                  </textPath>
+                </text>
+              </svg>
+              <span className="absolute font-serif text-[11px] sm:text-xs tracking-[0.18em] text-[#f3efe6] uppercase text-center font-normal">
+                Arrivals
+              </span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
       {/* 5. CUSTOM PERFUMERY STUDIO                                                */}
       {/* ========================================================================= */}
       {content.bespoke_studio.enabled !== false && (
