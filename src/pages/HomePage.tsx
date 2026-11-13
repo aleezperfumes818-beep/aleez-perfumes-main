@@ -649,9 +649,13 @@ export const HomePage: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        {/* Mobile Horizontal Swipe Slider / Desktop 3-Column Grid */}
+        <div className="flex md:grid md:grid-cols-3 gap-4 sm:gap-8 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0 snap-x snap-mandatory scrollbar-none px-4 sm:px-0 -mx-4 sm:mx-0">
           {/* 1. Body Creams */}
-          <Link to="/shop?category=body-creams" className="group block text-center">
+          <Link
+            to="/shop?category=body-creams"
+            className="group block text-center flex-shrink-0 w-[78%] sm:w-[65%] md:w-auto snap-center"
+          >
             <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100">
               <img
                 src="/images/body-creams.jpg"
@@ -666,7 +670,10 @@ export const HomePage: React.FC = () => {
           </Link>
 
           {/* 2. Candles */}
-          <Link to="/shop?category=candles" className="group block text-center">
+          <Link
+            to="/shop?category=candles"
+            className="group block text-center flex-shrink-0 w-[78%] sm:w-[65%] md:w-auto snap-center"
+          >
             <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100">
               <img
                 src="/images/candles.jpg"
@@ -681,7 +688,10 @@ export const HomePage: React.FC = () => {
           </Link>
 
           {/* 3. Bakhoor */}
-          <Link to="/shop?category=bakhoor" className="group block text-center">
+          <Link
+            to="/shop?category=bakhoor"
+            className="group block text-center flex-shrink-0 w-[78%] sm:w-[65%] md:w-auto snap-center"
+          >
             <div className="aspect-[16/10] w-full overflow-hidden bg-neutral-100">
               <img
                 src="/images/bakhoor.jpg"
