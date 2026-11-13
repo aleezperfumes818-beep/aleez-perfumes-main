@@ -128,6 +128,7 @@ const MainContent: React.FC = () => {
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/auth/callback" element={<AuthCallbackPage />} />
               <Route path="/shipping" element={<ShippingPolicyPage />} />
+              <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
               <Route path="/refund" element={<RefundPolicyPage />} />
               <Route path="/refund-policy" element={<RefundPolicyPage />} />
               <Route path="/privacy" element={<PrivacyPolicyPage />} />

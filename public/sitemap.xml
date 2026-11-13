@@ -1,53 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core Pages -->
   <url>
-    <loc>https://aleezperfumes.in/</loc>
+    <loc>https://www.aleezperfumes.in/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://aleezperfumes.in/shop</loc>
+    <loc>https://www.aleezperfumes.in/shop</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://aleezperfumes.in/categories</loc>
+    <loc>https://www.aleezperfumes.in/categories</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aleezperfumes.in/create-your-fragrance</loc>
+    <loc>https://www.aleezperfumes.in/create-your-fragrance</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://aleezperfumes.in/about</loc>
+    <loc>https://www.aleezperfumes.in/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://aleezperfumes.in/contact</loc>
+    <loc>https://www.aleezperfumes.in/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <!-- Fragrance Products -->
   <url>
-    <loc>https://aleezperfumes.in/shipping-policy</loc>
-    <changefreq>yearly</changefreq>
+    <loc>https://www.aleezperfumes.in/product/az-bleu</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.aleezperfumes.in/product/az-most-wanted</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.aleezperfumes.in/product/az-berry-musk</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.aleezperfumes.in/product/az-imagination</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.aleezperfumes.in/product/az-oude</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.aleezperfumes.in/product/az-rose-oud</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.aleezperfumes.in/product/oud-al-qasr</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Legal & Policies -->
+  <url>
+    <loc>https://www.aleezperfumes.in/shipping</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://aleezperfumes.in/refund-policy</loc>
-    <changefreq>yearly</changefreq>
+    <loc>https://www.aleezperfumes.in/shipping-policy</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://aleezperfumes.in/privacy-policy</loc>
-    <changefreq>yearly</changefreq>
+    <loc>https://www.aleezperfumes.in/refund-policy</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://aleezperfumes.in/terms</loc>
-    <changefreq>yearly</changefreq>
+    <loc>https://www.aleezperfumes.in/privacy-policy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.aleezperfumes.in/terms</loc>
+    <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 </urlset>
