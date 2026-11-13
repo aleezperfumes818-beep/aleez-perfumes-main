@@ -102,4 +102,16 @@ export const shippingService = {
       return { success: false, error: err.message || 'Connection failed' };
     }
   },
+
+  /**
+   * Calculate live courier shipping rates by delivery pincode
+   */
+  async calculateRates(pincode: string, weight = 0.45): Promise<any> {
+    try {
+      const res = await fetch(`/api/shipping/calculate-rates?pincode=${encodeURIComponent(pincode)}&weight=${weight}`);
+      return await res.json();
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Failed to calculate rates' };
+    }
+  },
 };

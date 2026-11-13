@@ -256,3 +256,82 @@ export async function trackShipment(awbCode, credentials = {}) {
     return { success: false, error: err.message };
   }
 }
+
+/**
+ * Calculate Live Courier Shipping Rates & Availability via Shiprocket
+ */
+export async function calculateShiprocketRates({ pickupPincode, deliveryPincode, weight = 0.45, cod = 0 }, credentials = {}) {
+  const { token, isMock } = await getShiprocketToken(credentials);
+  const pickup = pickupPincode || process.env.SHIPROCKET_PICKUP_PINCODE || '608306';
+
+  if (isMock || !token) {
+    // Generate realistic simulated logistics rates based on Indian pincode zone distance
+    const isLocal = deliveryPincode && (deliveryPincode.startsWith('60') || deliveryPincode.startsWith('61') || deliveryPincode.startsWith('62') || deliveryPincode.startsWith('63') || deliveryPincode.startsWith('64'));
+    const isSouth = deliveryPincode && (deliveryPincode.startsWith('56') || deliveryPincode.startsWith('57') || deliveryPincode.startsWith('58') || deliveryPincode.startsWith('50') || deliveryPincode.startsWith('68') || deliveryPincode.startsWith('69'));
+    const baseRate = isLocal ? 48 : isSouth ? 65 : 85;
+
+    return {
+      success: true,
+      isMock: true,
+      pickup_postcode: pickup,
+      delivery_postcode: deliveryPincode,
+      recommended_courier: 'Delhivery Surface (Fragrance Compliant)',
+      rate: baseRate,
+      estimated_days: isLocal ? '1-2 Days' : isSouth ? '2-3 Days' : '3-5 Days',
+      couriers: [
+        { name: 'Delhivery Surface', rate: baseRate, etd: isLocal ? '2 days' : '3-4 days' },
+        { name: 'Blue Dart Surface', rate: baseRate + 20, etd: isLocal ? '1-2 days' : '2-3 days' },
+        { name: 'DTDC Surface', rate: baseRate + 10, etd: isLocal ? '2 days' : '3-5 days' },
+        { name: 'Shadowfax Surface', rate: baseRate + 5, etd: isLocal ? '2 days' : '4 days' },
+      ],
+      notice: 'Simulated quote based on standard 0.45kg flacon box. Connect live Shiprocket credentials in Admin Settings for exact contractual rates.',
+    };
+  }
+
+  try {
+    const url = new URL('https://apiv2.shiprocket.in/v1/external/courier/serviceability/');
+    url.searchParams.append('pickup_postcode', pickup);
+    url.searchParams.append('delivery_postcode', deliveryPincode);
+    url.searchParams.append('weight', String(weight));
+    url.searchParams.append('cod', String(cod));
+
+    const res = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (!res.ok || data.status !== 200 || !data.data?.available_courier_companies) {
+      throw new Error(data.message || 'Pincode not serviceable or Shiprocket error.');
+    }
+
+    const available = data.data.available_courier_companies;
+    available.sort((a, b) => Number(a.rate) - Number(b.rate));
+    const bestCourier = available[0];
+
+    return {
+      success: true,
+      isMock: false,
+      pickup_postcode: pickup,
+      delivery_postcode: deliveryPincode,
+      recommended_courier: bestCourier.courier_name,
+      rate: Math.round(Number(bestCourier.rate)),
+      estimated_days: bestCourier.etd || '3-5 Days',
+      couriers: available.slice(0, 5).map((c) => ({
+        id: c.courier_company_id,
+        name: c.courier_name,
+        rate: Math.round(Number(c.rate)),
+        etd: c.etd,
+        cod: c.cod === 1,
+      })),
+    };
+  } catch (err) {
+    console.error('Shiprocket rate calculation error:', err);
+    return {
+      success: false,
+      error: err.message,
+    };
+  }
+}

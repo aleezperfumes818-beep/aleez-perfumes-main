@@ -17,6 +17,7 @@ import { whatsappService } from '../lib/whatsappService';
 import { Order, OrderItem } from '../types';
 import { sanitizeName, sanitizeEmail, sanitizePhone, sanitizeMultiline, sanitizeText, sanitizePincode } from '../lib/sanitize';
 import { CouponInput } from '../components/CouponInput';
+import { shippingService } from '../lib/shippingService';
 
 const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
@@ -42,7 +43,7 @@ const loadRazorpayScript = (): Promise<boolean> => {
 };
 
 export const CheckoutPage: React.FC = () => {
-  const { cart, subtotal, shippingCharge, total, clearCart, appliedCoupon, discountAmount } = useCart();
+  const { cart, subtotal, clearCart, appliedCoupon, discountAmount } = useCart();
   const { user } = useAuth();
   const { settings, formatPrice } = useSettings();
   const navigate = useNavigate();
@@ -64,6 +65,37 @@ export const CheckoutPage: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  // Live Shiprocket Courier Rate State
+  const [liveRateQuote, setLiveRateQuote] = useState<any>(null);
+  const [fetchingRate, setFetchingRate] = useState<boolean>(false);
+
+  useEffect(() => {
+    const cleanPin = formData.pincode.replace(/\D/g, '');
+    if (cleanPin.length === 6) {
+      setFetchingRate(true);
+      shippingService.calculateRates(cleanPin)
+        .then((res) => {
+          if (res.success) setLiveRateQuote(res);
+        })
+        .catch(() => {})
+        .finally(() => setFetchingRate(false));
+    } else {
+      setLiveRateQuote(null);
+    }
+  }, [formData.pincode]);
+
+  // Determine effective shipping charge based on store settings
+  const shippingCharge =
+    appliedCoupon?.discount_type === 'free_shipping'
+      ? 0
+      : settings.shipping_fee_type === 'live_shiprocket'
+      ? (liveRateQuote?.rate ?? 0)
+      : settings.shipping_fee_type === 'flat'
+      ? (settings.standard_shipping_fee || 0)
+      : 0;
+
+  const total = Math.max(0, subtotal - (discountAmount || 0) + shippingCharge);
 
   useEffect(() => {
     if (cart.length === 0) {
@@ -187,6 +219,7 @@ export const CheckoutPage: React.FC = () => {
             },
             couponCode: appliedCoupon?.code || '',
             discountAmount: discountAmount || 0,
+            shippingCharge: shippingCharge,
           }),
         });
 
@@ -572,6 +605,40 @@ export const CheckoutPage: React.FC = () => {
                     <p className="text-xs text-red-600 mt-1 font-medium">{formErrors.pincode}</p>
                   )}
                 </div>
+
+                {/* Live Shiprocket Courier Quote Card */}
+                {liveRateQuote && (
+                  <div className="sm:col-span-2 p-3 bg-neutral-50 border border-neutral-200 rounded-sm text-xs flex items-center justify-between text-neutral-800 animate-fade-in">
+                    <div className="flex items-center space-x-2.5">
+                      <Truck className="w-4 h-4 text-black flex-shrink-0" />
+                      <div>
+                        <span className="font-semibold block text-black">
+                          {liveRateQuote.recommended_courier || 'Express Surface Delivery'}
+                        </span>
+                        <span className="text-[11px] text-neutral-500 font-light">
+                          Estimated Transit: {liveRateQuote.estimated_days} (Insured Fragrance Handling)
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-mono font-bold text-black text-sm">
+                        {settings.shipping_fee_type === 'live_shiprocket' ? formatPrice(liveRateQuote.rate) : 'FREE'}
+                      </span>
+                      {settings.shipping_fee_type !== 'live_shiprocket' && (
+                        <span className="text-[10px] text-neutral-400 block line-through font-mono">
+                          {formatPrice(liveRateQuote.rate)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {fetchingRate && (
+                  <div className="sm:col-span-2 text-[11px] text-neutral-500 flex items-center space-x-1.5 font-light">
+                    <div className="w-3 h-3 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                    <span>Calculating real-time courier quote from Shiprocket...</span>
+                  </div>
+                )}
               </div>
 
               <div>

@@ -8,7 +8,7 @@ import Razorpay from 'razorpay';
 import { createClient } from '@supabase/supabase-js';
 import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail, sendNewsletterWelcomeEmail, sendNewReleaseBroadcastEmail } from './emailService.js';
 import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizePincode, sanitizeMultiline } from './sanitize.js';
-import { createShiprocketOrder, generateShippingLabel, trackShipment, getShiprocketToken } from './shiprocketService.js';
+import { createShiprocketOrder, generateShippingLabel, trackShipment, getShiprocketToken, calculateShiprocketRates } from './shiprocketService.js';
 import { sendWhatsAppNotification, buildWhatsAppTemplate } from './whatsappService.js';
 import { globalApiLimiter, authLimiter, orderLimiter, emailLimiter, adminLimiter } from './rateLimit.js';
 
@@ -338,9 +338,10 @@ app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
       }
     }
 
-    // Complimentary express shipping across India on all orders
-    const isFreeShipping = true;
-    const shippingCharge = 0;
+    // Shipping fee calculation (supports Free Shipping, Flat rate, and live Shiprocket rate)
+    const claimedShipping = Number(req.body.shippingCharge) || 0;
+    const isFreeShipping = cleanCouponCode === 'FREESHIP';
+    const shippingCharge = isFreeShipping ? 0 : (claimedShipping > 0 && claimedShipping <= 350 ? claimedShipping : 0);
     const finalTotal = Math.max(0, validatedSubtotal - validatedDiscount) + shippingCharge;
     const orderNumber = `ALZ-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
@@ -1227,6 +1228,48 @@ app.post('/api/shipping/shiprocket/test-connection', adminLimiter, async (req, r
       error: authResult.error || 'Authentication rejected by Shiprocket',
     });
   } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Calculate Live Courier Shipping Rates by Delivery Pincode
+app.get('/api/shipping/calculate-rates', async (req, res) => {
+  try {
+    const { pincode, weight } = req.query;
+    if (!pincode || !/^\d{6}$/.test(String(pincode).trim())) {
+      return res.status(400).json({ success: false, error: 'A valid 6-digit delivery pincode is required.' });
+    }
+
+    let credentials = {};
+    let pickupPincode = '608306';
+
+    if (supabase) {
+      const { data: generalSettings } = await supabase
+        .from('store_settings')
+        .select('value')
+        .eq('key', 'general')
+        .maybeSingle();
+
+      if (generalSettings?.value?.shiprocket) {
+        credentials = generalSettings.value.shiprocket;
+      }
+      if (generalSettings?.value?.pickup_pincode) {
+        pickupPincode = generalSettings.value.pickup_pincode;
+      }
+    }
+
+    const rates = await calculateShiprocketRates(
+      {
+        pickupPincode,
+        deliveryPincode: String(pincode).trim(),
+        weight: Number(weight) || 0.45,
+      },
+      credentials
+    );
+
+    return res.json(rates);
+  } catch (err) {
+    console.error('Shiprocket rates endpoint error:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });

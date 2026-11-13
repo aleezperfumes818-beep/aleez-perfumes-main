@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Settings, Save, CheckCircle, AlertCircle, RefreshCw, Users, ArrowRight, ShieldCheck, Truck, MessageCircle } from 'lucide-react';
+import { Settings, Save, CheckCircle, AlertCircle, RefreshCw, Users, ArrowRight, ShieldCheck, Truck, MessageCircle, Calculator, Search } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { shippingService } from '../lib/shippingService';
 
@@ -18,13 +18,15 @@ export const AdminSettings: React.FC = () => {
     instagram_url: settings.instagram_url || 'https://instagram.com/aleez.parfums',
     currency: settings.currency || 'INR',
     currency_symbol: settings.currency_symbol || '₹',
-    free_shipping_threshold: settings.free_shipping_threshold || 999,
-    standard_shipping_fee: settings.standard_shipping_fee || 99,
+    free_shipping_threshold: settings.free_shipping_threshold || 0,
+    standard_shipping_fee: settings.standard_shipping_fee || 0,
+    shipping_fee_type: settings.shipping_fee_type || 'free',
     announcement_bar: settings.announcement_bar || '',
     is_store_open: settings.is_store_open !== undefined ? settings.is_store_open : true,
     shiprocket_email: settings.shiprocket_email || '',
     shiprocket_password: settings.shiprocket_password || '',
     shiprocket_pickup_location: settings.shiprocket_pickup_location || 'Primary',
+    shiprocket_pickup_pincode: settings.shiprocket_pickup_pincode || '608306',
     whatsapp_phone_number_id: settings.whatsapp_phone_number_id || '',
     whatsapp_access_token: settings.whatsapp_access_token || '',
     whatsapp_bsp_api_key: settings.whatsapp_bsp_api_key || '',
@@ -34,6 +36,33 @@ export const AdminSettings: React.FC = () => {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [testStatus, setTestStatus] = useState<{ testing: boolean; message?: string; success?: boolean } | null>(null);
+
+  // Rate calculator state
+  const [calculatorPincode, setCalculatorPincode] = useState('');
+  const [calculatingRate, setCalculatingRate] = useState(false);
+  const [rateQuote, setRateQuote] = useState<any>(null);
+  const [rateError, setRateError] = useState<string | null>(null);
+
+  const handleCalculateShiprocketRate = async () => {
+    if (!calculatorPincode || !/^\d{6}$/.test(calculatorPincode.trim())) {
+      setRateError('Please enter a valid 6-digit delivery pincode (e.g. 600001, 560001, 110001).');
+      return;
+    }
+    setRateError(null);
+    setCalculatingRate(true);
+    setRateQuote(null);
+    try {
+      const res = await shippingService.calculateRates(calculatorPincode.trim());
+      if (!res.success) {
+        throw new Error(res.error || 'Failed to fetch courier quote from Shiprocket.');
+      }
+      setRateQuote(res);
+    } catch (err: any) {
+      setRateError(err.message || 'Error calculating rate');
+    } finally {
+      setCalculatingRate(false);
+    }
+  };
 
   const handleTestShiprocket = async () => {
     if (!formData.shiprocket_email || !formData.shiprocket_password) {
@@ -223,40 +252,109 @@ export const AdminSettings: React.FC = () => {
         </div>
 
         {/* Shipping & Commerce Settings */}
-        <div className="bg-white border border-luxury-border rounded-xl p-6 space-y-4 shadow-sm">
+        <div className="bg-white border border-luxury-border rounded-xl p-6 space-y-5 shadow-sm">
           <h2 className="font-serif text-lg text-luxury-dark border-b border-luxury-border pb-2">
-            3. Commerce & Shipping Rules
+            3. Customer Shipping Fee Option
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                Free Shipping Threshold (₹ INR)
-              </label>
-              <input
-                type="number"
-                name="free_shipping_threshold"
-                value={formData.free_shipping_threshold}
-                onChange={handleChange}
-                className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
-              />
+          <div className="space-y-3">
+            <label className="block text-xs uppercase tracking-wider text-stone-600 font-medium">
+              Choose How Shipping Fee is Charged to Customers:
+            </label>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Option 1: Free */}
+              <div
+                onClick={() => setFormData({ ...formData, shipping_fee_type: 'free', standard_shipping_fee: 0 })}
+                className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                  formData.shipping_fee_type === 'free'
+                    ? 'border-luxury-gold bg-amber-50/40 ring-1 ring-luxury-gold'
+                    : 'border-luxury-border bg-stone-50 hover:bg-stone-100'
+                }`}
+              >
+                <div className="flex items-center space-x-2 mb-1.5">
+                  <input
+                    type="radio"
+                    name="shipping_fee_type"
+                    checked={formData.shipping_fee_type === 'free'}
+                    onChange={() => {}}
+                    className="accent-luxury-gold"
+                  />
+                  <span className="text-xs font-semibold text-luxury-dark">Complimentary Free Shipping</span>
+                </div>
+                <p className="text-[11px] text-stone-500 font-light leading-relaxed">
+                  ₹0 charged to customer across India. You pay Shiprocket from flacon profit. (Highest conversion rate)
+                </p>
+              </div>
+
+              {/* Option 2: Flat Rate */}
+              <div
+                onClick={() => setFormData({ ...formData, shipping_fee_type: 'flat', standard_shipping_fee: formData.standard_shipping_fee || 49 })}
+                className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                  formData.shipping_fee_type === 'flat'
+                    ? 'border-luxury-gold bg-amber-50/40 ring-1 ring-luxury-gold'
+                    : 'border-luxury-border bg-stone-50 hover:bg-stone-100'
+                }`}
+              >
+                <div className="flex items-center space-x-2 mb-1.5">
+                  <input
+                    type="radio"
+                    name="shipping_fee_type"
+                    checked={formData.shipping_fee_type === 'flat'}
+                    onChange={() => {}}
+                    className="accent-luxury-gold"
+                  />
+                  <span className="text-xs font-semibold text-luxury-dark">Flat Shipping Rate</span>
+                </div>
+                <p className="text-[11px] text-stone-500 font-light leading-relaxed">
+                  Charge a fixed delivery fee (e.g. ₹49, ₹79, or ₹99) added to checkout total.
+                </p>
+              </div>
+
+              {/* Option 3: Live Shiprocket Rates */}
+              <div
+                onClick={() => setFormData({ ...formData, shipping_fee_type: 'live_shiprocket' })}
+                className={`p-4 rounded-xl border cursor-pointer transition-all ${
+                  formData.shipping_fee_type === 'live_shiprocket'
+                    ? 'border-luxury-gold bg-amber-50/40 ring-1 ring-luxury-gold'
+                    : 'border-luxury-border bg-stone-50 hover:bg-stone-100'
+                }`}
+              >
+                <div className="flex items-center space-x-2 mb-1.5">
+                  <input
+                    type="radio"
+                    name="shipping_fee_type"
+                    checked={formData.shipping_fee_type === 'live_shiprocket'}
+                    onChange={() => {}}
+                    className="accent-luxury-gold"
+                  />
+                  <span className="text-xs font-semibold text-luxury-dark">Live Shiprocket Rates</span>
+                </div>
+                <p className="text-[11px] text-stone-500 font-light leading-relaxed">
+                  Calculate and charge exact courier fees quoted by Shiprocket (Delhivery / Blue Dart) based on customer pincode.
+                </p>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
-                Standard Shipping Fee (₹ INR)
-              </label>
-              <input
-                type="number"
-                name="standard_shipping_fee"
-                value={formData.standard_shipping_fee}
-                onChange={handleChange}
-                className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
-              />
-            </div>
+            {/* Flat Fee Input when Flat is selected */}
+            {formData.shipping_fee_type === 'flat' && (
+              <div className="pt-2 max-w-xs animate-fade-in">
+                <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+                  Standard Flat Shipping Fee (₹ INR)
+                </label>
+                <input
+                  type="number"
+                  name="standard_shipping_fee"
+                  value={formData.standard_shipping_fee}
+                  onChange={handleChange}
+                  placeholder="49"
+                  className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
+                />
+              </div>
+            )}
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 border-t border-luxury-border">
             <label className="flex items-center space-x-2 text-xs text-stone-700 cursor-pointer">
               <input
                 type="checkbox"
@@ -271,24 +369,24 @@ export const AdminSettings: React.FC = () => {
         </div>
 
         {/* Shiprocket Logistics & Courier Integration */}
-        <div className="bg-white border border-luxury-border rounded-xl p-6 space-y-4 shadow-sm">
+        <div className="bg-white border border-luxury-border rounded-xl p-6 space-y-5 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-luxury-border pb-2 gap-2">
             <div className="flex items-center space-x-2">
               <Truck className="w-5 h-5 text-luxury-gold" />
               <h2 className="font-serif text-lg text-luxury-dark">
-                4. Shiprocket Delivery & Courier Integration
+                4. Shiprocket Delivery & Live Courier Fee Checker
               </h2>
             </div>
             <span className="text-[10px] uppercase font-mono tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-              Pan-India Surface (Delhivery • Blue Dart)
+              Pan-India Surface (Delhivery • Blue Dart • DTDC)
             </span>
           </div>
 
           <p className="text-xs text-stone-600 font-light leading-relaxed">
-            Connect your <strong>Shiprocket</strong> account to automatically allocate couriers (Delhivery Surface, Blue Dart Surface, DTDC), generate AWB tracking barcodes, and provide 24/7 delivery updates to customers across India.
+            Connect your <strong>Shiprocket</strong> account to allocate couriers, fetch live freight fees, generate AWB tracking barcodes, and track packages 24/7 across India.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
                 Shiprocket Email ID
@@ -316,6 +414,21 @@ export const AdminSettings: React.FC = () => {
                 className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
               />
             </div>
+
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-stone-600 mb-1 font-medium">
+                Pickup Origin Pincode
+              </label>
+              <input
+                type="text"
+                name="shiprocket_pickup_pincode"
+                placeholder="608306"
+                value={formData.shiprocket_pickup_pincode}
+                onChange={handleChange}
+                maxLength={6}
+                className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
+              />
+            </div>
           </div>
 
           <div>
@@ -331,11 +444,11 @@ export const AdminSettings: React.FC = () => {
               className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none font-mono"
             />
             <p className="text-[11px] text-stone-400 mt-1">
-              Must match the "Pickup Address Nickname" saved in your Shiprocket Settings (default is often "Primary").
+              Must match the "Pickup Address Nickname" in your Shiprocket Settings (default is often "Primary").
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
             <button
               type="button"
               onClick={handleTestShiprocket}
@@ -355,6 +468,88 @@ export const AdminSettings: React.FC = () => {
                 {testStatus.success ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
                 <span>{testStatus.message}</span>
               </span>
+            )}
+          </div>
+
+          {/* Interactive Live Shiprocket Courier Fee Checker */}
+          <div className="mt-4 p-4 rounded-xl bg-stone-50 border border-luxury-border space-y-3">
+            <div className="flex items-center space-x-2">
+              <Calculator className="w-4 h-4 text-luxury-gold" />
+              <h3 className="text-xs uppercase tracking-wider font-semibold text-luxury-dark">
+                Live Courier Fee Checker (What Shiprocket Quotes)
+              </h3>
+            </div>
+            <p className="text-[11px] text-stone-500">
+              Type any customer's 6-digit destination pincode below to see the exact freight fee and courier choices Shiprocket quotes:
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+              <input
+                type="text"
+                maxLength={6}
+                value={calculatorPincode}
+                onChange={(e) => setCalculatorPincode(e.target.value.replace(/\D/g, ''))}
+                placeholder="Enter 6-digit Pincode (e.g. 600001, 560001, 110001)"
+                className="flex-1 bg-white border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs font-mono text-luxury-dark focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={handleCalculateShiprocketRate}
+                disabled={calculatingRate}
+                className="px-4 py-2 bg-luxury-dark hover:bg-black text-white text-xs uppercase tracking-wider font-semibold rounded transition-colors flex items-center justify-center space-x-1.5 disabled:opacity-50"
+              >
+                <Search className={`w-3.5 h-3.5 ${calculatingRate ? 'animate-spin' : ''}`} />
+                <span>{calculatingRate ? 'Quoting...' : 'Check Fee'}</span>
+              </button>
+            </div>
+
+            {rateError && (
+              <p className="text-xs text-red-500 flex items-center space-x-1">
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{rateError}</span>
+              </p>
+            )}
+
+            {rateQuote && (
+              <div className="mt-3 p-3.5 bg-white border border-luxury-border rounded-lg space-y-3 animate-fade-in text-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-stone-200 gap-2">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-stone-400 block font-mono">
+                      Origin ({rateQuote.pickup_postcode}) → Destination ({rateQuote.delivery_postcode})
+                    </span>
+                    <span className="font-semibold text-stone-900 text-sm">
+                      Recommended: {rateQuote.recommended_courier}
+                    </span>
+                  </div>
+                  <div className="sm:text-right">
+                    <span className="text-[10px] uppercase tracking-wider text-stone-400 block">Shiprocket Fee</span>
+                    <span className="text-base font-bold font-serif text-emerald-700">₹{rateQuote.rate}</span>
+                    <span className="text-[11px] text-stone-500 block font-light">Est: {rateQuote.estimated_days}</span>
+                  </div>
+                </div>
+
+                {rateQuote.couriers && rateQuote.couriers.length > 0 && (
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold block mb-1.5">
+                      Available Courier Partners &amp; Quotes:
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {rateQuote.couriers.map((c: any, idx: number) => (
+                        <div key={idx} className="flex justify-between items-center p-2 rounded bg-stone-50 border border-stone-200">
+                          <span className="font-medium text-stone-800">{c.name}</span>
+                          <span className="font-mono font-semibold text-stone-900">₹{c.rate}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {rateQuote.notice && (
+                  <p className="text-[10px] text-stone-400 font-mono italic">
+                    ℹ️ {rateQuote.notice}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>
