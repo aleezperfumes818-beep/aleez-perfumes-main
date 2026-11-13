@@ -68,6 +68,40 @@ export const HomePage: React.FC = () => {
   const [isMuted, setIsMuted] = useState(true);
   const [selectedSpotlightSize, setSelectedSpotlightSize] = useState<'50ml' | '100ml'>('50ml');
   const [spotlightAdded, setSpotlightAdded] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [newsletterMsg, setNewsletterMsg] = useState('');
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+
+    setNewsletterStatus('loading');
+    setNewsletterMsg('');
+
+    try {
+      const resp = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: newsletterEmail.trim() }),
+      });
+
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok && data.success) {
+        setNewsletterStatus('success');
+        setNewsletterMsg(
+          data.message || 'You are on the private guest list. You will receive exclusive advance notice of all new releases.'
+        );
+        setNewsletterEmail('');
+      } else {
+        setNewsletterStatus('error');
+        setNewsletterMsg(data.error || 'Unable to subscribe at this time. Please try again.');
+      }
+    } catch (err) {
+      setNewsletterStatus('error');
+      setNewsletterMsg('Connection issue. Please check your network and try again.');
+    }
+  };
   const [selectedCustomNotes, setSelectedCustomNotes] = useState<string[]>(['Rich Oud & Amber']);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -830,27 +864,40 @@ export const HomePage: React.FC = () => {
           {content.newsletter.subtitle}
         </p>
         <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            alert('Welcome to the Aleez Parfums Circle! Check your email for your 10% privilege code.');
-          }}
+          onSubmit={handleNewsletterSubmit}
           className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto pt-2"
         >
           <input
             id="newsletter-email"
             type="email"
             required
-            aria-label="Email address for VIP newsletter"
+            value={newsletterEmail}
+            onChange={(e) => setNewsletterEmail(e.target.value)}
+            disabled={newsletterStatus === 'loading'}
+            aria-label="Email address for VIP fragrance announcements"
             placeholder="Enter your email address"
-            className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-black shadow-sm"
+            className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-sm text-xs focus:outline-none focus:ring-1 focus:ring-black focus:border-black text-black shadow-sm disabled:opacity-50"
           />
           <button
             type="submit"
-            className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-neutral-800 text-white text-xs uppercase tracking-widest font-semibold rounded-sm transition-all shadow-sm flex-shrink-0 focus:outline-none focus:ring-1 focus:ring-black"
+            disabled={newsletterStatus === 'loading'}
+            className="w-full sm:w-auto px-6 py-3 bg-black hover:bg-neutral-800 disabled:bg-neutral-600 text-white text-xs uppercase tracking-widest font-semibold rounded-sm transition-all shadow-sm flex-shrink-0 focus:outline-none focus:ring-1 focus:ring-black"
           >
-            Subscribe
+            {newsletterStatus === 'loading' ? 'Joining...' : 'Subscribe'}
           </button>
         </form>
+
+        {newsletterStatus === 'success' && (
+          <div className="p-3.5 bg-neutral-900 text-white text-xs rounded-sm max-w-md mx-auto tracking-wide border border-neutral-700 animate-fade-in">
+            ✨ {newsletterMsg}
+          </div>
+        )}
+
+        {newsletterStatus === 'error' && (
+          <div className="p-3 bg-red-50 text-red-700 text-xs rounded-sm max-w-md mx-auto border border-red-200">
+            {newsletterMsg}
+          </div>
+        )}
         <p className="text-[11px] text-neutral-500 font-light max-w-md mx-auto pt-1">
           By subscribing, you agree to our{' '}
           <Link to="/privacy" className="text-black underline hover:text-neutral-600">Privacy Policy</Link>.

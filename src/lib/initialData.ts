@@ -562,6 +562,6 @@ export const initialHomepageContent: HomepageContent = {
   newsletter: {
     badge: "",
     title: "Join the Aleez Parfums Circle",
-    subtitle: "Subscribe for complimentary 10% off your initial order, exclusive formulation drops, and private harvest releases.",
+    subtitle: "Receive private advance notices of our new fragrance releases, seasonal extraits, and limited-edition atelier drops.",
   },
 };

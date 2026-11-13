@@ -6,7 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Razorpay from 'razorpay';
 import { createClient } from '@supabase/supabase-js';
-import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail } from './emailService.js';
+import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail, sendNewsletterWelcomeEmail } from './emailService.js';
 import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizePincode, sanitizeMultiline } from './sanitize.js';
 import { createShiprocketOrder, generateShippingLabel, trackShipment, getShiprocketToken } from './shiprocketService.js';
 import { sendWhatsAppNotification, buildWhatsAppTemplate } from './whatsappService.js';
@@ -789,6 +789,68 @@ app.post('/api/auth/recover-fallback', authLimiter, async (req, res) => {
   } catch (err) {
     console.error('Recovery fallback error:', err);
     return res.json({ success: true }); // Always return neutral response
+  }
+});
+
+// --- 3E. VIP CIRCLE & NEW RELEASE ANNOUNCEMENTS SUBSCRIPTION ---
+app.post('/api/newsletter/subscribe', authLimiter, async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ success: false, error: 'A valid email address is required.' });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
+    }
+
+    // Persist to Supabase store_settings ('subscribers')
+    if (supabase) {
+      try {
+        const { data: existingSettings } = await supabase
+          .from('store_settings')
+          .select('value')
+          .eq('key', 'subscribers')
+          .maybeSingle();
+
+        const currentSubscribers = Array.isArray(existingSettings?.value) ? existingSettings.value : [];
+        const isAlreadySubscribed = currentSubscribers.some(
+          (s) => (typeof s === 'string' ? s.toLowerCase() : s?.email?.toLowerCase()) === cleanEmail
+        );
+
+        if (!isAlreadySubscribed) {
+          const updatedSubscribers = [
+            ...currentSubscribers,
+            { email: cleanEmail, subscribed_at: new Date().toISOString(), status: 'active' },
+          ];
+
+          await supabase
+            .from('store_settings')
+            .upsert({
+              key: 'subscribers',
+              value: updatedSubscribers,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'key' });
+        }
+      } catch (dbErr) {
+        console.warn('[Newsletter] Failed to persist subscriber to DB:', dbErr.message);
+      }
+    }
+
+    // Dispatch welcome email via Resend
+    await sendNewsletterWelcomeEmail({ email: cleanEmail }).catch((e) =>
+      console.warn('[EmailService] VIP welcome email warning:', e)
+    );
+
+    return res.json({
+      success: true,
+      message: 'Welcome to the Aleez Parfums Circle! You will receive private announcements for all new releases.',
+    });
+  } catch (err) {
+    console.error('Newsletter subscribe error:', err);
+    return res.status(500).json({ success: false, error: 'Subscription request could not be processed.' });
   }
 });
 

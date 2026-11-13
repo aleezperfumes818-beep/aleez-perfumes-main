@@ -425,3 +425,71 @@ export const sendRecoveryEmail = async ({ email, recoveryUrl }) => {
     return { success: false, error: err.message };
   }
 };
+
+/**
+ * 5. Send VIP Circle / New Release Notification Confirmation Email
+ */
+export const sendNewsletterWelcomeEmail = async ({ email }) => {
+  if (!resend) {
+    console.warn('[EmailService] RESEND_API_KEY is not configured. Skipping VIP newsletter email for:', email);
+    return { success: false, error: 'Resend API key not configured' };
+  }
+
+  const html = renderEmailShell(
+    'Welcome to the Aleez Parfums Circle',
+    `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <span style="display: inline-block; padding: 5px 14px; background-color: #000; color: #fff; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600;">
+          Private Registry
+        </span>
+        <h2 style="font-family: Georgia, serif; font-size: 24px; font-weight: normal; margin: 16px 0 6px; color: #000;">
+          Welcome to the Circle
+        </h2>
+        <p style="margin: 0; color: #666; font-size: 13px; font-style: italic;">
+          Private notifications for our newest fragrance releases
+        </p>
+      </div>
+
+      <p>
+        Thank you for joining the <strong>Aleez Parfums Circle</strong>.
+      </p>
+
+      <p style="font-size: 13.5px; color: #333; line-height: 1.7;">
+        We craft our fragrances with uncompromised artistry — distilling pure artisanal attars, aged wild oud compositions, and opulent Eau de Parfums in strictly limited flacon batches. We do not participate in mass sales or discount promotions.
+      </p>
+
+      <p style="font-size: 13.5px; color: #333; line-height: 1.7;">
+        As a member of our private registry, you will receive exclusive advance announcements directly in your inbox whenever a new olfactory formula, seasonal harvest, or bespoke atelier collection is unveiled.
+      </p>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://www.aleezperfumes.in/shop" class="btn">Explore Current Creations</a>
+      </div>
+
+      <p style="font-size: 12px; color: #888; text-align: center; margin-top: 30px; line-height: 1.6;">
+        You are receiving this because you requested private release notifications at <a href="https://www.aleezperfumes.in" style="color: #000; text-decoration: underline;">aleezperfumes.in</a>.<br>
+        You may <a href="https://www.aleezperfumes.in/unsubscribe?email=${encodeURIComponent(email)}" style="color: #666; text-decoration: underline;">manage your preferences or unsubscribe</a> at any time.
+      </p>
+    `
+  );
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: DEFAULT_SENDER,
+      to: email,
+      subject: 'Welcome to the Aleez Circle — New Release Announcements',
+      html,
+    });
+
+    if (error) {
+      console.warn('[EmailService] Resend newsletter welcome error:', error);
+      return { success: false, error };
+    }
+
+    console.log(`[EmailService] Newsletter welcome email sent to ${email} (ID: ${data?.id})`);
+    return { success: true, id: data?.id };
+  } catch (err) {
+    console.error('[EmailService] Unexpected error sending newsletter welcome email:', err);
+    return { success: false, error: err.message };
+  }
+};
