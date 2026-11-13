@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tag, Check, X, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useSettings } from '../context/SettingsContext';
-import { getCoupons } from '../lib/couponService';
+import { getPublicCoupons } from '../lib/couponService';
 
 interface CouponInputProps {
   className?: string;
@@ -55,12 +55,21 @@ export const CouponInput: React.FC<CouponInputProps> = ({
               <Check className="w-3 h-3" />
             </span>
             <div className="min-w-0">
-              <span className="font-mono text-xs font-bold text-black uppercase tracking-wider block truncate">
-                {appliedCoupon.code}
-              </span>
+              <div className="flex items-center space-x-1.5">
+                <span className="font-mono text-xs font-bold text-black uppercase tracking-wider block truncate">
+                  {appliedCoupon.code}
+                </span>
+                {appliedCoupon.visibility === 'private' && (
+                  <span className="text-[9px] uppercase tracking-wider bg-purple-100 text-purple-800 font-semibold px-1.5 py-0.2 rounded-xs">
+                    Store Credit
+                  </span>
+                )}
+              </div>
               <span className="text-[11px] text-neutral-600 block">
                 {appliedCoupon.discount_type === 'free_shipping'
                   ? 'Free express courier applied'
+                  : appliedCoupon.visibility === 'private'
+                  ? `Applied Store Credit: -${formatPrice(discountAmount)}`
                   : `Saved ${formatPrice(discountAmount)} on this order`}
               </span>
             </div>
@@ -142,7 +151,7 @@ export const CouponInput: React.FC<CouponInputProps> = ({
 
           {showOffers && (
             <div className="mt-2 space-y-2 border border-neutral-200 bg-neutral-50/70 p-3 rounded-sm animate-fade-in">
-              {getCoupons().filter((c) => c.is_active !== false).map((coupon) => {
+              {getPublicCoupons().map((coupon) => {
                 const isEligible = !coupon.min_order_amount || subtotal >= coupon.min_order_amount;
                 return (
                   <div

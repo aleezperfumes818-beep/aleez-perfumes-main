@@ -9,6 +9,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     min_order_amount: 0,
     description: '10% off your entire order (Welcome offer)',
     is_active: true,
+    visibility: 'public',
     usage_count: 24,
     created_at: new Date('2026-01-01').toISOString(),
   },
@@ -20,6 +21,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     min_order_amount: 0,
     description: '10% off your fragrance order',
     is_active: true,
+    visibility: 'public',
     usage_count: 18,
     created_at: new Date('2026-01-15').toISOString(),
   },
@@ -31,6 +33,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     min_order_amount: 1999,
     description: '15% off on orders above ₹1,999',
     is_active: true,
+    visibility: 'public',
     usage_count: 12,
     created_at: new Date('2026-02-01').toISOString(),
   },
@@ -42,6 +45,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     min_order_amount: 2999,
     description: '20% off on orders above ₹2,999',
     is_active: true,
+    visibility: 'public',
     usage_count: 9,
     created_at: new Date('2026-02-10').toISOString(),
   },
@@ -53,6 +57,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     min_order_amount: 1499,
     description: 'Flat ₹200 off on orders above ₹1,499',
     is_active: true,
+    visibility: 'public',
     usage_count: 31,
     created_at: new Date('2026-02-15').toISOString(),
   },
@@ -64,6 +69,7 @@ export const DEFAULT_COUPONS: Coupon[] = [
     min_order_amount: 0,
     description: '100% Free Express Shipping on any order',
     is_active: true,
+    visibility: 'public',
     usage_count: 45,
     created_at: new Date('2026-03-01').toISOString(),
   },
@@ -79,11 +85,35 @@ export const getCoupons = (): Coupon[] => {
       return DEFAULT_COUPONS;
     }
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_COUPONS;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Normalize any legacy coupons missing visibility to 'public'
+      return parsed.map((c) => ({
+        ...c,
+        visibility: c.visibility || (c.code.startsWith('CREDIT') ? 'private' : 'public'),
+      }));
+    }
+    return DEFAULT_COUPONS;
   } catch (err) {
     console.error('Error reading admin coupons:', err);
     return DEFAULT_COUPONS;
   }
+};
+
+export const getPublicCoupons = (): Coupon[] => {
+  return getCoupons().filter((c) => c.is_active !== false && c.visibility !== 'private');
+};
+
+export const getPrivateCoupons = (): Coupon[] => {
+  return getCoupons().filter((c) => c.visibility === 'private');
+};
+
+export const generateStoreCreditCode = (prefix = 'CREDIT-ALZ'): string => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let rand = '';
+  for (let i = 0; i < 4; i++) {
+    rand += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return `${prefix}-${rand}`;
 };
 
 export const saveCoupon = (coupon: Omit<Coupon, 'id'> & { id?: string }): Coupon[] => {
@@ -101,6 +131,7 @@ export const saveCoupon = (coupon: Omit<Coupon, 'id'> & { id?: string }): Coupon
       ...target,
       ...coupon,
       code: normalizedCode,
+      visibility: coupon.visibility || target.visibility || 'public',
       is_active: coupon.is_active !== undefined ? coupon.is_active : target.is_active ?? true,
     };
     updated = [...current];
@@ -109,6 +140,7 @@ export const saveCoupon = (coupon: Omit<Coupon, 'id'> & { id?: string }): Coupon
       ...coupon,
       id: coupon.id || `coup-${Date.now()}`,
       code: normalizedCode,
+      visibility: coupon.visibility || (normalizedCode.startsWith('CREDIT') ? 'private' : 'public'),
       is_active: coupon.is_active !== undefined ? coupon.is_active : true,
       usage_count: 0,
       created_at: new Date().toISOString(),
@@ -175,11 +207,22 @@ export const validateCoupon = (
   const coupons = getCoupons();
   const match = coupons.find((c) => c.code.toUpperCase() === code);
   if (!match) {
-    return { valid: false, error: 'Invalid coupon code. Please verify and try again.' };
+    return { valid: false, error: 'Invalid coupon or store credit code. Please verify and try again.' };
   }
 
   if (match.is_active === false) {
-    return { valid: false, error: `Coupon "${match.code}" is currently expired or deactivated.` };
+    return { valid: false, error: `Coupon "${match.code}" is currently deactivated or already utilized.` };
+  }
+
+  // Check 6 months expiration on private store credits / dated coupons
+  if (match.expires_at) {
+    const expiryTime = new Date(match.expires_at).getTime();
+    if (!isNaN(expiryTime) && expiryTime < Date.now()) {
+      return {
+        valid: false,
+        error: `Store credit code "${match.code}" expired on ${new Date(match.expires_at).toLocaleDateString('en-IN')}. Store credits are valid for 6 months from issue date.`,
+      };
+    }
   }
 
   if (match.min_order_amount && subtotal < match.min_order_amount) {

@@ -333,8 +333,11 @@ app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
         validatedDiscount = validatedSubtotal >= 2000 ? 500 : 0;
       } else if (cleanCouponCode === 'FIRSTORDER') {
         validatedDiscount = Math.round((validatedSubtotal * 15) / 100);
-      } else if (claimedDiscount > 0 && claimedDiscount < validatedSubtotal) {
-        validatedDiscount = Math.min(claimedDiscount, Math.round(validatedSubtotal * 0.5));
+      } else if (cleanCouponCode.startsWith('CREDIT') || cleanCouponCode.includes('STORE') || cleanCouponCode.includes('RETURN')) {
+        // Store credit private codes can offset up to 100% of product subtotal
+        validatedDiscount = Math.min(claimedDiscount, validatedSubtotal);
+      } else if (claimedDiscount > 0 && claimedDiscount <= validatedSubtotal) {
+        validatedDiscount = Math.min(claimedDiscount, validatedSubtotal);
       }
     }
 

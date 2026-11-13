@@ -87,6 +87,13 @@ export interface Coupon {
   is_active?: boolean;
   usage_count?: number;
   created_at?: string;
+  visibility?: 'public' | 'private'; // 'public' for checkout offers, 'private' for individual store credit / VIP codes
+  expires_at?: string; // ISO date string, e.g. 6 months validity
+  customer_name?: string; // Optional customer name for private store credits
+  customer_phone?: string; // Optional customer WhatsApp/mobile
+  order_reference?: string; // Original order ID e.g. ALZ-123456
+  original_amount?: number; // Original product value before deductions
+  return_fee_deducted?: number; // Deduction e.g. ₹100
 }
 
 export interface Order {
