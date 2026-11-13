@@ -6,9 +6,21 @@ dotenv.config();
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-// Sender address: Uses custom verified domain if provided, otherwise Resend default test sender
-const DEFAULT_SENDER = process.env.RESEND_FROM_EMAIL || 'ALEEZ PERFUMES <onboarding@resend.dev>';
+// Sender address: Uses verified custom domain on Resend
+const DEFAULT_SENDER = process.env.RESEND_FROM_EMAIL && !process.env.RESEND_FROM_EMAIL.includes('onboarding@resend.dev')
+  ? process.env.RESEND_FROM_EMAIL
+  : 'ALEEZ PERFUMES <orders@aleezperfumes.in>';
 const STORE_ADMIN_EMAIL = process.env.ADMIN_NOTIFICATION_EMAIL || 'aleez.perfumes818@gmail.com';
+
+const escapeHtml = (str) => {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
 
 /**
  * Base Luxury HTML Email Template
