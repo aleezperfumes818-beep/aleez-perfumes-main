@@ -17,9 +17,9 @@ export const ShippingPolicyPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div className="p-5 rounded-xl bg-white border border-neutral-200 space-y-2 shadow-sm">
           <Truck className="w-5 h-5 text-black" />
-          <h3 className="font-medium text-black text-sm">Free Express Shipping</h3>
+          <h3 className="font-medium text-black text-sm">Pan-India Express Logistics</h3>
           <p className="text-xs text-neutral-600 font-light">
-            Complimentary express delivery across all states in India on all orders.
+            Calculated dynamic surface shipping via Delhivery &amp; Blue Dart. Free shipping available via coupon code.
           </p>
         </div>
         <div className="p-5 rounded-xl bg-white border border-neutral-200 space-y-2 shadow-sm">

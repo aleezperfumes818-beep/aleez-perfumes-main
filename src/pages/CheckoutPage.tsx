@@ -86,14 +86,13 @@ export const CheckoutPage: React.FC = () => {
   }, [formData.pincode]);
 
   // Determine effective shipping charge based on store settings
-  const shippingCharge =
-    appliedCoupon?.discount_type === 'free_shipping'
-      ? 0
-      : settings.shipping_fee_type === 'live_shiprocket'
-      ? (liveRateQuote?.rate ?? 0)
-      : settings.shipping_fee_type === 'flat'
-      ? (settings.standard_shipping_fee || 0)
-      : 0;
+  const isFreeShippingByCoupon = appliedCoupon?.discount_type === 'free_shipping';
+
+  const shippingCharge = isFreeShippingByCoupon
+    ? 0
+    : settings.shipping_fee_type === 'flat'
+    ? (settings.standard_shipping_fee || 48)
+    : (liveRateQuote?.rate ?? settings.standard_shipping_fee ?? 48);
 
   const total = Math.max(0, subtotal - (discountAmount || 0) + shippingCharge);
 
@@ -621,12 +620,43 @@ export const CheckoutPage: React.FC = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="font-mono font-bold text-black text-sm">
-                        {settings.shipping_fee_type === 'live_shiprocket' ? formatPrice(liveRateQuote.rate) : 'FREE'}
-                      </span>
-                      {settings.shipping_fee_type !== 'live_shiprocket' && (
-                        <span className="text-[10px] text-neutral-400 block line-through font-mono">
-                          {formatPrice(liveRateQuote.rate)}
+                      {isFreeShippingByCoupon ? (
+                        <div>
+                          <span className="font-mono font-bold text-emerald-700 text-sm">FREE</span>
+                          <span className="text-[10px] text-neutral-400 block line-through font-mono">
+                            {formatPrice(liveRateQuote.rate)}
+                          </span>
+                        </div>
+                      ) : (
+                        <div>
+                          <span className="font-mono font-bold text-black text-sm">
+                            {formatPrice(liveRateQuote.rate)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {!liveRateQuote && !fetchingRate && (
+                  <div className="sm:col-span-2 p-3 bg-neutral-50 border border-neutral-200 rounded-sm text-xs flex items-center justify-between text-neutral-700">
+                    <div className="flex items-center space-x-2.5">
+                      <Truck className="w-4 h-4 text-neutral-600 flex-shrink-0" />
+                      <div>
+                        <span className="font-semibold block text-neutral-900">
+                          Delhivery Surface (Fragrance Compliant)
+                        </span>
+                        <span className="text-[11px] text-neutral-500 font-light">
+                          Pan-India Insured Express Delivery • Enter pincode for live quote
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      {isFreeShippingByCoupon ? (
+                        <span className="font-mono font-bold text-emerald-700 text-sm">FREE</span>
+                      ) : (
+                        <span className="font-mono font-bold text-neutral-900 text-sm">
+                          {formatPrice(settings.standard_shipping_fee || 48)}
                         </span>
                       )}
                     </div>
@@ -732,8 +762,8 @@ export const CheckoutPage: React.FC = () => {
                 <span>Express Luxury Shipping</span>
                 <span className="font-mono text-black font-medium">
                   {shippingCharge === 0 ? (
-                    <span className="text-black uppercase tracking-wider text-[11px] font-semibold">
-                      {appliedCoupon?.discount_type === 'free_shipping' ? 'Free (Coupon)' : 'Free'}
+                    <span className="text-emerald-700 uppercase tracking-wider text-[11px] font-semibold">
+                      Free (Coupon)
                     </span>
                   ) : (
                     formatPrice(shippingCharge)

@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
           <div className="flex flex-col items-center text-center p-3">
             <Truck className="w-6 h-6 text-black mb-3" aria-hidden="true" />
             <h4 className="text-xs uppercase tracking-widest text-black font-semibold mb-1">Pan-India Express</h4>
-            <p className="text-[12px] text-neutral-600 font-light">Complimentary express delivery</p>
+            <p className="text-[12px] text-neutral-600 font-light">Insured courier dispatch via Delhivery</p>
           </div>
           <div className="flex flex-col items-center text-center p-3">
             <ShieldCheck className="w-6 h-6 text-black mb-3" aria-hidden="true" />

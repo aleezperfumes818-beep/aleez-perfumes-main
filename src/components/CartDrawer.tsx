@@ -91,14 +91,14 @@ export const CartDrawer: React.FC = () => {
             </button>
           </div>
 
-          {/* Free Shipping Badge */}
+          {/* Shipping Info Badge */}
           <div className="px-5 py-2.5 bg-neutral-50 border-b border-neutral-200 text-xs flex items-center justify-between text-neutral-800">
             <span className="flex items-center space-x-1.5 font-medium">
               <Truck className="w-3.5 h-3.5 text-black" />
-              <span>Complimentary Express Shipping Across India</span>
+              <span>Pan-India Insured Express Delivery</span>
             </span>
-            <span className="text-[10px] uppercase tracking-wider font-semibold bg-black text-white px-2 py-0.5 rounded-xs">
-              Free
+            <span className="text-[10px] uppercase tracking-wider font-semibold bg-neutral-200 text-neutral-800 px-2 py-0.5 rounded-xs">
+              Delhivery Surface
             </span>
           </div>
 
@@ -249,12 +249,14 @@ export const CartDrawer: React.FC = () => {
                 <div className="flex justify-between">
                   <span>Luxury Shipping</span>
                   <span className="text-black font-mono font-medium">
-                    {shippingCharge === 0 ? (
-                      <span className="text-black uppercase tracking-wider text-[11px] font-semibold">
-                        {appliedCoupon?.discount_type === 'free_shipping' ? 'Free (Coupon)' : 'Free'}
+                    {appliedCoupon?.discount_type === 'free_shipping' ? (
+                      <span className="text-emerald-700 uppercase tracking-wider text-[11px] font-semibold">
+                        Free (Coupon)
                       </span>
                     ) : (
-                      formatPrice(shippingCharge)
+                      <span className="text-neutral-500 text-[11px] font-light">
+                        Calculated at checkout
+                      </span>
                     )}
                   </span>
                 </div>

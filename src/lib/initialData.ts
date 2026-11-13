@@ -11,9 +11,10 @@ export const initialSettings: StoreSettings = {
   instagram_url: "https://instagram.com/aleez.parfums",
   currency: "INR",
   currency_symbol: "₹",
-  free_shipping_threshold: 0,
-  standard_shipping_fee: 0,
-  announcement_bar: "Complimentary luxury express shipping across India on all orders",
+  free_shipping_threshold: 999999,
+  standard_shipping_fee: 48,
+  shipping_fee_type: 'live_shiprocket',
+  announcement_bar: "Pan-India Express Delivery • Insured Fragrance Cargo",
   is_store_open: true,
 };
 
