@@ -6,7 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Razorpay from 'razorpay';
 import { createClient } from '@supabase/supabase-js';
-import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail, sendNewsletterWelcomeEmail } from './emailService.js';
+import { sendWelcomeEmail, sendOrderConfirmationEmail, sendAdminOrderNotificationEmail, sendRecoveryEmail, sendNewsletterWelcomeEmail, sendNewReleaseBroadcastEmail } from './emailService.js';
 import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizePincode, sanitizeMultiline } from './sanitize.js';
 import { createShiprocketOrder, generateShippingLabel, trackShipment, getShiprocketToken } from './shiprocketService.js';
 import { sendWhatsAppNotification, buildWhatsAppTemplate } from './whatsappService.js';
@@ -1050,6 +1050,63 @@ app.delete('/api/admin/products/:id', adminLimiter, requireAdmin, async (req, re
     return res.json({ success: true, id });
   } catch (err) {
     return res.status(500).json({ error: err.message });
+  }
+});
+
+// --- 5B. BROADCAST NEW RELEASE TO VIP CIRCLE SUBSCRIBERS ---
+app.post('/api/admin/broadcast-new-release', adminLimiter, requireAdmin, async (req, res) => {
+  try {
+    const { product } = req.body;
+    if (!product || !product.name) {
+      return res.status(400).json({ success: false, error: 'Product details are required for broadcast.' });
+    }
+
+    if (!supabase) {
+      return res.status(500).json({ success: false, error: 'Database service is currently unavailable.' });
+    }
+
+    // 1. Fetch active subscribers from store_settings
+    const { data: existingSettings, error: dbErr } = await supabase
+      .from('store_settings')
+      .select('value')
+      .eq('key', 'subscribers')
+      .maybeSingle();
+
+    if (dbErr) {
+      console.error('[Broadcast] DB error fetching subscribers:', dbErr);
+      return res.status(500).json({ success: false, error: 'Failed to retrieve subscriber registry.' });
+    }
+
+    const subscriberList = Array.isArray(existingSettings?.value) ? existingSettings.value : [];
+    const activeEmails = subscriberList
+      .filter((s) => (typeof s === 'string' ? true : s?.status !== 'unsubscribed'))
+      .map((s) => (typeof s === 'string' ? s : s.email))
+      .filter(Boolean);
+
+    if (activeEmails.length === 0) {
+      return res.json({
+        success: true,
+        count: 0,
+        message: 'No active subscribers found in the Aleez Circle yet. New subscribers who join will receive future announcements.',
+      });
+    }
+
+    // 2. Broadcast release email to all active members concurrently
+    const results = await Promise.allSettled(
+      activeEmails.map((email) => sendNewReleaseBroadcastEmail({ product, email }))
+    );
+
+    const sentCount = results.filter((r) => r.status === 'fulfilled' && r.value?.success).length;
+
+    return res.json({
+      success: true,
+      count: sentCount,
+      total: activeEmails.length,
+      message: `Successfully broadcasted release announcement to ${sentCount} subscriber${sentCount === 1 ? '' : 's'}!`,
+    });
+  } catch (err) {
+    console.error('[Broadcast] Unexpected broadcast error:', err);
+    return res.status(500).json({ success: false, error: err.message || 'Internal server error while broadcasting.' });
   }
 });
 

@@ -493,3 +493,97 @@ export const sendNewsletterWelcomeEmail = async ({ email }) => {
     return { success: false, error: err.message };
   }
 };
+
+/**
+ * 6. Send New Product Release Announcement to Circle Subscribers
+ */
+export const sendNewReleaseBroadcastEmail = async ({ product, email }) => {
+  if (!resend) {
+    console.warn('[EmailService] RESEND_API_KEY is not configured. Skipping release announcement for:', email);
+    return { success: false, error: 'Resend API key not configured' };
+  }
+
+  const primaryImage =
+    (product.images && product.images.length > 0 ? product.images[0].image_url : null) ||
+    product.image_url ||
+    'https://www.aleezperfumes.in/logo.png';
+
+  const productUrl = `https://www.aleezperfumes.in/product/${product.slug || product.id}`;
+  const priceFormatted = product.price ? `&#8377;${Number(product.price).toLocaleString('en-IN')}` : '';
+
+  const notesHtml = [
+    product.top_notes ? `<strong>Top Notes:</strong> ${escapeHtml(product.top_notes)}` : '',
+    product.heart_notes ? `<strong>Heart Notes:</strong> ${escapeHtml(product.heart_notes)}` : '',
+    product.base_notes ? `<strong>Base Notes:</strong> ${escapeHtml(product.base_notes)}` : '',
+  ]
+    .filter(Boolean)
+    .join('<br>');
+
+  const html = renderEmailShell(
+    `New Release: ${product.name} — ALEEZ PERFUMES`,
+    `
+      <div style="text-align: center; margin-bottom: 25px;">
+        <span style="display: inline-block; padding: 5px 14px; background-color: #000; color: #fff; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 600;">
+          Atelier Private Release
+        </span>
+        <h2 style="font-family: Georgia, serif; font-size: 26px; font-weight: normal; margin: 16px 0 6px; color: #000;">
+          ${escapeHtml(product.name)}
+        </h2>
+        ${product.inspired_by ? `<p style="margin: 0; color: #777; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;">Inspired by ${escapeHtml(product.inspired_by)}</p>` : ''}
+      </div>
+
+      <div style="text-align: center; margin: 25px 0;">
+        <a href="${productUrl}" style="text-decoration: none; display: inline-block;">
+          <img
+            src="${primaryImage}"
+            alt="${escapeHtml(product.name)}"
+            width="280"
+            style="max-width: 100%; height: auto; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); object-fit: contain; margin: 0 auto; display: block;"
+          />
+        </a>
+      </div>
+
+      <p style="font-size: 14px; color: #333; line-height: 1.7; text-align: center; max-width: 480px; margin: 0 auto 20px;">
+        Our artisan perfumers have unveiled a new creation. Distilled with pure ingredients and aged to perfection, now available in strictly limited quantities.
+      </p>
+
+      ${notesHtml ? `
+        <div style="background-color: #faf9f6; border: 1px solid #eae7e0; border-radius: 4px; padding: 18px 22px; margin: 25px 0; font-size: 12.5px; line-height: 1.8; color: #444;">
+          <div style="font-family: Georgia, serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; color: #000; margin-bottom: 8px;">
+            Olfactory Profile
+          </div>
+          ${notesHtml}
+        </div>
+      ` : ''}
+
+      <div style="text-align: center; margin: 30px 0;">
+        ${priceFormatted ? `<div style="font-family: Georgia, serif; font-size: 20px; font-weight: 600; color: #000; margin-bottom: 15px;">Starting at ${priceFormatted}</div>` : ''}
+        <a href="${productUrl}" class="btn">Discover &amp; Order Flacon</a>
+      </div>
+
+      <p style="font-size: 11px; color: #888; text-align: center; margin-top: 30px; line-height: 1.6;">
+        You are receiving this private release announcement as a verified member of the Aleez Parfums Circle.<br>
+        <a href="https://www.aleezperfumes.in/unsubscribe?email=${encodeURIComponent(email)}" style="color: #666; text-decoration: underline;">Unsubscribe from releases</a>
+      </p>
+    `
+  );
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: DEFAULT_SENDER,
+      to: email,
+      subject: `✨ New Private Release: ${product.name} — ALEEZ PERFUMES`,
+      html,
+    });
+
+    if (error) {
+      console.warn(`[EmailService] Failed release email to ${email}:`, error);
+      return { success: false, error };
+    }
+
+    return { success: true, id: data?.id };
+  } catch (err) {
+    console.error(`[EmailService] Unexpected error sending release email to ${email}:`, err);
+    return { success: false, error: err.message };
+  }
+};

@@ -16,8 +16,9 @@ import {
   Eye,
   ArrowUp,
   ArrowDown,
+  Bell,
 } from 'lucide-react';
-import { dbService } from '../lib/supabase';
+import { dbService, getAuthHeaders } from '../lib/supabase';
 import { Product, Category, ProductImage } from '../types';
 import { useSettings } from '../context/SettingsContext';
 
@@ -33,6 +34,7 @@ export const AdminProducts: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [broadcastingId, setBroadcastingId] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -397,6 +399,38 @@ export const AdminProducts: React.FC = () => {
     }
   };
 
+  const handleBroadcastRelease = async (product: Product) => {
+    const confirmed = window.confirm(
+      `📢 Send private release announcement for "${product.name}" to all Aleez Parfums Circle subscribers?\n\nSubscribers will receive an email with this flacon's photo, notes, and direct order link.`
+    );
+    if (!confirmed) return;
+
+    setBroadcastingId(product.id);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch('/api/admin/broadcast-new-release', {
+        method: 'POST',
+        headers: {
+          ...authHeaders,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ product }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to broadcast announcement.');
+      }
+
+      showNotification('success', data.message || `Notified ${data.count} subscribers successfully!`);
+    } catch (err: any) {
+      console.error('Broadcast error:', err);
+      showNotification('error', err.message || 'Failed to broadcast announcement.');
+    } finally {
+      setBroadcastingId(null);
+    }
+  };
+
   // Filtered Products
   const filteredProducts = products.filter((p) => {
     if (selectedCategory !== 'all' && p.category_id !== selectedCategory) return false;
@@ -603,7 +637,19 @@ export const AdminProducts: React.FC = () => {
                       </td>
 
                       {/* Actions */}
-                      <td className="py-3 px-4 text-right space-x-2 whitespace-nowrap">
+                      <td className="py-3 px-4 text-right space-x-1 sm:space-x-2 whitespace-nowrap">
+                        <button
+                          onClick={() => handleBroadcastRelease(p)}
+                          disabled={broadcastingId === p.id}
+                          className={`p-1.5 transition-colors ${
+                            broadcastingId === p.id
+                              ? 'text-amber-500 animate-spin cursor-wait'
+                              : 'text-stone-400 hover:text-amber-600'
+                          }`}
+                          title="📢 Broadcast Release Announcement to Circle Subscribers"
+                        >
+                          <Bell className="w-4 h-4" />
+                        </button>
                         <button
                           onClick={() => openEditModal(p)}
                           className="p-1.5 text-stone-400 hover:text-luxury-gold transition-colors"
@@ -1089,31 +1135,48 @@ export const AdminProducts: React.FC = () => {
               </div>
 
               {/* Submit Buttons */}
-              <div className="pt-4 border-t border-luxury-border flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 rounded bg-stone-100 border border-luxury-border text-xs uppercase tracking-wider text-stone-600 hover:text-luxury-dark hover:bg-stone-200"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={isSaving || uploadingImage}
-                  className="px-6 py-2.5 rounded bg-luxury-gold hover:bg-luxury-goldHover text-white text-xs uppercase tracking-widest font-semibold shadow-sm transition-all disabled:opacity-50 flex items-center space-x-2"
-                >
-                  {isSaving && (
-                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="pt-4 border-t border-luxury-border flex items-center justify-between">
+                <div>
+                  {editingProduct && (
+                    <button
+                      type="button"
+                      onClick={() => handleBroadcastRelease(editingProduct)}
+                      disabled={broadcastingId === editingProduct.id}
+                      className="px-3.5 py-2 rounded bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs uppercase tracking-wider font-medium flex items-center space-x-1.5 transition-colors disabled:opacity-50"
+                      title="Send release announcement email to subscribers"
+                    >
+                      <Bell className={`w-3.5 h-3.5 ${broadcastingId === editingProduct.id ? 'animate-spin' : ''}`} />
+                      <span>{broadcastingId === editingProduct.id ? 'Broadcasting...' : '📢 Notify Subscribers'}</span>
+                    </button>
                   )}
-                  <span>
-                    {isSaving
-                      ? 'Saving Fragrance...'
-                      : editingProduct
-                      ? 'Save Changes'
-                      : 'Publish Fragrance'}
-                  </span>
-                </button>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-5 py-2.5 rounded bg-stone-100 border border-luxury-border text-xs uppercase tracking-wider text-stone-600 hover:text-luxury-dark hover:bg-stone-200"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isSaving || uploadingImage}
+                    className="px-6 py-2.5 rounded bg-luxury-gold hover:bg-luxury-goldHover text-white text-xs uppercase tracking-widest font-semibold shadow-sm transition-all disabled:opacity-50 flex items-center space-x-2"
+                  >
+                    {isSaving && (
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    )}
+                    <span>
+                      {isSaving
+                        ? 'Saving Fragrance...'
+                        : editingProduct
+                        ? 'Save Changes'
+                        : 'Publish Fragrance'}
+                    </span>
+                  </button>
+                </div>
               </div>
             </form>
           </div>
