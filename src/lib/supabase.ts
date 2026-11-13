@@ -80,13 +80,16 @@ export const getAuthHeaders = async (): Promise<Record<string, string>> => {
   return headers;
 };
 
-// Helper functions for dual 50ml and 100ml pricing persistence
+// Helper functions for dual 50ml, 100ml and custom/single size pricing persistence
 export function parseSizeMetadata(description?: string): {
   cleanDescription: string;
   price_50ml?: number;
   sale_price_50ml?: number | null;
   price_100ml?: number;
   sale_price_100ml?: number | null;
+  size_options?: import('../types').ProductSizeOption[];
+  size_selector_type?: 'standard_flacon' | 'single' | 'custom';
+  volume_label?: string;
 } {
   if (!description) return { cleanDescription: '' };
   const match = description.match(/<!--sizes:(.*?)-->/);
@@ -100,6 +103,9 @@ export function parseSizeMetadata(description?: string): {
       sale_price_50ml: meta.sp50 !== undefined && meta.sp50 !== null && meta.sp50 !== '' ? Number(meta.sp50) : null,
       price_100ml: meta.p100 !== undefined && meta.p100 !== null && meta.p100 !== '' ? Number(meta.p100) : undefined,
       sale_price_100ml: meta.sp100 !== undefined && meta.sp100 !== null && meta.sp100 !== '' ? Number(meta.sp100) : null,
+      size_options: Array.isArray(meta.options) ? meta.options : undefined,
+      size_selector_type: meta.selector_type || undefined,
+      volume_label: meta.volume_label || meta.volume || undefined,
     };
   } catch {
     return { cleanDescription: description };
@@ -111,15 +117,27 @@ export function encodeSizeMetadata(
   p50?: number,
   sp50?: number | null,
   p100?: number,
-  sp100?: number | null
+  sp100?: number | null,
+  options?: import('../types').ProductSizeOption[],
+  selector_type?: 'standard_flacon' | 'single' | 'custom',
+  volume_label?: string
 ): string {
   const clean = (description || '').replace(/<!--sizes:(.*?)-->/g, '').trim();
-  const metaObj = {
+  const metaObj: Record<string, any> = {
     p50: p50 !== undefined && p50 !== null && (p50 as any) !== '' ? Number(p50) : null,
     sp50: sp50 !== undefined && sp50 !== null && (sp50 as any) !== '' ? Number(sp50) : null,
     p100: p100 !== undefined && p100 !== null && (p100 as any) !== '' ? Number(p100) : null,
     sp100: sp100 !== undefined && sp100 !== null && (sp100 as any) !== '' ? Number(sp100) : null,
   };
+  if (Array.isArray(options) && options.length > 0) {
+    metaObj.options = options;
+  }
+  if (selector_type) {
+    metaObj.selector_type = selector_type;
+  }
+  if (volume_label) {
+    metaObj.volume_label = volume_label;
+  }
   return `${clean}\n<!--sizes:${JSON.stringify(metaObj)}-->`;
 }
 
@@ -152,6 +170,9 @@ export const dbService = {
               sale_price_50ml: sp50,
               price_100ml: p100,
               sale_price_100ml: sp100,
+              size_options: parsed.size_options,
+              size_selector_type: parsed.size_selector_type,
+              volume_label: parsed.volume_label,
               images: p.product_images || [],
             };
           });
@@ -188,6 +209,9 @@ export const dbService = {
         sale_price_50ml: sp50,
         price_100ml: p100,
         sale_price_100ml: sp100,
+        size_options: parsed.size_options,
+        size_selector_type: parsed.size_selector_type,
+        volume_label: parsed.volume_label,
       };
     });
   },
@@ -228,7 +252,16 @@ export const dbService = {
 
     const rawDesc = product.description || '';
     const cleanDesc = rawDesc.replace(/<!--sizes:(.*?)-->/g, '').trim();
-    const encodedDesc = encodeSizeMetadata(cleanDesc, p50, sp50, p100, sp100);
+    const encodedDesc = encodeSizeMetadata(
+      cleanDesc,
+      p50,
+      sp50,
+      p100,
+      sp100,
+      product.size_options,
+      product.size_selector_type,
+      product.volume_label
+    );
 
     let updatedProduct: Product = {
       id: productId,
@@ -242,6 +275,9 @@ export const dbService = {
       sale_price_50ml: sp50,
       price_100ml: p100,
       sale_price_100ml: sp100,
+      size_options: product.size_options,
+      size_selector_type: product.size_selector_type,
+      volume_label: product.volume_label,
       description: encodedDesc,
       fragrance_family: product.fragrance_family || '',
       inspired_by: product.inspired_by || '',

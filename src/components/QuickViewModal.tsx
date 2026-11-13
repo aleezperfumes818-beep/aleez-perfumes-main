@@ -15,7 +15,6 @@ interface QuickViewModalProps {
 export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState<'50ml' | '100ml'>('50ml');
   const [justAdded, setJustAdded] = useState(false);
 
   const { addToCart, setIsCartOpen } = useCart();
@@ -36,18 +35,58 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
 
   if (!product) return null;
 
+  // Available size options
+  const defaultSizeOptions = [
+    {
+      size: '50ml',
+      label: '50 ML',
+      price: product.price_50ml ?? product.price,
+      sale_price: product.sale_price_50ml !== undefined ? product.sale_price_50ml : product.sale_price,
+    },
+    {
+      size: '100ml',
+      label: '100 ML',
+      price: product.price_100ml ?? Math.round(product.price * 1.6),
+      sale_price: product.sale_price_100ml !== undefined ? product.sale_price_100ml : (product.sale_price ? Math.round(product.sale_price * 1.6) : null),
+    },
+  ];
+
+  const sizeOptions =
+    product.size_options && product.size_options.length > 0
+      ? product.size_options
+      : product.size_selector_type === 'single' || (product.volume_ml && product.volume_ml !== 50 && product.volume_ml !== 100)
+      ? [
+          {
+            size: product.volume_label?.toLowerCase() || `${product.volume_ml || 200}ml`,
+            label: product.volume_label || `${product.volume_ml || 200} ML`,
+            price: product.price_50ml ?? product.price,
+            sale_price: product.sale_price_50ml !== undefined ? product.sale_price_50ml : product.sale_price,
+          },
+        ]
+      : defaultSizeOptions;
+
+  const [selectedSize, setSelectedSize] = useState<string>(
+    sizeOptions[0]?.size || '50ml'
+  );
+
+  const activeOption =
+    sizeOptions.find((opt) => opt.size.toLowerCase() === selectedSize.toLowerCase()) ||
+    sizeOptions[0];
+
+  const hasDiscount =
+    activeOption.sale_price !== null &&
+    activeOption.sale_price !== undefined &&
+    activeOption.sale_price < activeOption.price;
+  const activeRegularPrice = activeOption.price;
+  const activeSalePrice = hasDiscount ? activeOption.sale_price : null;
+
   const isWished = isInWishlist(product.id);
   const isOutOfStock = product.stock_quantity <= 0;
 
-  const price50 = product.price_50ml ?? product.price;
-  const salePrice50 = product.sale_price_50ml !== undefined ? product.sale_price_50ml : product.sale_price;
-
-  const price100 = product.price_100ml ?? Math.round(product.price * 1.6);
-  const salePrice100 = product.sale_price_100ml !== undefined ? product.sale_price_100ml : (product.sale_price ? Math.round(product.sale_price * 1.6) : null);
-
-  const activeRegularPrice = selectedSize === '50ml' ? price50 : price100;
-  const activeSalePrice = selectedSize === '50ml' ? salePrice50 : salePrice100;
-  const currentPrice = activeSalePrice !== null && activeSalePrice !== undefined ? activeSalePrice : activeRegularPrice;
+  const currentPrice =
+    activeOption.sale_price !== null && activeOption.sale_price !== undefined
+      ? activeOption.sale_price
+      : activeOption.price;
 
   const images = product.images && product.images.length > 0
     ? product.images
@@ -165,43 +204,47 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                 </span>
               </div>
 
-              {/* Size Selector (50 ML vs 100 ML) */}
-              <div className="mb-3 space-y-1.5">
-                <label className="block text-[11px] uppercase tracking-wider text-neutral-600 font-semibold">
-                  Select Size
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedSize('50ml')}
-                    className={`py-2 px-3 rounded-sm border text-xs flex justify-between items-center transition-all ${
-                      selectedSize === '50ml'
-                        ? 'border-black bg-black text-white'
-                        : 'border-neutral-200 bg-white text-black hover:border-black'
-                    }`}
-                  >
-                    <span className="font-serif font-semibold">50 ML</span>
-                    <span className="font-mono font-medium">
-                      {formatPrice(salePrice50 !== null && salePrice50 !== undefined ? salePrice50 : price50)}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setSelectedSize('100ml')}
-                    className={`py-2 px-3 rounded-sm border text-xs flex justify-between items-center transition-all ${
-                      selectedSize === '100ml'
-                        ? 'border-black bg-black text-white'
-                        : 'border-neutral-200 bg-white text-black hover:border-black'
-                    }`}
-                  >
-                    <span className="font-serif font-semibold">100 ML</span>
-                    <span className="font-mono font-medium">
-                      {formatPrice(salePrice100 !== null && salePrice100 !== undefined ? salePrice100 : price100)}
-                    </span>
-                  </button>
+              {/* Dynamic Size Selector */}
+              {sizeOptions.length === 1 ? (
+                <div className="mb-3 p-2.5 bg-neutral-50 border border-neutral-200 rounded-sm flex items-center justify-between text-xs">
+                  <span className="font-serif font-semibold text-black uppercase tracking-wider">
+                    Volume: {activeOption.size.toUpperCase()}
+                  </span>
+                  <span className="text-[10px] text-neutral-500 uppercase font-mono">
+                    {activeOption.label || 'Artisanal Volume'}
+                  </span>
                 </div>
-              </div>
+              ) : (
+                <div className="mb-3 space-y-1.5">
+                  <label className="block text-[11px] uppercase tracking-wider text-neutral-600 font-semibold">
+                    Select Size
+                  </label>
+                  <div className={`grid grid-cols-${Math.min(sizeOptions.length, 3)} gap-2`}>
+                    {sizeOptions.map((opt) => {
+                      const isSelected = selectedSize.toLowerCase() === opt.size.toLowerCase();
+                      const optPrice = opt.price;
+                      const optSalePrice = opt.sale_price;
+                      return (
+                        <button
+                          key={opt.size}
+                          type="button"
+                          onClick={() => setSelectedSize(opt.size)}
+                          className={`py-2 px-3 rounded-sm border text-xs flex justify-between items-center transition-all ${
+                            isSelected
+                              ? 'border-black bg-black text-white'
+                              : 'border-neutral-200 bg-white text-black hover:border-black'
+                          }`}
+                        >
+                          <span className="font-serif font-semibold uppercase">{opt.size.toUpperCase()}</span>
+                          <span className="font-mono font-medium">
+                            {formatPrice(optSalePrice !== null && optSalePrice !== undefined ? optSalePrice : optPrice)}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <p className="text-xs text-neutral-600 font-light leading-relaxed line-clamp-2 mb-3">
                 {product.description}
@@ -263,7 +306,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                   {justAdded ? (
                     <>
                       <Check className="w-4 h-4" />
-                      <span>Added ({selectedSize.toUpperCase()})</span>
+                      <span>Added ({activeOption.size.toUpperCase()})</span>
                     </>
                   ) : (
                     <>
@@ -289,7 +332,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, onClose
                   onClick={handleBuyNow}
                   className="w-full py-2 bg-white border border-black text-black hover:bg-black hover:text-white rounded-sm text-xs uppercase tracking-widest font-semibold transition-colors shadow-sm"
                 >
-                  Instant Buy Now ({selectedSize.toUpperCase()})
+                  Instant Buy Now ({activeOption.size.toUpperCase()})
                 </button>
               )}
 

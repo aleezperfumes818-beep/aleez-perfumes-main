@@ -151,7 +151,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           {/* Category & Volume */}
           <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-neutral-500 uppercase tracking-wider sm:tracking-widest mb-1 font-medium gap-1">
             <span className="truncate">{product.category_name || 'Haute Parfumerie'}</span>
-            <span className="shrink-0">50ml • 100ml</span>
+            <span className="shrink-0 font-mono text-[10px]">
+              {product.size_options && product.size_options.length === 1
+                ? product.size_options[0].size.toUpperCase()
+                : product.size_options && product.size_options.length > 1
+                ? product.size_options.map((o) => o.size.toUpperCase()).join(' • ')
+                : product.volume_label || (product.volume_ml && product.volume_ml !== 50 ? `${product.volume_ml}ml` : '50ml • 100ml')}
+            </span>
           </div>
 
           {/* Inspired By Formulation Tag */}

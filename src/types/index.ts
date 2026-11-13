@@ -7,6 +7,15 @@ export interface ProductImage {
   is_primary: boolean;
 }
 
+export interface ProductSizeOption {
+  size: string; // e.g. "200ml", "50ml", "100ml", "250g"
+  label?: string; // e.g. "Luxury Jar", "Artisanal Flacon", "Best Value"
+  price: number; // Catalog / regular price
+  sale_price?: number | null; // Discounted price
+  sublabel?: string; // e.g. "Deep daily hydration", "4–6 months wear"
+  sprays_info?: string; // e.g. "200 ML / 6.7 FL. OZ.", "~500 Luxury Sprays"
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -19,6 +28,9 @@ export interface Product {
   sale_price_50ml?: number | null;
   price_100ml?: number;
   sale_price_100ml?: number | null;
+  size_options?: ProductSizeOption[];
+  size_selector_type?: 'standard_flacon' | 'single' | 'custom';
+  volume_label?: string; // e.g. "200 ML", "50 ML", "250 G"
   description: string;
   fragrance_family?: string;
   inspired_by?: string;
@@ -58,7 +70,7 @@ export interface Category {
 export interface CartItem {
   product: Product;
   quantity: number;
-  selected_size?: '50ml' | '100ml';
+  selected_size?: string;
   selected_price?: number;
 }
 

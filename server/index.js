@@ -274,45 +274,65 @@ app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
       }
 
       const is100ml = item.selected_size === '100ml' || item.size === '100ml' || item.volume_ml === 100;
+      const rawSize = String(item.selected_size || item.size || '').toLowerCase();
       let unitPrice = 0;
 
-      if (is100ml) {
-        if (sizeMeta && sizeMeta.sp100 !== null && sizeMeta.sp100 !== undefined && sizeMeta.sp100 !== '') {
-          unitPrice = Number(sizeMeta.sp100);
-        } else if (sizeMeta && sizeMeta.p100 !== null && sizeMeta.p100 !== undefined && sizeMeta.p100 !== '') {
-          unitPrice = Number(sizeMeta.p100);
-        } else if (product.sale_price_100ml != null) {
-          unitPrice = Number(product.sale_price_100ml);
-        } else if (product.price_100ml != null) {
-          unitPrice = Number(product.price_100ml);
-        } else {
-          const basePrice = product.sale_price ? Number(product.sale_price) : Number(product.price);
-          unitPrice = Math.round(basePrice * 1.6);
+      // Check if custom or single size options exist
+      if (sizeMeta && Array.isArray(sizeMeta.options) && sizeMeta.options.length > 0) {
+        const matchedOpt = sizeMeta.options.find(
+          (o) => o.size && o.size.toLowerCase() === rawSize
+        ) || (sizeMeta.options.length === 1 ? sizeMeta.options[0] : null);
+
+        if (matchedOpt) {
+          unitPrice = Number(matchedOpt.sale_price !== null && matchedOpt.sale_price !== undefined ? matchedOpt.sale_price : matchedOpt.price);
         }
-      } else {
-        if (sizeMeta && sizeMeta.sp50 !== null && sizeMeta.sp50 !== undefined && sizeMeta.sp50 !== '') {
-          unitPrice = Number(sizeMeta.sp50);
-        } else if (sizeMeta && sizeMeta.p50 !== null && sizeMeta.p50 !== undefined && sizeMeta.p50 !== '') {
-          unitPrice = Number(sizeMeta.p50);
-        } else if (product.sale_price_50ml != null) {
-          unitPrice = Number(product.sale_price_50ml);
-        } else if (product.price_50ml != null) {
-          unitPrice = Number(product.price_50ml);
+      }
+
+      if (!unitPrice) {
+        if (is100ml) {
+          if (sizeMeta && sizeMeta.sp100 !== null && sizeMeta.sp100 !== undefined && sizeMeta.sp100 !== '') {
+            unitPrice = Number(sizeMeta.sp100);
+          } else if (sizeMeta && sizeMeta.p100 !== null && sizeMeta.p100 !== undefined && sizeMeta.p100 !== '') {
+            unitPrice = Number(sizeMeta.p100);
+          } else if (product.sale_price_100ml != null) {
+            unitPrice = Number(product.sale_price_100ml);
+          } else if (product.price_100ml != null) {
+            unitPrice = Number(product.price_100ml);
+          } else {
+            const basePrice = product.sale_price ? Number(product.sale_price) : Number(product.price);
+            unitPrice = Math.round(basePrice * 1.6);
+          }
         } else {
-          unitPrice = product.sale_price ? Number(product.sale_price) : Number(product.price);
+          if (sizeMeta && sizeMeta.sp50 !== null && sizeMeta.sp50 !== undefined && sizeMeta.sp50 !== '') {
+            unitPrice = Number(sizeMeta.sp50);
+          } else if (sizeMeta && sizeMeta.p50 !== null && sizeMeta.p50 !== undefined && sizeMeta.p50 !== '') {
+            unitPrice = Number(sizeMeta.p50);
+          } else if (product.sale_price_50ml != null) {
+            unitPrice = Number(product.sale_price_50ml);
+          } else if (product.price_50ml != null) {
+            unitPrice = Number(product.price_50ml);
+          } else {
+            unitPrice = product.sale_price ? Number(product.sale_price) : Number(product.price);
+          }
         }
       }
 
       const itemTotal = unitPrice * requestedQty;
       validatedSubtotal += itemTotal;
 
+      const effectiveSizeLabel = item.selected_size ? String(item.selected_size).toUpperCase() : (is100ml ? '100ML' : '50ML');
+      const itemDisplayName = product.name.toUpperCase().includes(effectiveSizeLabel)
+        ? product.name
+        : `${product.name} (${effectiveSizeLabel})`;
+
       validatedItems.push({
         product_id: product.id,
-        product_name: product.name,
+        product_name: itemDisplayName,
         unit_price: unitPrice,
         quantity: requestedQty,
         total_price: itemTotal,
         product_image: item.image || '',
+        selected_size: effectiveSizeLabel,
       });
     }
 
@@ -949,7 +969,15 @@ app.post('/api/admin/products', adminLimiter, requireAdmin, async (req, res) => 
 
     const rawDesc = product.description || '';
     const cleanDesc = rawDesc.replace(/<!--sizes:(.*?)-->/g, '').trim();
-    const sizeMeta = { p50, sp50, p100, sp100 };
+    const sizeMeta = {
+      p50,
+      sp50,
+      p100,
+      sp100,
+      options: product.size_options || undefined,
+      selector_type: product.size_selector_type || undefined,
+      volume_label: product.volume_label || undefined,
+    };
     const encodedDesc = `${cleanDesc}\n<!--sizes:${JSON.stringify(sizeMeta)}-->`;
 
     const dbPayload = {

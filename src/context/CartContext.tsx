@@ -7,7 +7,7 @@ interface CartContextType {
   addToCart: (
     product: Product,
     quantity?: number,
-    selectedSize?: '50ml' | '100ml',
+    selectedSize?: string,
     selectedPrice?: number
   ) => { success: boolean; message?: string };
   removeFromCart: (productId: string, selectedSize?: string) => void;
@@ -75,23 +75,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [appliedCoupon]);
 
-  const getItemEffectivePrice = (product: Product, size?: '50ml' | '100ml', customPrice?: number): number => {
+  const getItemEffectivePrice = (product: Product, size?: string, customPrice?: number): number => {
     if (customPrice !== undefined && customPrice !== null && !isNaN(customPrice)) {
       return customPrice;
     }
-    const targetSize = size || (product.volume_ml === 100 ? '100ml' : '50ml');
-    if (targetSize === '50ml') {
+    const targetSize = (size || (product.volume_ml === 100 ? '100ml' : (product.volume_label?.toLowerCase() || '50ml'))).toLowerCase();
+
+    // Check custom size options
+    if (product.size_options && product.size_options.length > 0) {
+      const match = product.size_options.find((o) => o.size.toLowerCase() === targetSize)
+        || (product.size_options.length === 1 ? product.size_options[0] : null);
+      if (match) {
+        return match.sale_price !== null && match.sale_price !== undefined ? match.sale_price : match.price;
+      }
+    }
+
+    if (targetSize === '100ml') {
+      return (
+        product.sale_price_100ml ??
+        product.price_100ml ??
+        Math.round((product.sale_price ?? product.price) * 1.6)
+      );
+    } else {
       return (
         product.sale_price_50ml ??
         product.price_50ml ??
         product.sale_price ??
         product.price
-      );
-    } else {
-      return (
-        product.sale_price_100ml ??
-        product.price_100ml ??
-        Math.round((product.sale_price ?? product.price) * 1.6)
       );
     }
   };
@@ -99,9 +109,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addToCart = (
     product: Product,
     quantity = 1,
-    selectedSize: '50ml' | '100ml' = '50ml',
+    selectedSize?: string,
     selectedPrice?: number
   ): { success: boolean; message?: string } => {
+    const effectiveSize = selectedSize || (product.size_options?.[0]?.size) || (product.volume_ml === 100 ? '100ml' : (product.volume_label?.toLowerCase() || '50ml'));
     if (!product.is_active) {
       return { success: false, message: 'This fragrance is currently unavailable.' };
     }
@@ -110,14 +121,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, message: 'Sorry, this fragrance is currently out of stock.' };
     }
 
-    const calculatedPrice = getItemEffectivePrice(product, selectedSize, selectedPrice);
+    const calculatedPrice = getItemEffectivePrice(product, effectiveSize, selectedPrice);
 
     let message = '';
     let success = true;
 
     setCart((prev) => {
       const existing = prev.find(
-        (item) => item.product.id === product.id && (item.selected_size || '50ml') === selectedSize
+        (item) => item.product.id === product.id && (item.selected_size || '50ml').toLowerCase() === effectiveSize.toLowerCase()
       );
 
       if (existing) {
@@ -127,9 +138,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           message = `Cannot add more. Only ${product.stock_quantity} available in stock.`;
           return prev;
         }
-        message = `Updated ${product.name} (${selectedSize}) quantity to ${newQty}.`;
+        message = `Updated ${product.name} (${effectiveSize.toUpperCase()}) quantity to ${newQty}.`;
         return prev.map((item) =>
-          item.product.id === product.id && (item.selected_size || '50ml') === selectedSize
+          item.product.id === product.id && (item.selected_size || '50ml').toLowerCase() === effectiveSize.toLowerCase()
             ? { ...item, quantity: newQty, selected_price: calculatedPrice }
             : item
         );
@@ -139,13 +150,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           message = `Only ${product.stock_quantity} available in stock.`;
           return prev;
         }
-        message = `${product.name} (${selectedSize}) added to your bag.`;
+        message = `${product.name} (${effectiveSize.toUpperCase()}) added to your bag.`;
         return [
           ...prev,
           {
             product,
             quantity,
-            selected_size: selectedSize,
+            selected_size: effectiveSize,
             selected_price: calculatedPrice,
           },
         ];

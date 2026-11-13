@@ -48,6 +48,17 @@ export const AdminProducts: React.FC = () => {
     sale_price_50ml: '',
     price_100ml: '',
     sale_price_100ml: '',
+    size_selector_type: 'standard_flacon' as 'standard_flacon' | 'single' | 'custom',
+    volume_label: '50ml',
+    single_size: '200ml',
+    single_label: 'Luxury Jar',
+    single_price: '',
+    single_sale_price: '',
+    single_sublabel: '',
+    custom_sizes: [
+      { size: '50ml', label: 'Artisanal Flacon', price: 999, sale_price: 599, sublabel: '4–6 months daily wear' },
+      { size: '100ml', label: 'Best Value', price: 1699, sale_price: 1099, sublabel: '9–12 months daily wear' }
+    ] as import('../types').ProductSizeOption[],
     volume_ml: 50,
     stock_quantity: 20,
     sku: '',
@@ -120,6 +131,17 @@ export const AdminProducts: React.FC = () => {
       sale_price_50ml: '',
       price_100ml: '',
       sale_price_100ml: '',
+      size_selector_type: 'standard_flacon',
+      volume_label: '50ml',
+      single_size: '200ml',
+      single_label: 'Luxury Jar',
+      single_price: '',
+      single_sale_price: '',
+      single_sublabel: '',
+      custom_sizes: [
+        { size: '50ml', label: 'Artisanal Flacon', price: 999, sale_price: 599, sublabel: '4–6 months daily wear' },
+        { size: '100ml', label: 'Best Value', price: 1699, sale_price: 1099, sublabel: '9–12 months daily wear' },
+      ],
       volume_ml: 50,
       stock_quantity: 25,
       sku: `ALZ-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -145,6 +167,21 @@ export const AdminProducts: React.FC = () => {
 
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
+
+    // Auto-detect size mode:
+    const sizeType: 'standard_flacon' | 'single' | 'custom' =
+      product.size_selector_type ||
+      (product.size_options && product.size_options.length === 1
+        ? 'single'
+        : product.size_options && product.size_options.length > 2
+        ? 'custom'
+        : product.volume_ml === 200 || product.name.toLowerCase().includes('cream') || product.name.toLowerCase().includes('butter')
+        ? 'single'
+        : 'standard_flacon');
+
+    const singleOpt = product.size_options?.[0];
+    const initialVolumeLabel = product.volume_label || (product.volume_ml ? `${product.volume_ml}ml` : '50ml');
+
     setFormData({
       name: product.name,
       inspired_by: product.inspired_by || '',
@@ -156,6 +193,17 @@ export const AdminProducts: React.FC = () => {
       sale_price_50ml: product.sale_price_50ml !== null && product.sale_price_50ml !== undefined ? product.sale_price_50ml.toString() : (product.sale_price !== null && product.sale_price !== undefined ? product.sale_price.toString() : ''),
       price_100ml: product.price_100ml !== null && product.price_100ml !== undefined ? product.price_100ml.toString() : '',
       sale_price_100ml: product.sale_price_100ml !== null && product.sale_price_100ml !== undefined ? product.sale_price_100ml.toString() : '',
+      size_selector_type: sizeType,
+      volume_label: initialVolumeLabel,
+      single_size: singleOpt?.size || initialVolumeLabel || (product.volume_ml === 200 ? '200ml' : '200ml'),
+      single_label: singleOpt?.label || (product.name.toLowerCase().includes('cream') || product.name.toLowerCase().includes('butter') ? 'Luxury Jar' : 'Artisanal Volume'),
+      single_price: singleOpt?.price ? singleOpt.price.toString() : (product.price_50ml ?? product.price ?? '').toString(),
+      single_sale_price: singleOpt?.sale_price !== null && singleOpt?.sale_price !== undefined ? singleOpt.sale_price.toString() : (product.sale_price_50ml !== null && product.sale_price_50ml !== undefined ? product.sale_price_50ml.toString() : (product.sale_price ? product.sale_price.toString() : '')),
+      single_sublabel: singleOpt?.sublabel || (product.name.toLowerCase().includes('cream') ? 'Deep Nourishing Body Butter • 6.7 Fl. Oz.' : ''),
+      custom_sizes: product.size_options && product.size_options.length > 0 ? product.size_options : [
+        { size: '50ml', label: 'Artisanal Flacon', price: Number(product.price_50ml || product.price || 999), sale_price: product.sale_price_50ml ?? product.sale_price, sublabel: '4–6 months daily wear' },
+        { size: '100ml', label: 'Best Value', price: Number(product.price_100ml || 1699), sale_price: product.sale_price_100ml, sublabel: '9–12 months daily wear' },
+      ],
       volume_ml: product.volume_ml,
       stock_quantity: product.stock_quantity,
       sku: product.sku,
@@ -256,20 +304,51 @@ export const AdminProducts: React.FC = () => {
     });
   };
 
+  const handleAddCustomSize = () => {
+    setFormData((prev) => ({
+      ...prev,
+      custom_sizes: [
+        ...prev.custom_sizes,
+        { size: '200ml', label: 'Luxury Edition', price: 999, sale_price: 599, sublabel: '' },
+      ],
+    }));
+  };
+
+  const handleRemoveCustomSize = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      custom_sizes: prev.custom_sizes.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleUpdateCustomSize = (index: number, field: string, value: any) => {
+    setFormData((prev) => {
+      const updated = [...prev.custom_sizes];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, custom_sizes: updated };
+    });
+  };
+
   const validateForm = () => {
     const errors: Record<string, string> = {};
     if (!formData.name.trim()) errors.name = 'Fragrance name is required';
     
-    // Auto-sync base price from 50ml or vice versa if either is filled
-    if (!formData.price && formData.price_50ml) {
-      formData.price = formData.price_50ml;
-    } else if (!formData.price_50ml && formData.price) {
-      formData.price_50ml = formData.price;
+    let effectivePrice = 0;
+    if (formData.size_selector_type === 'single') {
+      effectivePrice = Number(formData.single_price || formData.price);
+    } else if (formData.size_selector_type === 'custom') {
+      effectivePrice = Number(formData.custom_sizes[0]?.price || formData.price);
+    } else {
+      if (!formData.price && formData.price_50ml) {
+        formData.price = formData.price_50ml;
+      } else if (!formData.price_50ml && formData.price) {
+        formData.price_50ml = formData.price;
+      }
+      effectivePrice = Number(formData.price_50ml || formData.price);
     }
 
-    const effectivePrice = Number(formData.price_50ml || formData.price);
     if (!effectivePrice || effectivePrice <= 0) {
-      errors.price = 'Valid price is required for 50ml or general catalog price';
+      errors.price = 'Valid price is required';
     }
     if (!formData.description.trim()) errors.description = 'Fragrance description is required';
 
@@ -313,12 +392,66 @@ export const AdminProducts: React.FC = () => {
               },
             ];
 
-      const p50 = formData.price_50ml ? Number(formData.price_50ml) : (Number(formData.price) || 0);
-      const sp50 = formData.sale_price_50ml ? Number(formData.sale_price_50ml) : (formData.sale_price ? Number(formData.sale_price) : null);
-      const p100 = formData.price_100ml ? Number(formData.price_100ml) : Math.round(p50 * 1.6);
-      const sp100 = formData.sale_price_100ml ? Number(formData.sale_price_100ml) : null;
-      const basePrice = Number(formData.price) || p50;
-      const baseSalePrice = formData.sale_price ? Number(formData.sale_price) : sp50;
+      let p50 = 0;
+      let sp50: number | null = null;
+      let p100 = 0;
+      let sp100: number | null = null;
+      let basePrice = 0;
+      let baseSalePrice: number | null = null;
+      let optionsToSave: import('../types').ProductSizeOption[] = [];
+      let volLabel = formData.volume_label || '50 ML';
+      let volMl = Number(formData.volume_ml) || 50;
+
+      if (formData.size_selector_type === 'single') {
+        const sPrice = Number(formData.single_price) || Number(formData.price) || 0;
+        const sSalePrice = formData.single_sale_price ? Number(formData.single_sale_price) : null;
+        const sSize = formData.single_size.trim().toLowerCase() || '200ml';
+        volLabel = formData.single_size.trim().toUpperCase() || '200 ML';
+        volMl = parseInt(sSize.replace(/\D/g, '')) || 200;
+        basePrice = sPrice;
+        baseSalePrice = sSalePrice;
+        p50 = sPrice;
+        sp50 = sSalePrice;
+        p100 = sPrice;
+        sp100 = sSalePrice;
+        optionsToSave = [
+          {
+            size: sSize,
+            label: formData.single_label.trim() || 'Luxury Volume',
+            price: sPrice,
+            sale_price: sSalePrice,
+            sublabel: formData.single_sublabel.trim() || undefined,
+            sprays_info: volLabel,
+          },
+        ];
+      } else if (formData.size_selector_type === 'custom') {
+        optionsToSave = formData.custom_sizes.map((cs) => ({
+          ...cs,
+          price: Number(cs.price) || 0,
+          sale_price: cs.sale_price !== null && cs.sale_price !== undefined && (cs.sale_price as any) !== '' ? Number(cs.sale_price) : null,
+        }));
+        basePrice = optionsToSave[0]?.price || 0;
+        baseSalePrice = optionsToSave[0]?.sale_price || null;
+        p50 = basePrice;
+        sp50 = baseSalePrice;
+        p100 = optionsToSave[1]?.price || basePrice;
+        sp100 = optionsToSave[1]?.sale_price || null;
+        volLabel = optionsToSave[0]?.size ? optionsToSave[0].size.toUpperCase() : 'CUSTOM';
+      } else {
+        // Standard flacon
+        p50 = formData.price_50ml ? Number(formData.price_50ml) : (Number(formData.price) || 0);
+        sp50 = formData.sale_price_50ml ? Number(formData.sale_price_50ml) : (formData.sale_price ? Number(formData.sale_price) : null);
+        p100 = formData.price_100ml ? Number(formData.price_100ml) : Math.round(p50 * 1.6);
+        sp100 = formData.sale_price_100ml ? Number(formData.sale_price_100ml) : null;
+        basePrice = Number(formData.price) || p50;
+        baseSalePrice = formData.sale_price ? Number(formData.sale_price) : sp50;
+        volLabel = '50 ML';
+        volMl = 50;
+        optionsToSave = [
+          { size: '50ml', label: 'Artisanal Flacon', price: p50, sale_price: sp50, sublabel: '4–6 months daily wear', sprays_info: '~500 Luxury Sprays' },
+          { size: '100ml', label: 'Best Value', price: p100, sale_price: sp100, sublabel: '9–12 months daily wear', sprays_info: '~1,000 Luxury Sprays' },
+        ];
+      }
 
       const productPayload: Partial<Product> = {
         id: editingProduct?.id,
@@ -333,7 +466,10 @@ export const AdminProducts: React.FC = () => {
         sale_price_50ml: sp50,
         price_100ml: p100,
         sale_price_100ml: sp100,
-        volume_ml: Number(formData.volume_ml) || 50,
+        size_options: optionsToSave,
+        size_selector_type: formData.size_selector_type,
+        volume_label: volLabel,
+        volume_ml: volMl,
         stock_quantity: Number(formData.stock_quantity),
         sku: formData.sku.trim(),
         description: formData.description.trim(),
@@ -356,7 +492,7 @@ export const AdminProducts: React.FC = () => {
       await dbService.saveProduct(productPayload);
       await loadData();
       setIsModalOpen(false);
-      showNotification('success', `Fragrance "${formData.name}" saved and live in store!`);
+      showNotification('success', `Product "${formData.name}" saved with updated sizes and pricing!`);
     } catch (err: any) {
       console.error('Save product error:', err);
       showNotification('error', `Failed to save product: ${err.message}`);
@@ -805,118 +941,356 @@ export const AdminProducts: React.FC = () => {
                 </div>
               </div>
 
-              {/* Bottle Sizes & Tiered Pricing (50 ML & 100 ML) */}
+              {/* Product Size Format & Tiered Pricing */}
               <div className="bg-neutral-50 rounded-lg border border-neutral-300 p-4 space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 pb-3">
                   <div>
                     <h4 className="text-xs uppercase tracking-wider text-black font-semibold">
-                      Bottle Sizes &amp; Pricing (50 ML &amp; 100 ML)
+                      Product Sizes &amp; Pricing Configuration
                     </h4>
                     <p className="text-[11px] text-neutral-500 font-light">
-                      Set separate prices and sale offers for 50ml and 100ml flacons
+                      Configure standard flacons (50ml &amp; 100ml), a single fixed size (e.g. 200ml Body Cream / Candle), or custom sizes
                     </p>
                   </div>
-                  <span className="text-[10px] uppercase tracking-wider bg-black text-white px-2 py-0.5 rounded font-mono font-bold">
-                    Dual Size
-                  </span>
+                  {/* Mode switcher tabs */}
+                  <div className="inline-flex rounded-md border border-neutral-300 bg-white p-0.5 shadow-xs">
+                    <button
+                      type="button"
+                      onClick={() => setFormData((p) => ({ ...p, size_selector_type: 'standard_flacon' }))}
+                      className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
+                        formData.size_selector_type === 'standard_flacon'
+                          ? 'bg-black text-white'
+                          : 'text-neutral-600 hover:text-black'
+                      }`}
+                    >
+                      Dual Flacon (50 &amp; 100ml)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData((p) => ({ ...p, size_selector_type: 'single' }))}
+                      className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
+                        formData.size_selector_type === 'single'
+                          ? 'bg-black text-white'
+                          : 'text-neutral-600 hover:text-black'
+                      }`}
+                    >
+                      Single Size (e.g. 200ml Jar)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData((p) => ({ ...p, size_selector_type: 'custom' }))}
+                      className={`px-2.5 py-1 text-[11px] font-medium rounded transition-colors ${
+                        formData.size_selector_type === 'custom'
+                          ? 'bg-black text-white'
+                          : 'text-neutral-600 hover:text-black'
+                      }`}
+                    >
+                      Custom Sizes
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* 50 ML Tier */}
-                  <div className="p-3 bg-white rounded border border-neutral-200 space-y-3 shadow-xs">
-                    <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-black">
-                        50 ML Flacon
-                      </span>
-                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider">Standard Size</span>
+                {/* Option 1: Standard Dual Flacon */}
+                {formData.size_selector_type === 'standard_flacon' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* 50 ML Tier */}
+                    <div className="p-3 bg-white rounded border border-neutral-200 space-y-3 shadow-xs">
+                      <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-black">
+                          50 ML Flacon
+                        </span>
+                        <span className="text-[10px] text-neutral-500 uppercase tracking-wider">Standard Size</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                            50ml Price (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            required
+                            value={formData.price_50ml || formData.price}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setFormData((prev) => ({
+                                ...prev,
+                                price_50ml: val,
+                                price: prev.price === '' || prev.price === prev.price_50ml ? val : prev.price,
+                              }));
+                            }}
+                            placeholder="1899"
+                            className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                            50ml Sale (₹)
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={formData.sale_price_50ml}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setFormData((prev) => ({
+                                ...prev,
+                                sale_price_50ml: val,
+                                sale_price: prev.sale_price === '' || prev.sale_price === prev.sale_price_50ml ? val : prev.sale_price,
+                              }));
+                            }}
+                            placeholder="Optional"
+                            className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    {/* 100 ML Tier */}
+                    <div className="p-3 bg-white rounded border border-neutral-200 space-y-3 shadow-xs">
+                      <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-black">
+                          100 ML Flacon
+                        </span>
+                        <span className="text-[10px] text-neutral-500 uppercase tracking-wider">Grand Size</span>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                            100ml Price (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={formData.price_100ml}
+                            onChange={(e) => setFormData({ ...formData, price_100ml: e.target.value })}
+                            placeholder="2899"
+                            className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                            100ml Sale (₹)
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={formData.sale_price_100ml}
+                            onChange={(e) => setFormData({ ...formData, sale_price_100ml: e.target.value })}
+                            placeholder="Optional"
+                            className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Option 2: Single Dedicated Size (e.g. 200ml Body Cream, Jar, 250g Candle) */}
+                {formData.size_selector_type === 'single' && (
+                  <div className="p-4 bg-white rounded border border-neutral-300 space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between border-b border-neutral-200 pb-2">
+                      <span className="text-xs font-semibold uppercase tracking-wider text-black">
+                        Single Size Product (No Flacon Toggle)
+                      </span>
+                      <span className="text-[10px] font-mono uppercase bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">
+                        Jar / Cream / Single Volume
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                       <div>
                         <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                          50ml Price (₹) *
+                          Volume / Size Code *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.single_size}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            const num = parseInt(val.replace(/\D/g, '')) || formData.volume_ml;
+                            setFormData((prev) => ({
+                              ...prev,
+                              single_size: val,
+                              volume_label: val.toUpperCase(),
+                              volume_ml: num,
+                            }));
+                          }}
+                          placeholder="e.g. 200ml, 250g"
+                          className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                          Container / Presentation
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.single_label}
+                          onChange={(e) => setFormData({ ...formData, single_label: e.target.value })}
+                          placeholder="e.g. Luxury Jar, Signature Vessel"
+                          className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                          Price (₹) *
                         </label>
                         <input
                           type="number"
                           step="0.01"
                           required
-                          value={formData.price_50ml || formData.price}
+                          value={formData.single_price || formData.price}
                           onChange={(e) => {
                             const val = e.target.value;
                             setFormData((prev) => ({
                               ...prev,
+                              single_price: val,
+                              price: val,
                               price_50ml: val,
-                              price: prev.price === '' || prev.price === prev.price_50ml ? val : prev.price,
                             }));
                           }}
-                          placeholder="1899"
+                          placeholder="999"
                           className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
                         />
                       </div>
 
                       <div>
                         <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                          50ml Sale (₹)
+                          Sale Price (₹)
                         </label>
                         <input
                           type="number"
                           step="0.01"
-                          value={formData.sale_price_50ml}
+                          value={formData.single_sale_price}
                           onChange={(e) => {
                             const val = e.target.value;
                             setFormData((prev) => ({
                               ...prev,
+                              single_sale_price: val,
+                              sale_price: val,
                               sale_price_50ml: val,
-                              sale_price: prev.sale_price === '' || prev.sale_price === prev.sale_price_50ml ? val : prev.sale_price,
                             }));
                           }}
-                          placeholder="Optional"
+                          placeholder="599"
                           className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
                         />
                       </div>
                     </div>
-                  </div>
 
-                  {/* 100 ML Tier */}
-                  <div className="p-3 bg-white rounded border border-neutral-200 space-y-3 shadow-xs">
-                    <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-black">
-                        100 ML Flacon
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
+                        Specification Subtitle / Fl Oz Note (Shown on Product Page)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.single_sublabel}
+                        onChange={(e) => setFormData({ ...formData, single_sublabel: e.target.value })}
+                        placeholder="e.g. 6.7 FL OZ / 200 ML • Crème Pour Le Corps"
+                        className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Option 3: Custom Multi-Sizes */}
+                {formData.size_selector_type === 'custom' && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-neutral-700 uppercase tracking-wider">
+                        Configured Sizes ({formData.custom_sizes.length})
                       </span>
-                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider">Grand Size</span>
+                      <button
+                        type="button"
+                        onClick={handleAddCustomSize}
+                        className="px-2.5 py-1 text-xs bg-black text-white rounded hover:bg-neutral-800 transition-colors inline-flex items-center gap-1"
+                      >
+                        + Add Size Option
+                      </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                          100ml Price (₹) *
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={formData.price_100ml}
-                          onChange={(e) => setFormData({ ...formData, price_100ml: e.target.value })}
-                          placeholder="2899"
-                          className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] uppercase tracking-wider text-neutral-700 mb-1 font-medium">
-                          100ml Sale (₹)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={formData.sale_price_100ml}
-                          onChange={(e) => setFormData({ ...formData, sale_price_100ml: e.target.value })}
-                          placeholder="Optional"
-                          className="w-full bg-neutral-50 border border-neutral-300 focus:border-black rounded px-2.5 py-1.5 text-xs text-black focus:outline-none font-mono"
-                        />
-                      </div>
+                    <div className="space-y-2">
+                      {formData.custom_sizes.map((cs, idx) => (
+                        <div key={idx} className="p-3 bg-white rounded border border-neutral-200 grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
+                          <div>
+                            <label className="block text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">
+                              Size (e.g. 30ml)
+                            </label>
+                            <input
+                              type="text"
+                              value={cs.size}
+                              onChange={(e) => handleUpdateCustomSize(idx, 'size', e.target.value)}
+                              placeholder="50ml"
+                              className="w-full bg-neutral-50 border border-neutral-300 rounded px-2 py-1 text-xs font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">
+                              Display Label
+                            </label>
+                            <input
+                              type="text"
+                              value={cs.label}
+                              onChange={(e) => handleUpdateCustomSize(idx, 'label', e.target.value)}
+                              placeholder="Standard Flacon"
+                              className="w-full bg-neutral-50 border border-neutral-300 rounded px-2 py-1 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">
+                              Price (₹)
+                            </label>
+                            <input
+                              type="number"
+                              value={cs.price}
+                              onChange={(e) => handleUpdateCustomSize(idx, 'price', e.target.value)}
+                              placeholder="999"
+                              className="w-full bg-neutral-50 border border-neutral-300 rounded px-2 py-1 text-xs font-mono"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] uppercase tracking-wider text-neutral-500 mb-0.5">
+                              Sale Price (₹)
+                            </label>
+                            <input
+                              type="number"
+                              value={cs.sale_price ?? ''}
+                              onChange={(e) => handleUpdateCustomSize(idx, 'sale_price', e.target.value ? Number(e.target.value) : null)}
+                              placeholder="Optional"
+                              className="w-full bg-neutral-50 border border-neutral-300 rounded px-2 py-1 text-xs font-mono"
+                            />
+                          </div>
+                          <div className="flex items-center gap-2 pt-3">
+                            <input
+                              type="text"
+                              value={cs.sublabel || ''}
+                              onChange={(e) => handleUpdateCustomSize(idx, 'sublabel', e.target.value)}
+                              placeholder="Sublabel info"
+                              className="w-full bg-neutral-50 border border-neutral-300 rounded px-2 py-1 text-xs"
+                            />
+                            {formData.custom_sizes.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveCustomSize(idx)}
+                                className="text-red-500 hover:text-red-700 px-1 text-base font-bold"
+                                title="Remove Size"
+                              >
+                                &times;
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Available Stock Quantity */}
                 <div className="pt-2 border-t border-neutral-200">

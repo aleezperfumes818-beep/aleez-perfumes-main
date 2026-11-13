@@ -40,30 +40,65 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
   const { formatPrice, getWhatsAppUrl } = useSettings();
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState<'50ml' | '100ml'>('50ml');
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [isZoomModalOpen, setIsZoomModalOpen] = useState(false);
 
+  // Determine available size options for this product
+  const defaultSizeOptions = [
+    {
+      size: '50ml',
+      label: 'Artisanal Flacon',
+      price: product.price_50ml ?? product.price,
+      sale_price: product.sale_price_50ml !== undefined ? product.sale_price_50ml : product.sale_price,
+      sublabel: '4–6 months daily wear',
+      sprays_info: '~500 Luxury Sprays',
+    },
+    {
+      size: '100ml',
+      label: 'Best Value',
+      price: product.price_100ml ?? Math.round(product.price * 1.6),
+      sale_price:
+        product.sale_price_100ml !== undefined
+          ? product.sale_price_100ml
+          : product.sale_price
+          ? Math.round(product.sale_price * 1.6)
+          : null,
+      sublabel: '9–12 months daily wear',
+      sprays_info: '~1,000 Luxury Sprays',
+    },
+  ];
+
+  const sizeOptions =
+    product.size_options && product.size_options.length > 0
+      ? product.size_options
+      : product.size_selector_type === 'single' || (product.volume_ml && product.volume_ml !== 50 && product.volume_ml !== 100)
+      ? [
+          {
+            size: product.volume_label?.toLowerCase() || `${product.volume_ml || 200}ml`,
+            label: 'Luxury Volume',
+            price: product.price_50ml ?? product.price,
+            sale_price: product.sale_price_50ml !== undefined ? product.sale_price_50ml : product.sale_price,
+            sublabel: 'Artisanal Formulation',
+            sprays_info: product.volume_label || `${product.volume_ml || 200} ML`,
+          },
+        ]
+      : defaultSizeOptions;
+
+  const [selectedSize, setSelectedSize] = useState<string>(
+    sizeOptions[0]?.size || '50ml'
+  );
+
+  const activeOption =
+    sizeOptions.find((opt) => opt.size.toLowerCase() === selectedSize.toLowerCase()) ||
+    sizeOptions[0];
+
   const isWished = isInWishlist(product.id);
   const isOutOfStock = product.stock_quantity <= 0;
 
-  // Separate 50ml and 100ml pricing
-  const price50 = product.price_50ml ?? product.price;
-  const salePrice50 =
-    product.sale_price_50ml !== undefined ? product.sale_price_50ml : product.sale_price;
-
-  const price100 = product.price_100ml ?? Math.round(product.price * 1.6);
-  const salePrice100 =
-    product.sale_price_100ml !== undefined
-      ? product.sale_price_100ml
-      : product.sale_price
-      ? Math.round(product.sale_price * 1.6)
-      : null;
-
-  const activeRegularPrice = selectedSize === '50ml' ? price50 : price100;
-  const activeSalePrice = selectedSize === '50ml' ? salePrice50 : salePrice100;
+  const activeRegularPrice = activeOption.price;
+  const activeSalePrice = activeOption.sale_price;
   const currentPrice =
     activeSalePrice !== null && activeSalePrice !== undefined
       ? activeSalePrice
@@ -203,7 +238,7 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
               <div className="bg-white/95 backdrop-blur-md px-3.5 py-1.5 border border-neutral-200 text-[11px] font-mono text-black shadow-sm flex items-center space-x-2">
                 <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
                 <span className="uppercase tracking-wider font-semibold">
-                  Hand-Poured &bull; {selectedSize.toUpperCase()}
+                  Hand-Poured &bull; {activeOption.size.toUpperCase()}
                 </span>
               </div>
               <div className="bg-black/90 text-white backdrop-blur-md px-3 py-1.5 text-[10px] uppercase tracking-widest font-mono shadow-sm">
@@ -299,98 +334,103 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
           </div>
 
           {/* ======================================================================= */}
-          {/* 1. FLACON VOLUME SELECTOR (50 ML vs 100 ML)                              */}
+          {/* 1. VOLUME / SIZE SELECTOR                                               */}
           {/* ======================================================================= */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="block text-xs uppercase tracking-[0.2em] text-black font-bold">
-                Select Flacon Volume
-              </label>
-              <span className="text-[11px] text-neutral-500 font-mono">
-                {selectedSize === '50ml' ? '~500 Luxury Sprays' : '~1,000 Luxury Sprays'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              {/* 50 ML Option */}
-              <button
-                type="button"
-                onClick={() => setSelectedSize('50ml')}
-                className={`p-4 border text-left transition-all duration-200 flex flex-col justify-between ${
-                  selectedSize === '50ml'
-                    ? 'border-black bg-black text-white shadow-md'
-                    : 'border-neutral-200 bg-white text-black hover:border-black'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full mb-1">
-                  <span className="font-serif text-sm font-semibold tracking-wider">50 ML</span>
-                  <span
-                    className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 ${
-                      selectedSize === '50ml'
-                        ? 'bg-neutral-800 text-neutral-200'
-                        : 'bg-neutral-100 text-neutral-700'
-                    }`}
-                  >
-                    Artisanal Flacon
+          {sizeOptions.length === 1 ? (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs uppercase tracking-[0.2em] text-black font-bold">
+                  Net Volume / Size
+                </label>
+                <span className="text-[11px] text-neutral-500 font-mono">
+                  {activeOption.sprays_info || activeOption.size.toUpperCase()}
+                </span>
+              </div>
+              <div className="p-3.5 bg-neutral-50 border border-neutral-300 rounded-sm flex items-center justify-between">
+                <div className="flex items-center space-x-2.5">
+                  <span className="w-2 h-2 rounded-full bg-black" />
+                  <span className="font-serif text-sm font-semibold tracking-wider text-black uppercase">
+                    {activeOption.size.toUpperCase()}
                   </span>
-                </div>
-                <div className="font-mono text-xs font-semibold pt-2">
-                  {formatPrice(salePrice50 ?? price50)}
-                  {salePrice50 && (
-                    <span className="ml-2 line-through font-normal text-[10px] text-neutral-400">
-                      {formatPrice(price50)}
+                  {activeOption.label && (
+                    <span className="text-[10px] uppercase tracking-wider font-semibold bg-neutral-200 text-neutral-800 px-2 py-0.5 rounded-xs">
+                      {activeOption.label}
                     </span>
                   )}
                 </div>
-                <span
-                  className={`text-[10px] font-light mt-1 block ${
-                    selectedSize === '50ml' ? 'text-neutral-300' : 'text-neutral-500'
-                  }`}
-                >
-                  4–6 months daily wear
+                <span className="text-xs text-neutral-600 font-light">
+                  {activeOption.sublabel || 'Artisanal Batch Presentation'}
                 </span>
-              </button>
-
-              {/* 100 ML Option */}
-              <button
-                type="button"
-                onClick={() => setSelectedSize('100ml')}
-                className={`p-4 border text-left transition-all duration-200 flex flex-col justify-between ${
-                  selectedSize === '100ml'
-                    ? 'border-black bg-black text-white shadow-md'
-                    : 'border-neutral-200 bg-white text-black hover:border-black'
-                }`}
-              >
-                <div className="flex items-center justify-between w-full mb-1">
-                  <span className="font-serif text-sm font-semibold tracking-wider">100 ML</span>
-                  <span
-                    className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 font-bold ${
-                      selectedSize === '100ml'
-                        ? 'bg-white text-black'
-                        : 'bg-black text-white'
-                    }`}
-                  >
-                    Best Value
-                  </span>
-                </div>
-                <div className="font-mono text-xs font-semibold pt-2">
-                  {formatPrice(salePrice100 ?? price100)}
-                  {salePrice100 && (
-                    <span className="ml-2 line-through font-normal text-[10px] text-neutral-400">
-                      {formatPrice(price100)}
-                    </span>
-                  )}
-                </div>
-                <span
-                  className={`text-[10px] font-light mt-1 block ${
-                    selectedSize === '100ml' ? 'text-neutral-300' : 'text-neutral-500'
-                  }`}
-                >
-                  9–12 months daily wear
-                </span>
-              </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs uppercase tracking-[0.2em] text-black font-bold">
+                  {product.category_name?.toLowerCase().includes('cream') || product.category_name?.toLowerCase().includes('butter') || product.name.toLowerCase().includes('cream') || product.name.toLowerCase().includes('butter')
+                    ? 'Select Jar Volume'
+                    : 'Select Flacon Volume'}
+                </label>
+                <span className="text-[11px] text-neutral-500 font-mono">
+                  {activeOption.sprays_info || `${activeOption.size.toUpperCase()}`}
+                </span>
+              </div>
+
+              <div className={`grid grid-cols-${Math.min(sizeOptions.length, 3)} gap-3`}>
+                {sizeOptions.map((opt) => {
+                  const isSelected = selectedSize.toLowerCase() === opt.size.toLowerCase();
+                  const optPrice = opt.price;
+                  const optSalePrice = opt.sale_price;
+                  return (
+                    <button
+                      key={opt.size}
+                      type="button"
+                      onClick={() => setSelectedSize(opt.size)}
+                      className={`p-4 border text-left transition-all duration-200 flex flex-col justify-between ${
+                        isSelected
+                          ? 'border-black bg-black text-white shadow-md'
+                          : 'border-neutral-200 bg-white text-black hover:border-black'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <span className="font-serif text-sm font-semibold tracking-wider uppercase">
+                          {opt.size.toUpperCase()}
+                        </span>
+                        {opt.label && (
+                          <span
+                            className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 font-bold ${
+                              isSelected
+                                ? 'bg-neutral-800 text-neutral-200'
+                                : 'bg-neutral-100 text-neutral-700'
+                            }`}
+                          >
+                            {opt.label}
+                          </span>
+                        )}
+                      </div>
+                      <div className="font-mono text-xs font-semibold pt-2">
+                        {formatPrice(optSalePrice ?? optPrice)}
+                        {optSalePrice && (
+                          <span className="ml-2 line-through font-normal text-[10px] text-neutral-400">
+                            {formatPrice(optPrice)}
+                          </span>
+                        )}
+                      </div>
+                      {opt.sublabel && (
+                        <span
+                          className={`text-[10px] font-light mt-1 block ${
+                            isSelected ? 'text-neutral-300' : 'text-neutral-500'
+                          }`}
+                        >
+                          {opt.sublabel}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Stock Indicator */}
           <div>
@@ -456,7 +496,7 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
                 {justAdded ? (
                   <>
                     <Check className="w-4 h-4 text-white" />
-                    <span>Added ({selectedSize.toUpperCase()} Extrait)</span>
+                    <span>Added ({activeOption.size.toUpperCase()})</span>
                   </>
                 ) : (
                   <>
@@ -540,7 +580,7 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
                 {justAdded ? (
                   <>
                     <Check className="w-4 h-4 text-white" />
-                    <span>Added ({selectedSize.toUpperCase()} Extrait)</span>
+                    <span>Added ({activeOption.size.toUpperCase()})</span>
                   </>
                 ) : (
                   <>
@@ -558,7 +598,7 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
                 onClick={handleBuyNow}
                 className="w-full py-3.5 bg-white border-2 border-black text-black hover:bg-black hover:text-white text-xs uppercase tracking-[0.22em] font-bold transition-all duration-300 shadow-sm"
               >
-                Instant Buy Now ({selectedSize.toUpperCase()})
+                Instant Buy Now ({activeOption.size.toUpperCase()})
               </button>
             )}
 
@@ -632,7 +672,7 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
               className="max-h-[80vh] w-auto object-contain shadow-2xl"
             />
             <p className="text-white text-xs font-mono uppercase tracking-widest mt-4">
-              {product.name} &bull; {selectedSize.toUpperCase()} Extrait De Parfum
+              {product.name} &bull; {activeOption.size.toUpperCase()}
             </p>
           </div>
         </div>
@@ -678,7 +718,7 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
           <div className="text-xs font-serif font-bold text-black truncate">{product.name}</div>
           <div className="text-xs font-mono font-semibold text-neutral-900 flex items-center space-x-1.5">
             <span>{formatPrice(currentPrice * quantity)}</span>
-            <span className="text-[10px] text-neutral-500 font-normal">({selectedSize})</span>
+            <span className="text-[10px] text-neutral-500 font-normal">({activeOption.size.toUpperCase()})</span>
           </div>
         </div>
         <button
