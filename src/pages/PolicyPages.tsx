@@ -49,9 +49,8 @@ export const PrivacyPolicyPage: React.FC = () => {
             Under the Digital Personal Data Protection Act 2023 (DPDP Act) and applicable international standards, the legal entity acting as the Data Fiduciary is:
           </p>
           <div className="p-4 bg-white border border-neutral-200 rounded-xl text-xs text-neutral-700 space-y-1 font-light">
-            <p><strong>Legal Entity:</strong> Aleez Perfumes & Fragrances Private Limited</p>
+            <p><strong>Legal Entity:</strong> Aleez Perfumes</p>
             <p><strong>Trade Brand:</strong> Aleez Perfumes</p>
-            <p><strong>Corporate Tax Registration:</strong> GSTIN: 33AAICA1234F1Z5</p>
             <p><strong>Official Contact Email:</strong> contact@aleezperfumes.com</p>
             <p><strong>Customer Care & Concierge WhatsApp:</strong> +91 93455 26905</p>
           </div>
@@ -68,7 +67,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               <strong>Contact & Recipient Details:</strong> Full name, telephone/WhatsApp number, and delivery street address with PIN code. Used exclusively to package and route your parcel via express couriers.
             </li>
             <li>
-              <strong>Electronic Communication:</strong> Email address. Used to transmit digital order confirmations, GST invoices, dispatch tracking links, and responses to your custom formulation inquiries.
+              <strong>Electronic Communication:</strong> Email address. Used to transmit digital order confirmations, order invoices, dispatch tracking links, and responses to your custom formulation inquiries.
             </li>
             <li>
               <strong>Custom Scent Formulation Notes:</strong> Scent preferences, custom note selections, and custom bottle engraving names submitted via our Interactive Scent Studio.
@@ -173,7 +172,7 @@ export const PrivacyPolicyPage: React.FC = () => {
         <section className="space-y-2">
           <h2 className="font-serif text-xl text-black font-medium">7. Data Retention & Statutory Accounting</h2>
           <p>
-            We retain account data for as long as your profile remains active. Upon a verified erasure request, account profiles are wiped within 30 days. However, under Section 36 of the Indian Central Goods and Services Tax (CGST) Act, physical and digital invoices must be preserved for statutory tax audit periods (6 financial years).
+            We retain account data for as long as your profile remains active. Upon a verified erasure request, account profiles are wiped within 30 days. However, under statutory financial audit standards, transaction records and orders must be preserved for legal tax compliance periods (6 financial years).
           </p>
         </section>
 
@@ -230,11 +229,10 @@ export const TermsPage: React.FC = () => {
         <section className="space-y-2">
           <h2 className="font-serif text-xl text-black font-medium">1. Overview & Business Information</h2>
           <p>
-            This website is owned and operated by <strong>Aleez Perfumes & Fragrances Private Limited</strong> (Trade Name: "Aleez Perfumes"). Throughout the site, terms "we", "us", and "our" refer to Aleez Perfumes. By accessing our platform, creating custom fragrance formulations, or placing an order, you agree to be bound by these Terms & Conditions.
+            This website is owned and operated by <strong>Aleez Perfumes</strong>. Throughout the site, terms "we", "us", and "our" refer to Aleez Perfumes. By accessing our platform, creating custom fragrance formulations, or placing an order, you agree to be bound by these Terms & Conditions.
           </p>
           <div className="p-4 bg-neutral-50 border border-neutral-200 rounded-xl text-xs space-y-1">
             <p><strong>Official Inquiries:</strong> contact@aleezperfumes.com | Phone: +91 93455 26905</p>
-            <p><strong>GSTIN:</strong> 33AAICA1234F1Z5</p>
           </div>
         </section>
 
@@ -246,13 +244,13 @@ export const TermsPage: React.FC = () => {
           </p>
           <ul className="list-disc list-inside space-y-1.5 text-xs text-neutral-600 pl-2">
             <li>
-              <strong>All-Inclusive Prices:</strong> All prices listed on Aleez Perfumes are displayed in Indian Rupees (₹ INR) and are strictly inclusive of all applicable Goods and Services Tax (GST).
+              <strong>All-Inclusive Prices:</strong> All prices listed on Aleez Perfumes are displayed in Indian Rupees (₹ INR) and are strictly inclusive of all applicable taxes.
             </li>
             <li>
               <strong>Zero Surprise Fees:</strong> There are no hidden handling fees, packaging surcharges, or arbitrary payment gateway convenience fees added during checkout.
             </li>
             <li>
-              <strong>Express Shipping Threshold:</strong> Complimentary express shipping across India is automatically applied on all orders totaling ₹999 or more. For orders below ₹999, a flat shipping fee of ₹99 is visibly calculated prior to payment.
+              <strong>Express Shipping:</strong> Complimentary express shipping across India is automatically applied on all orders.
             </li>
           </ul>
         </section>

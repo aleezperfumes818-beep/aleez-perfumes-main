@@ -110,7 +110,7 @@ export const DataDeletionPage: React.FC = () => {
               <span>Statutory Legal Accounting Retention Notice</span>
             </div>
             <p className="font-light leading-relaxed text-neutral-700">
-              Pursuant to the Indian Goods and Services Tax (GST) Act 2017 and Company Law statutory audit standards, financial invoices and transaction proof must be securely archived for 6 financial years. Non-transactional data (marketing profiles, wishlist, account credentials, browsing logs) will be permanently purged immediately.
+              Pursuant to standard statutory financial audit and tax compliance standards, financial invoices and transaction proof must be securely archived for 6 financial years. Non-transactional data (marketing profiles, wishlist, account credentials, browsing logs) will be permanently purged immediately.
             </p>
           </div>
 

@@ -55,24 +55,14 @@ export const CartPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           {/* Items Table */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="p-4 bg-white border border-neutral-200 rounded-sm space-y-2 shadow-sm">
-              <div className="flex justify-between items-center text-xs text-neutral-600">
-                <span className="flex items-center space-x-1.5 font-light">
-                  <Truck className="w-4 h-4 text-black" />
-                  <span>
-                    {amountNeeded > 0
-                      ? `Add ${formatPrice(amountNeeded)} more to qualify for Free Luxury Shipping`
-                      : 'You have unlocked Free Luxury Shipping across India!'}
-                  </span>
-                </span>
-                <span className="font-mono text-black font-semibold">{progressToFreeShipping}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-black transition-all duration-500 rounded-full"
-                  style={{ width: `${progressToFreeShipping}%` }}
-                />
-              </div>
+            <div className="p-3.5 bg-neutral-50 border border-neutral-200 rounded-sm flex items-center justify-between text-xs text-neutral-800 shadow-xs">
+              <span className="flex items-center space-x-2 font-medium">
+                <Truck className="w-4 h-4 text-black" />
+                <span>Complimentary Express Shipping Across India</span>
+              </span>
+              <span className="text-[10px] uppercase tracking-wider font-semibold bg-black text-white px-2 py-0.5 rounded-xs">
+                Free
+              </span>
             </div>
 
             {/* List */}

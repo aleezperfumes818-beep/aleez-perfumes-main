@@ -155,7 +155,7 @@ export const AdminSettings: React.FC = () => {
               name="announcement_bar"
               value={formData.announcement_bar}
               onChange={handleChange}
-              placeholder="e.g. Complimentary luxury express shipping across India on all orders above ₹999"
+              placeholder="e.g. Complimentary luxury express shipping across India on all orders"
               className="w-full bg-stone-50 border border-luxury-border focus:border-luxury-gold rounded px-3 py-2 text-xs text-luxury-dark focus:outline-none"
             />
           </div>

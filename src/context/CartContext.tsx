@@ -31,8 +31,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 const CART_STORAGE_KEY = 'aleez_perfumes_cart';
 const COUPON_STORAGE_KEY = 'aleez_perfumes_coupon';
-const FREE_SHIPPING_THRESHOLD = 999;
-const STANDARD_SHIPPING_FEE = 99;
+const FREE_SHIPPING_THRESHOLD = 0;
+const STANDARD_SHIPPING_FEE = 0;
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>(() => {

@@ -338,9 +338,9 @@ app.post('/api/razorpay/create-order', orderLimiter, async (req, res) => {
       }
     }
 
-    // Free shipping threshold is ₹999, otherwise ₹99 standard shipping
-    const isFreeShipping = cleanCouponCode === 'FREESHIP' || validatedSubtotal >= 999;
-    const shippingCharge = isFreeShipping ? 0 : 99;
+    // Complimentary express shipping across India on all orders
+    const isFreeShipping = true;
+    const shippingCharge = 0;
     const finalTotal = Math.max(0, validatedSubtotal - validatedDiscount) + shippingCharge;
     const orderNumber = `ALZ-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 

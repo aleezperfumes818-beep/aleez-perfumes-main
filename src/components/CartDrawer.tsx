@@ -91,25 +91,15 @@ export const CartDrawer: React.FC = () => {
             </button>
           </div>
 
-          {/* Free Shipping Progress Indicator */}
-          <div className="px-5 py-3 bg-neutral-50 border-b border-neutral-200 text-xs">
-            <div className="flex justify-between items-center mb-1.5 text-neutral-700">
-              <span className="flex items-center space-x-1.5">
-                <Truck className="w-3.5 h-3.5 text-black" />
-                <span>
-                  {amountNeededForFreeShipping > 0
-                    ? `Add ${formatPrice(amountNeededForFreeShipping)} more for FREE Express Shipping`
-                    : 'You have unlocked Complimentary Express Shipping!'}
-                </span>
-              </span>
-              <span className="font-mono text-black font-semibold">{progressToFreeShipping}%</span>
-            </div>
-            <div className="w-full h-1.5 bg-neutral-200 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-black transition-all duration-500 rounded-full"
-                style={{ width: `${progressToFreeShipping}%` }}
-              />
-            </div>
+          {/* Free Shipping Badge */}
+          <div className="px-5 py-2.5 bg-neutral-50 border-b border-neutral-200 text-xs flex items-center justify-between text-neutral-800">
+            <span className="flex items-center space-x-1.5 font-medium">
+              <Truck className="w-3.5 h-3.5 text-black" />
+              <span>Complimentary Express Shipping Across India</span>
+            </span>
+            <span className="text-[10px] uppercase tracking-wider font-semibold bg-black text-white px-2 py-0.5 rounded-xs">
+              Free
+            </span>
           </div>
 
           {/* Cart Item List */}

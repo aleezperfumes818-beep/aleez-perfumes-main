@@ -11,9 +11,9 @@ export const initialSettings: StoreSettings = {
   instagram_url: "https://instagram.com/aleez.parfums",
   currency: "INR",
   currency_symbol: "₹",
-  free_shipping_threshold: 999,
-  standard_shipping_fee: 99,
-  announcement_bar: "Complimentary luxury express shipping across India on orders above ₹999",
+  free_shipping_threshold: 0,
+  standard_shipping_fee: 0,
+  announcement_bar: "Complimentary luxury express shipping across India on all orders",
   is_store_open: true,
 };
 
@@ -537,7 +537,7 @@ export const initialHomepageContent: HomepageContent = {
     {
       id: "pil-1",
       title: "Express Shipping",
-      description: "Complimentary luxury shipping across India on orders above ₹999.",
+      description: "Complimentary luxury shipping across India on all orders.",
       icon: "Truck",
     },
     {

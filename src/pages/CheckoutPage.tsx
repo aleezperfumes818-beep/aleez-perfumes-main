@@ -675,7 +675,7 @@ export const CheckoutPage: React.FC = () => {
               </div>
               <div className="pt-2 text-[11px] text-neutral-500 font-light flex items-center space-x-1">
                 <CheckCircle2 className="w-3.5 h-3.5 text-black flex-shrink-0" aria-hidden="true" />
-                <span>Zero hidden fees • All prices inclusive of GST</span>
+                <span>Zero hidden fees • All prices inclusive of taxes</span>
               </div>
               <div className="pt-3 border-t border-neutral-200 flex justify-between text-base font-serif text-black">
                 <span>Total Amount</span>

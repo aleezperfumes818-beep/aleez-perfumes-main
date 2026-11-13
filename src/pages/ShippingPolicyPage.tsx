@@ -19,7 +19,7 @@ export const ShippingPolicyPage: React.FC = () => {
           <Truck className="w-5 h-5 text-black" />
           <h3 className="font-medium text-black text-sm">Free Express Shipping</h3>
           <p className="text-xs text-neutral-600 font-light">
-            Complimentary delivery across India on orders above ₹999. Standard fee of ₹99 applies below threshold.
+            Complimentary express delivery across all states in India on all orders.
           </p>
         </div>
         <div className="p-5 rounded-xl bg-white border border-neutral-200 space-y-2 shadow-sm">

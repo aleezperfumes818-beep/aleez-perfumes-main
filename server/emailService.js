@@ -191,7 +191,7 @@ export const sendWelcomeEmail = async ({ email, name }) => {
         <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #444;">
           <li style="margin-bottom: 6px;">Priority access to limited batch extraits &amp; macerated attars.</li>
           <li style="margin-bottom: 6px;">Seamless order tracking and bespoke wishlist history.</li>
-          <li>Complimentary luxury discovery samples with all boutique orders over &#8377;999.</li>
+          <li>Complimentary luxury discovery samples with boutique orders.</li>
         </ul>
       </div>
 

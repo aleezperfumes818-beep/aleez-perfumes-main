@@ -592,7 +592,7 @@ export const EcommerceProductPage: React.FC<EcommerceProductPageProps> = ({
           <div className="pt-6 border-t border-neutral-200 space-y-3 text-xs text-neutral-600 font-light">
             <div className="flex items-center space-x-3">
               <Truck className="w-4 h-4 text-black flex-shrink-0" />
-              <span>Complimentary insured express delivery across India on orders &gt; ₹999.</span>
+              <span>Complimentary insured express delivery across India on all orders.</span>
             </div>
             <div className="flex items-center space-x-3">
               <ShieldCheck className="w-4 h-4 text-black flex-shrink-0" />

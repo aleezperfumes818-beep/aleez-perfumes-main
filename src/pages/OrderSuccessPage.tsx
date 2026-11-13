@@ -180,7 +180,7 @@ export const OrderSuccessPage: React.FC = () => {
             <div className="pt-3 border-t border-neutral-200 flex justify-between text-sm">
               <div>
                 <span className="text-black font-medium block">Total Paid</span>
-                <span className="text-[11px] text-neutral-500 font-light">Inclusive of all taxes (GST) • Zero hidden fees</span>
+                <span className="text-[11px] text-neutral-500 font-light">Inclusive of all taxes • Zero hidden fees</span>
               </div>
               <span className="font-mono text-black font-bold text-base">
                 {formatPrice(order.total_amount)}

@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
           <div className="flex flex-col items-center text-center p-3">
             <Truck className="w-6 h-6 text-black mb-3" aria-hidden="true" />
             <h4 className="text-xs uppercase tracking-widest text-black font-semibold mb-1">Pan-India Express</h4>
-            <p className="text-[12px] text-neutral-600 font-light">Free delivery on orders over ₹999</p>
+            <p className="text-[12px] text-neutral-600 font-light">Complimentary express delivery</p>
           </div>
           <div className="flex flex-col items-center text-center p-3">
             <ShieldCheck className="w-6 h-6 text-black mb-3" aria-hidden="true" />
@@ -173,10 +173,7 @@ export const Footer: React.FC = () => {
             <h3 className="text-xs uppercase tracking-[0.2em] font-semibold text-black">Business Details</h3>
             <div className="space-y-2.5 text-xs text-neutral-600 font-light leading-relaxed">
               <div>
-                <span className="font-semibold text-black block">Aleez Perfumes & Fragrances Pvt Ltd</span>
-                <span className="text-[11px] font-mono text-neutral-700 block mt-0.5">
-                  GSTIN: 33AAICA1234F1Z5
-                </span>
+                <span className="font-semibold text-black block">Aleez Perfumes</span>
               </div>
 
               <div className="pt-1 border-t border-neutral-200">
@@ -217,9 +214,9 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Disclaimer & Copyright */}
         <div className="pt-8 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 space-y-3 sm:space-y-0">
-          <p>© 2026 Aleez Perfumes & Fragrances Private Limited. All rights reserved.</p>
+          <p>© 2026 Aleez Perfumes. All rights reserved.</p>
           <p className="text-[11px] text-neutral-500 text-center sm:text-right">
-            Online luxury fragrance atelier. All prices inclusive of GST. Prepaid online checkout secured with 256-bit Razorpay encryption.
+            Online luxury fragrance atelier. All prices inclusive of taxes. Prepaid online checkout secured with 256-bit Razorpay encryption.
           </p>
         </div>
       </div>

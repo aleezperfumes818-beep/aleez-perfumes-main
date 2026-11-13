@@ -141,9 +141,8 @@ export const ContactPage: React.FC = () => {
               <h3 className="font-serif text-lg text-black font-medium">Registered Business Information</h3>
             </div>
             <div className="text-xs text-neutral-700 space-y-1.5 font-light leading-relaxed">
-              <p><strong>Legal Entity:</strong> Aleez Perfumes & Fragrances Private Limited</p>
+              <p><strong>Legal Entity:</strong> Aleez Perfumes</p>
               <p><strong>Trade Brand:</strong> Aleez Perfumes</p>
-              <p><strong>Tax Identification:</strong> GSTIN: 33AAICA1234F1Z5</p>
               <p className="flex items-center space-x-1.5 pt-1">
                 <Clock className="w-3.5 h-3.5 text-black" aria-hidden="true" />
                 <span><strong>Concierge Hours:</strong> Open 24 Hours • 24/7 Online Support</span>
